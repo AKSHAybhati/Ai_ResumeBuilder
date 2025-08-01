@@ -18,6 +18,10 @@ const enhancementOptions = [
   "education",
   "skills",
   "achievements",
+  "projects",
+  "certifications",
+  "languages",
+  "interests",
 ];
 
 const Sidebar = ({ onEnhance, resumeRef }) => {
@@ -25,42 +29,36 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [enhancingSection, setEnhancingSection] = useState(null);
-  const [downloadRequested, setDownloadRequested] = useState(false); // ✅
+  const [downloadRequested, setDownloadRequested] = useState(false);
 
   const handleDownloadPDF = () => {
-    console.log("✅ Download button clicked");
     setDownloadRequested(true);
   };
 
   useEffect(() => {
-  if (downloadRequested && resumeRef?.current) {
-    console.log("📄 resumeRef.current:", resumeRef.current);
+    if (downloadRequested && resumeRef?.current) {
+      const element = resumeRef.current;
 
-    const element = resumeRef.current;
+      setTimeout(() => {
+        html2pdf()
+          .set({
+            margin: 0.5,
+            filename: "My_Resume.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          })
+          .from(element)
+          .save()
+          .catch((err) => {
+            console.error("❌ PDF Download Error:", err);
+            alert("Something went wrong while generating the PDF.");
+          });
 
-    setTimeout(() => {
-      html2pdf()
-        .set({
-          margin: 0.5,
-          filename: "My_Resume.pdf",
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        })
-        .from(element)
-        .save()
-        .then(() => {
-          console.log("✅ Download triggered!");
-        })
-        .catch((err) => {
-          console.error("❌ PDF Download Error:", err);
-          alert("Something went wrong while generating the PDF.");
-        });
-
-      setDownloadRequested(false);
-    }, 300); // small delay to ensure DOM is rendered
-  }
-}, [downloadRequested, resumeRef]);
+        setDownloadRequested(false);
+      }, 300);
+    }
+  }, [downloadRequested, resumeRef]);
 
   const handleEnhanceSection = async (section) => {
     setEnhancingSection(section);
@@ -84,6 +82,23 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
       case "achievements":
         contentToSend = resumeData.achievements?.join("\n") || "";
         break;
+      case "projects":
+        contentToSend = resumeData.projects
+          ?.map(
+            (proj) =>
+              `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
+          )
+          .join("\n\n");
+        break;
+      case "certifications":
+        contentToSend = resumeData.certifications
+          ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
+          .join("\n");
+        break;
+      case "languages":
+      case "interests":
+        contentToSend = resumeData[section]?.join(", ");
+        break;
       default:
         contentToSend = JSON.stringify(resumeData[section]);
     }
@@ -96,24 +111,26 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
 
     const updated = { ...resumeData };
 
-    if (
-      section === "summary" ||
-      section === "skills" ||
-      section === "achievements"
-    ) {
-      updated[section] =
-        section === "skills"
-          ? aiResponse
-              .split("\n")
-              .map((s) => s.replace(/^[-*•]\s*/, "").trim())
-              .filter(Boolean)
-          : aiResponse;
+    if (["summary", "achievements", "languages", "interests"].includes(section)) {
+      updated[section] = aiResponse
+        .split("\n")
+        .map((s) => s.replace(/^[-*•]\s*/, "").trim())
+        .filter(Boolean);
+    } else if (section === "skills") {
+      updated.skills = aiResponse
+        .split(/,|\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
     } else if (section === "experience") {
       updated.experience[0].accomplishment = aiResponse
         .split("\n")
         .filter(Boolean);
     } else if (section === "education") {
       updated.educationText = aiResponse;
+    } else if (section === "projects") {
+      updated.projects[0].description = aiResponse;
+    } else if (section === "certifications") {
+      updated.certificationsText = aiResponse;
     } else {
       updated[section] = aiResponse;
     }
@@ -147,7 +164,6 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Enhance with AI */}
         <button
           className={`w-full flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition-all ${
             collapsed ? "justify-center px-2" : ""
@@ -159,7 +175,6 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
           {!collapsed && "Enhance with AI"}
         </button>
 
-        {/* Enhancement Options */}
         {showOptions && !collapsed && (
           <div className="pl-4 flex flex-col gap-2">
             {enhancementOptions.map((option) => (
@@ -172,16 +187,14 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
                 <FaMagic className="text-indigo-500" />
                 {enhancingSection === option
                   ? `Enhancing ${option}...`
-                  : `Enhance ${
-                      option.charAt(0).toUpperCase() + option.slice(1)
-                    }`}
+                  : `Enhance ${option.charAt(0).toUpperCase() + option.slice(1)}`}
               </button>
             ))}
           </div>
         )}
 
-        {/* Download PDF */}
         <button
+          disabled={downloadRequested}
           className={`w-full flex items-center gap-2 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-all ${
             collapsed ? "justify-center px-2" : ""
           }`}
@@ -192,7 +205,6 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
           {!collapsed && "Download PDF"}
         </button>
 
-        {/* Share Resume */}
         <button
           className={`w-full flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-all ${
             collapsed ? "justify-center px-2" : ""

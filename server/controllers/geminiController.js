@@ -1,4 +1,3 @@
-// controllers/geminiController.js
 const { getEnhancedText } = require("../services/geminiService");
 
 const enhanceSection = async (req, res) => {
@@ -14,7 +13,6 @@ const enhanceSection = async (req, res) => {
 
     const enhancedText = await getEnhancedText(prompt);
 
-    // Just send raw text back for now
     res.status(200).json({ enhanced: enhancedText });
   } catch (err) {
     console.error("❌ Enhancement Error:", err.message || err);
@@ -27,66 +25,144 @@ const generatePrompt = (section, data) => {
     case "summary":
       return `
 You are a professional resume writer. 
-Your task is to rewrite the following summary to be concise (2-3 lines max), clear, and impactful for a software developer applying to top tech companies.
+Rewrite the following summary to be concise (2-3 lines), clear, and impactful for a software developer applying to top tech companies.
 
 Instructions:
 - Remove filler or vague phrases.
 - Keep only the most impressive, relevant details.
-- Output as 2 or 3 clean sentences, no bullet points or asterisks.
-- Do NOT include quotes, brackets, or prefixes like 'Summary:'.
+- Output as 2 or 3 clean sentences.
+- No bullet points, quotes, asterisks, or brackets.
 
-Original summary:
+Original:
 ${data}
 `;
 
     case "skills":
       return `
-You are an ATS-optimized resume assistant.
+Rewrite the following skills into 3–4 clean bullet points, one per line.
 
 Instructions:
-- Rewrite the following skills into 3–4 clean bullet points, one per line.
 - Group related skills and avoid redundancy.
-- Be concise, remove outdated or generic terms.
-- Do NOT wrap output in JSON or quotes.
+- Be concise, modern, and skip outdated tools.
+- Do NOT use quotes, asterisks, or JSON.
 
-Original skills:
+Original:
 ${JSON.stringify(data)}
 `;
 
     case "experience":
       return `
-You are an expert resume formatter.
+Enhance the job experience below into a clean, professional format.
 
-Instructions:
-- Enhance this job experience to make it impactful and professional.
-- Follow this format:
-  Job Title @ Company
-  Duration | Location
-  • Bullet point 1 (start with action verb, describe achievement/impact)
-  • Bullet point 2 (quantify results or explain role)
-- Keep total 2–3 concise bullet points.
-- Do NOT include any placeholders like [ ... ].
-- Do NOT wrap the output in JSON or quotes.
+Format:
+Job Title @ Company
+Duration | Location
+• Achievement 1 (impact-driven)
+• Achievement 2 (quantifiable if possible)
 
-Original experience:
+Avoid:
+- Quotes, brackets, JSON, asterisks.
+- Too many technical jargons unless relevant.
+
+Original:
 ${JSON.stringify(data)}
 `;
 
     case "education":
       return `
-Polish this education section to look professional and formatted for a resume.
+Format this education entry cleanly for a resume.
 
 Instructions:
-- Include degree, institution, location, and duration.
-- Use line breaks between institution, duration, and location if needed.
-- Do NOT wrap it in quotes or JSON.
+- Include degree, university, location, and dates.
+- Use new lines for clarity.
+- Do NOT include asterisks, quotes, or JSON.
 
-Original education:
+Original:
+${JSON.stringify(data)}
+`;
+
+    case "projects":
+      return `
+Reformat these projects professionally.
+
+Instructions:
+- List 1–2 impressive projects.
+- Use this format:
+  Project Name – Tech Used
+  • What it does / why it matters (concise)
+
+- No JSON, asterisks, or quotes.
+- Focus on impact or usefulness.
+
+Original:
+${JSON.stringify(data)}
+`;
+
+    case "certifications":
+      return `
+List certifications in a professional and clean format.
+
+Instructions:
+- Use this format:
+  Certification Name – Issuing Organization
+  Date
+
+- List only relevant ones.
+- No quotes, JSON, or asterisks.
+
+Original:
+${JSON.stringify(data)}
+`;
+
+    case "achievements":
+      return `
+List professional achievements in bullet points.
+
+Instructions:
+- Each line should be one achievement.
+- Focus on awards, recognitions, or milestones.
+- Do NOT use asterisks, quotes, or JSON.
+
+Original:
+${JSON.stringify(data)}
+`;
+
+    case "interests":
+      return `
+List the user's interests in a clean, readable way.
+
+Instructions:
+- Bullet point format, like:
+  - Interest 1
+  - Interest 2
+- Keep it short and simple.
+- No stars, quotes, or extra decorations.
+
+Original:
+${JSON.stringify(data)}
+`;
+
+    case "languages":
+      return `
+List the languages known by the user in this format:
+
+- Language (Proficiency)
+
+Instructions:
+- Example: English (Fluent)
+- Do NOT use quotes or extra formatting.
+
+Original:
 ${JSON.stringify(data)}
 `;
 
     default:
-      return `Improve this resume section:\n${JSON.stringify(data)}`;
+      return `
+Polish the following resume section. Avoid using JSON, quotes, or unnecessary symbols.
+
+Original:
+${JSON.stringify(data)}
+`;
   }
 };
 

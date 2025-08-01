@@ -6,39 +6,38 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-emerald-500 text-white shadow-lg">
+    <nav className="bg-gray-900 text-white shadow-xl border-b border-gray-700">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo/Name */}
+          {/* Logo/Name - Left Side */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-xl font-bold cursor-pointer hover:text-gray-200 transition-colors duration-300">
-              AI Resume Builder
-            </Link>
+            <div className="flex items-center space-x-2 text-xl font-bold">
+              <img
+                src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
+                alt="UptoSkills Logo"
+                className="h-8 w-auto"
+              />
+              <span className="bg-gradient-to-r from-teal-400 to-orange-400 bg-clip-text text-transparent">
+                AI Resume Builder
+              </span>
+            </div>
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - Right Side */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <Link 
-                to="/" 
-                className="hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-300"
-              >
-                Home
-              </Link>
-             
+            <div className="flex items-baseline space-x-4">
               <Link
-                to="/signup" 
-                className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                to="/signup"
+                className="hover:bg-orange-600 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300"
               >
                 SignUp
               </Link>
-              <Link 
-                to="/login" 
-                className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              <Link
+                to="/login"
+                className="bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 shadow-lg"
               >
                 SignIn
               </Link>
-             
             </div>
           </div>
 
@@ -47,7 +46,7 @@ const Navbar = () => {
             <button
               onClick={toggleMenu}
               type="button"
-              className="bg-emerald-600 inline-flex items-center justify-center p-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-emerald-800 focus:ring-white transition-all duration-300"
+              className="bg-teal-600 inline-flex items-center justify-center p-2 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-teal-400 transition-all duration-300"
               aria-controls="mobile-menu"
               aria-expanded={isOpen}
             >
@@ -80,37 +79,22 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden" id="mobile-menu">
+        <div className="md:hidden bg-gray-800 border-t border-gray-700" id="mobile-menu">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link 
-              to="/" 
-              className="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium"
+            <Link
+              to="/signup"
+              className="block hover:bg-orange-600 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-all duration-300"
               onClick={() => setIsOpen(false)}
             >
-              Home
+              SignUp
             </Link>
-            <Link 
-              to="/about" 
-              className="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              to="/resume" 
-              className="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              Resume
-            </Link>
-            <Link 
-              to="/login" 
-              className="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium"
+            <Link
+              to="/login"
+              className="block bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white px-3 py-2 rounded-md text-base font-medium transition-all duration-300 shadow-lg"
               onClick={() => setIsOpen(false)}
             >
               SignIn
             </Link>
-           
           </div>
         </div>
       )}

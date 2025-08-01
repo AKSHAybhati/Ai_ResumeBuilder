@@ -27,12 +27,6 @@ const animatedGradientStyle = `
     100% { left: 100%; }
   }
 
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-
   .btn-shine {
     position: relative;
     overflow: hidden;
@@ -78,6 +72,28 @@ const animatedGradientStyle = `
 
   .text-shadow {
     text-shadow: none;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .gradient-text {
+    background: linear-gradient(45deg, #FF7000, #00A090);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-animate {
+    background: linear-gradient(-45deg, #00bda6, #ff6d34, #00c07a, #ff8c00);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient 4s ease infinite;
   }
 `;
 
@@ -269,55 +285,28 @@ const App = () => {
     <div
       className="min-h-screen font-sans overflow-x-hidden"
       style={{
-        background: 'linear-gradient(90deg, #c4b5e7, #9f9dd4, #ada4e2)',
+        background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d, #1a1a1a)',
         backgroundSize: '100% 100%',
       }}
     >
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <div className="fixed right-0 top-1/4 w-24 h-24 md:w-32 md:h-32 bg-orange-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="fixed left-20 bottom-1/3 w-36 h-36 md:w-48 md:h-48 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="fixed left-1/2 top-1/2 w-24 h-24 md:w-40 md:h-40 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+
 
         <AnimatePresence>
           {isLoaded && (
             <motion.section
               id="home"
-              className="py-12 md:py-16 px-4 relative"
+              className="py-12 md:py-16 px-4 relative min-h-screen flex items-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
             >
-              <motion.div
-                className="absolute top-0 right-0 w-96 h-96 bg-orange-300 rounded-full opacity-50 blur-3xl"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  repeatType: 'reverse',
-                }}
-              />
-              <motion.div
-                className="absolute bottom-20 left-10 w-72 h-72 bg-orange-200 rounded-full opacity-50 blur-3xl"
-                animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }}
-                transition={{
-                  duration: 10,
-                  delay: 1,
-                  repeat: Infinity,
-                  repeatType: 'reverse',
-                }}
-              />
-              <motion.div
-                className="absolute -left-20 top-40 w-80 h-80 bg-orange-400 rounded-full opacity-40 blur-3xl"
-                animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{
-                  duration: 12,
-                  delay: 2,
-                  repeat: Infinity,
-                  repeatType: 'reverse',
-                }}
-              />
-              <div className="flex flex-col md:flex-row items-center relative z-10">
+              {/* Simple background elements */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500 rounded-full opacity-20 blur-3xl"></div>
+              <div className="absolute bottom-20 left-10 w-72 h-72 bg-orange-500 rounded-full opacity-20 blur-3xl"></div>
+
+              <div className="flex flex-col md:flex-row items-center relative z-10 w-full">
                 <motion.div
                   className="w-full md:w-1/2 mb-10 md:mb-0 md:pr-12 px-4"
                   initial={{ opacity: 0, x: -80 }}
@@ -325,10 +314,11 @@ const App = () => {
                   transition={{ duration: 1.1, delay: 0.2 }}
                 >
                   <motion.div
-                    className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-orange-600 to-orange-400 text-white rounded-full text-xl font-bold mb-6 shadow-lg mt-4 w-auto max-w-full overflow-hidden"
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 px-6 py-4 sm:px-8 sm:py-5 bg-gradient-to-r from-teal-500 to-orange-500 text-white rounded-full text-xl font-bold mb-8 shadow-2xl mt-4 w-auto max-w-full overflow-hidden glass-effect"
+                    initial={{ opacity: 0, y: 40, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.8, delay: 0.5, type: "spring", stiffness: 100 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                   >
                     <img
                       src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
@@ -340,17 +330,20 @@ const App = () => {
                     </span>
                   </motion.div>
                   <motion.h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.6 }}
-                    style={{ color: '#FF7000' }}
+                    transition={{ duration: 1, delay: 0.6 }}
                   >
-                    Transform Your Career With{' '}
-                    <span style={{ color: '#00A090' }}>AI-Powered Resumes</span>
+                    <span className="text-gradient-animate">
+                      Transform Your Career With{' '}
+                    </span>
+                    <span className="text-gradient-animate">
+                      AI-Powered Resumes
+                    </span>
                   </motion.h1>
                   <motion.p
-                    className="text-base sm:text-lg md:text-xl text-white mb-5 leading-relaxed"
+                    className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 leading-relaxed"
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.9, delay: 0.7 }}
@@ -359,41 +352,55 @@ const App = () => {
                     get noticed by top recruiters instantly.
                   </motion.p>
                   <motion.div
-                    className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+                    className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6"
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.9, delay: 0.8 }}
                   >
-                     <button
-                      onClick={handleGetStarted} // Fixed to use the proper function
-                      className="w-full sm:w-auto px-6 py-4 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-500 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-md btn-shine relative overflow-hidden"
+                    <motion.button
+                      onClick={handleGetStarted}
+                      className="w-full sm:w-auto px-8 py-5 text-white font-bold rounded-2xl hover:shadow-2xl transition-all duration-300 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
                       style={{
                         background:
-                          'linear-gradient(to right, #ff6a00, #ff8c00)',
+                          'linear-gradient(45deg, #ff6d34, #ff8c00, #ff6d34)',
                         backgroundSize: '200% 200%',
-                        animation: 'gradient 5s ease infinite',
-                        border: '1px solid #ff7000',
-                        boxShadow: '0 10px 25px -5px rgba(255, 112, 0, 0.6)',
+                        animation: 'gradient 4s ease infinite',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 15px 35px -10px rgba(255, 109, 52, 0.7)',
                       }}
+                      whileHover={{
+                        scale: 1.02,
+                        y: -2
+                      }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Get Started For Free
-                    </button>
-                    <a
+                      <span className="relative z-10 flex items-center justify-center">
+                        🚀 Get Started For Free
+                      </span>
+                    </motion.button>
+                    <motion.a
                       href="#how-it-works"
-                      className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-green-400 via-green-500 to-green-700 text-white font-bold rounded-xl border border-green-600 hover:shadow-2xl transition-all duration-500 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-md btn-shine relative overflow-hidden"
+                      className="w-full sm:w-auto px-8 py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-teal-700 text-white font-bold rounded-2xl border-2 border-teal-600 hover:shadow-2xl transition-all duration-300 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
                       aria-label="Learn More About Resume Builder"
                       style={{
                         backgroundSize: '200% 200%',
-                        animation: 'gradient 5s ease infinite',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.5)',
+                        animation: 'gradient 4s ease infinite',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        boxShadow: '0 15px 35px -10px rgba(0, 189, 166, 0.6)',
                       }}
+                      whileHover={{
+                        scale: 1.02,
+                        y: -2
+                      }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Learn More
-                    </a>
+                      <span className="relative z-10 flex items-center justify-center">
+                        📚 Learn More
+                      </span>
+                    </motion.a>
                   </motion.div>
                   <motion.div
-                    className="mt-6 flex items-center space-x-4"
+                    className="mt-8 flex items-center space-x-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.9, delay: 1 }}
@@ -411,9 +418,9 @@ const App = () => {
                           initial={{ x: -20, opacity: 0 }}
                           animate={{ x: 0, opacity: 1 }}
                           transition={{ delay: 1 + i * 0.1, duration: 0.6 }}
-                          whileHover={{ y: -5, scale: 1.1, zIndex: 10 }}
+                          whileHover={{ y: -3, scale: 1.05 }}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-pink-500 opacity-60 mix-blend-overlay" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-orange-500 opacity-60 mix-blend-overlay" />
                           <img
                             src={avatar}
                             alt={`Professional ${i + 1}`}
@@ -422,7 +429,7 @@ const App = () => {
                         </motion.div>
                       ))}
                     </div>
-                    <span className="text-gray-600 font-medium">
+                    <span className="text-gray-400 font-medium">
                       Trusted by 10,000+ professionals
                     </span>
                   </motion.div>
@@ -434,45 +441,33 @@ const App = () => {
                   transition={{ duration: 1.1, delay: 0.5 }}
                 >
                   <div className="relative">
-                    <div className="absolute -top-8 -left-8 w-40 h-40 bg-orange-100 rounded-full z-0 blur-xl" />
-                    <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-pink-100 rounded-full z-0 blur-xl" />
-                    <motion.div
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-orange-400 to-pink-400 rounded-2xl opacity-20 blur-xl"
-                      animate={{
-                        scale: [1, 1.05, 1],
-                        opacity: [0.2, 0.3, 0.2],
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        repeatType: 'reverse',
-                      }}
-                    />
+                    <div className="absolute -top-8 -left-8 w-40 h-40 bg-teal-100 rounded-full z-0 blur-xl" />
+                    <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-orange-100 rounded-full z-0 blur-xl" />
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-teal-400 to-orange-400 rounded-2xl opacity-20 blur-xl"></div>
                     <motion.div
                       className="relative z-10"
-                      whileHover={{ scale: 1.02, rotate: 0 }}
-                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <video
-                        className="rounded-2xl shadow-2xl relative z-10 border-4 border-white transform rotate-1 w-full"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                      >
-                        <source
-                          src="https://www.visualcv.com/static/2f2be8a76716380983b890822917b386/AI_resume_builder_hero.mp4"
-                          type="video/mp4"
-                        />
-                        Your browser does not support the video tag.
-                      </video>
+                      <div className="relative">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-teal-400 to-orange-400 rounded-3xl opacity-30 blur-xl"></div>
+                        <video
+                          className="rounded-2xl shadow-2xl relative z-10 border-4 border-white transform rotate-1 w-full"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        >
+                          <source
+                            src="https://www.visualcv.com/static/2f2be8a76716380983b890822917b386/AI_resume_builder_hero.mp4"
+                            type="video/mp4"
+                          />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
                     </motion.div>
-                    <motion.div
-                      className="absolute -bottom-6 -right-6 bg-white p-5 rounded-xl shadow-xl z-20 transform rotate-3"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 1.5, duration: 0.7, type: 'spring' }}
-                      whileHover={{ scale: 1.1, rotate: 0 }}
+                    <div
+                      className="absolute -bottom-6 -right-6 bg-white p-5 rounded-xl shadow-xl z-20 transform rotate-3 glass-effect"
                     >
                       <div className="flex items-center space-x-3">
                         <svg
@@ -490,13 +485,9 @@ const App = () => {
                           ATS-Optimized
                         </span>
                       </div>
-                    </motion.div>
-                    <motion.div
-                      className="absolute -top-6 -left-6 bg-white p-5 rounded-xl shadow-xl z-20 transform -rotate-3"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 1.8, duration: 0.7, type: 'spring' }}
-                      whileHover={{ scale: 1.1, rotate: 0 }}
+                    </div>
+                    <div
+                      className="absolute -top-6 -left-6 bg-white p-5 rounded-xl shadow-xl z-20 transform -rotate-3 glass-effect"
                     >
                       <div className="flex items-center space-x-3">
                         <svg
@@ -510,7 +501,7 @@ const App = () => {
                           AI Powered
                         </span>
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 </motion.div>
               </div>
@@ -529,85 +520,38 @@ const App = () => {
           <div
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(135deg, #008B82 0%, #006E67 100%)',
+              background: 'linear-gradient(135deg, #00bda6 0%, #008B82 100%)',
               opacity: 0.98,
             }}
           />
-          <motion.div
-            className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-70 blur-3xl"
-            style={{ backgroundColor: '#00C07A' }}
-            animate={{
-              scale: [1, 1.4, 1.2, 1],
-              x: [0, 30, 10, 0],
-              y: [0, -30, -10, 0],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut',
-            }}
-          />
-          <motion.div
-            className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-70 blur-3xl"
-            style={{ backgroundColor: '#00B88A' }}
-            animate={{
-              scale: [1, 1.5, 1.2, 1],
-              x: [0, -40, -15, 0],
-              y: [0, 40, 15, 0],
-              rotate: [0, -5, 5, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut',
-            }}
-          />
-          <motion.div
-            className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full opacity-60 blur-3xl"
-            style={{ backgroundColor: '#00D69A' }}
-            animate={{
-              scale: [1, 1.3, 0.9, 1],
-              x: [0, 20, -20, 0],
-              y: [0, -20, 20, 0],
-              rotate: [0, 10, -10, 0],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut',
-            }}
-          />
+          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-30 blur-3xl" style={{ backgroundColor: '#00C07A' }}></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-30 blur-3xl" style={{ backgroundColor: '#00B88A' }}></div>
           <div className="text-center mb-20 relative z-10">
             <motion.div
               variants={itemVariants}
-              className="inline-block px-6 py-2 bg-white text-orange-600 rounded-full text-sm font-bold mb-6 shadow-xl transform hover:scale-105 transition-transform"
+              className="inline-block px-6 py-2 bg-white text-teal-600 rounded-full text-sm font-bold mb-6 shadow-xl transform hover:scale-105 transition-transform"
               style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
-              STAND OUT FROM THE CROWD
+              SKILLS FOR LIFETIME!
             </motion.div>
             <motion.h2
               variants={itemVariants}
               className="text-5xl sm:text-6xl md:text-7xl font-bold mb-8 flex items-center justify-center flex-wrap text-white"
             >
-              <span className="text-white mr-2">Why Choose </span>
+              <span className="text-white mr-2">India's No. 1 </span>
               <img
                 src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
                 alt="UptoSkills Logo"
                 className="h-14 sm:h-16 inline-block mx-2"
               />
-              <span className="text-white ml-2">AI Resume Builder?</span>
+              <span className="text-white ml-2">Skill Tech Organization!</span>
             </motion.h2>
             <motion.p
               variants={itemVariants}
               className="text-xl sm:text-2xl text-white max-w-3xl mx-auto font-medium"
               style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
             >
-              Our cutting-edge AI technology combined with professional
-              expertise gives you a competitive edge.
+              Empowering Your Career with uptoskills: Free Training for a Brighter Future.
             </motion.p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 px-4 relative z-10">
@@ -615,40 +559,14 @@ const App = () => {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                className="bg-gradient-to-br from-orange-600 to-orange-500 p-6 md:p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-orange-400/50 backdrop-blur-lg overflow-hidden relative"
+                className="bg-gradient-to-br from-teal-600 to-teal-500 p-6 md:p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-teal-400/50 backdrop-blur-lg overflow-hidden relative"
                 style={{ boxShadow: '0 10px 30px -5px rgba(0,0,0,0.2)' }}
                 whileHover={{ scale: 1.05 }}
               >
-                <motion.div
-                  className="absolute -top-20 -right-20 w-40 h-40 bg-orange-400 rounded-full opacity-30 blur-xl"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    x: [0, 10, 0],
-                    y: [0, -10, 0],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                  }}
-                />
-                <motion.div
-                  className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-300 rounded-full opacity-30 blur-xl"
-                  animate={{
-                    scale: [1, 1.3, 1],
-                    x: [0, -10, 0],
-                    y: [0, 10, 0],
-                  }}
-                  transition={{
-                    duration: 7,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    delay: 0.5,
-                  }}
-                />
+
                 <div className="flex flex-col items-center text-center relative z-10">
                   <div className="relative mb-8">
-                    <div className="bg-orange-600 p-5 rounded-xl shadow-lg relative overflow-hidden border border-orange-400/50">
+                    <div className="bg-teal-600 p-5 rounded-xl shadow-lg relative overflow-hidden border border-teal-400/50">
                       <div className="w-14 h-14 flex items-center justify-center relative z-10">
                         {React.cloneElement(feature.icon, {
                           className: 'w-12 h-12 text-white drop-shadow-lg',
@@ -662,7 +580,7 @@ const App = () => {
                   <p className="text-orange-50 text-base sm:text-lg leading-relaxed">
                     {feature.description}
                   </p>
-                  <div className="w-24 h-1.5 bg-orange-300 rounded-full mt-8 shadow-lg"></div>
+                  <div className="w-24 h-1.5 bg-teal-300 rounded-full mt-8 shadow-lg"></div>
                 </div>
               </motion.div>
             ))}
@@ -771,33 +689,7 @@ const App = () => {
                 >
                   <div className="p-1 rounded-2xl bg-gradient-to-r from-orange-400 to-orange-500">
                     <div className="bg-gradient-to-br from-teal-800 to-teal-900 p-10 rounded-xl shadow-xl relative z-10 h-full backdrop-blur-lg border border-orange-400/20">
-                      <motion.div
-                        className="absolute -top-20 -right-20 w-40 h-40 bg-cyan-600 rounded-full opacity-20 blur-xl"
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          x: [0, 10, 0],
-                          y: [0, -10, 0],
-                        }}
-                        transition={{
-                          duration: 6,
-                          repeat: Infinity,
-                          repeatType: 'reverse',
-                        }}
-                      />
-                      <motion.div
-                        className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500 rounded-full opacity-20 blur-xl"
-                        animate={{
-                          scale: [1, 1.3, 1],
-                          x: [0, -10, 0],
-                          y: [0, 10, 0],
-                        }}
-                        transition={{
-                          duration: 7,
-                          repeat: Infinity,
-                          repeatType: 'reverse',
-                          delay: 0.5,
-                        }}
-                      />
+
                       <div className="flex justify-center mb-10">
                         <div className="bg-gradient-to-r from-orange-500 to-orange-400 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform transition-transform hover:scale-110">
                           {step.step}
@@ -812,32 +704,7 @@ const App = () => {
                       <div className="w-24 h-1.5 bg-orange-300 rounded-full mt-8 mx-auto shadow-lg"></div>
                     </div>
                   </div>
-                  {index < 2 && (
-                    <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-2/3 -translate-y-1/2 z-20">
-                      <motion.div
-                        animate={{
-                          x: [0, 10, 0],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          repeatType: 'reverse',
-                        }}
-                      >
-                        <svg
-                          className="w-16 h-16 text-orange-500 drop-shadow-lg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </motion.div>
-                    </div>
-                  )}
+
                 </motion.div>
               ))}
             </div>
@@ -859,33 +726,9 @@ const App = () => {
               opacity: 0.98,
             }}
           />
-          <motion.div
-            className="absolute -top-40 -right-40 w-96 h-96 bg-orange-600 rounded-full opacity-40 blur-3xl"
-            animate={{ scale: [1, 1.2, 1], x: [0, 20, 0], y: [0, -20, 0] }}
-            transition={{
-              duration: 14,
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }}
-          />
-          <motion.div
-            className="absolute top-1/4 left-1/3 w-80 h-80 bg-cyan-600 rounded-full opacity-30 blur-3xl"
-            animate={{ scale: [1, 1.4, 1], x: [0, -30, 0], y: [0, -10, 0] }}
-            transition={{
-              duration: 18,
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }}
-          />
-          <motion.div
-            className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-600 rounded-full opacity-30 blur-3xl"
-            animate={{ scale: [1, 1.3, 1], x: [0, -20, 0], y: [0, 20, 0] }}
-            transition={{
-              duration: 16,
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }}
-          />
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-orange-600 rounded-full opacity-20 blur-3xl"></div>
+          <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-cyan-600 rounded-full opacity-15 blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-600 rounded-full opacity-15 blur-3xl"></div>
           <div className="text-center mb-24 relative z-10">
             <motion.div
               variants={itemVariants}
@@ -997,34 +840,10 @@ const App = () => {
               animation: 'gradient 8s ease infinite',
             }}
           />
-          <div className="absolute inset-0 opacity-40">
-            <motion.div
-              className="absolute top-0 left-0 w-96 h-96 bg-orange-700 rounded-full mix-blend-multiply filter blur-3xl opacity-60"
-              animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-            />
-            <motion.div
-              className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-60"
-              animate={{ x: [0, -50, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
-              transition={{
-                duration: 12,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-            />
-            <motion.div
-              className="absolute bottom-0 left-1/3 w-96 h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-60"
-              animate={{ x: [0, -30, 0], y: [0, -40, 0], scale: [1, 1.3, 1] }}
-              transition={{
-                duration: 14,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-            />
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-orange-700 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+            <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+            <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
           </div>
           <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
             <motion.h2
@@ -1047,26 +866,26 @@ const App = () => {
               Join thousands who transformed their careers with UptoSkills'
               AI-powered resume builder.
             </motion.p>
-             <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.8, delay: 0.2 }}
-  >
-    <button
-      onClick={() => navigate('/templatepage')} // Changed from navigateTo to navigate
-      className="px-12 py-6 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-500 text-center text-lg sm:text-xl transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
-      aria-label="Build Resume Now"
-      style={{
-        background: '#00B7A8',
-        backgroundSize: '200% 200%',
-        border: '1px solid rgba(255,255,255,0.2)',
-        boxShadow: '0 10px 25px -5px rgba(0, 183, 168, 0.6)',
-      }}
-    >
-      Build Your Resume Now
-    </button>
-  </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <button
+                onClick={() => navigate('/templatepage')} // Changed from navigateTo to navigate
+                className="px-12 py-6 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-500 text-center text-lg sm:text-xl transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
+                aria-label="Build Resume Now"
+                style={{
+                  background: '#ff6d34',
+                  backgroundSize: '200% 200%',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 10px 25px -5px rgba(255, 109, 52, 0.6)',
+                }}
+              >
+                Build Your Resume Now
+              </button>
+            </motion.div>
 
             <motion.p
               className="mt-8 text-white text-base sm:text-lg"
