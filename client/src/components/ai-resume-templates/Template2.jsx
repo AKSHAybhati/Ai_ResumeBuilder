@@ -8,7 +8,7 @@ const Template2 = () => {
   const { resumeData, setResumeData } = useResume();
   const [editMode, setEditMode] = useState(false);
   const [localData, setLocalData] = useState(resumeData);
-
+  
   useEffect(() => {
     setLocalData(resumeData);
   }, [resumeData]);

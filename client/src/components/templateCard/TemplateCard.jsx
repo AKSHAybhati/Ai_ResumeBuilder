@@ -36,21 +36,21 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'TechSlate Pro',
       preview: Temp3,
       description: 'Tailored for engineers and developers to highlight projects, certifications, and skills with clarity and precision.',
-      url: '/resume-template3'
+      url: '/template3'
     },
     {
       id: 4,
       name: 'Creative Spark',
       preview: temp4,
       description: 'Best suited for designers, marketers, and creative professionals who want to showcase flair and structure together.',
-      url: '/resume-template4'
+      url: '/template4'
     },
     {
       id: 5,
       name: 'Structured Precision',
       preview: temp5,
       description: 'Ideal for developers, engineers, and technical experts who value clarity, order, and professional presentation.',
-      url: '/resume-template5'
+      url: '/template5'
     },
     {
       id: 6,
