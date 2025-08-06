@@ -3,7 +3,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 import { useResume } from "../../context/ResumeContext";
 
-const Template20 = () => {
+const Template8 = () => {
   const resumeRef = useRef(null);
   const { resumeData, setResumeData } = useResume();
   const [editMode, setEditMode] = useState(false);
@@ -39,113 +39,17 @@ const Template20 = () => {
 
   const handleArrayListChange = (arrayField, index, listField, value) => {
     const updated = [...localData[arrayField]];
-    updated[index][listField] = value.split("\n").filter((item) => item.trim());
+    updated[index][listField] = value.split('\n').filter(item => item.trim());
     handleFieldChange(arrayField, updated);
   };
 
-  const primaryColor = "#1e293b"; // dark blue-grey
-  const accentColor = "#0ea5e9"; // sky blue
-
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f1f5f9" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
       <Navbar />
       <div style={{ display: "flex" }}>
         <Sidebar onEnhance={handleEnhance} resumeRef={resumeRef} />
 
         <div
-          style={{
-            flexGrow: 1,
-            padding: "2.5rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <div
-            ref={resumeRef}
-            style={{
-              fontFamily: "Arial, sans-serif",
-              width: "210mm",
-              minHeight: "297mm",
-              maxWidth: "800px",
-              margin: "0 auto",
-              padding: "30px",
-              backgroundColor: "#ffffff",
-              color: primaryColor,
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              border: `1px solid #cbd5e1`,
-              boxSizing: "border-box",
-              pageBreakAfter: "always",
-            }}
-          >
-            {/* Insert all the section code from Template8, replacing colors with accentColor and primaryColor as appropriate */}
-            {/* For example: use color: accentColor for headings, color: primaryColor for text */}
-            {/* Retain all structure and functionality of Template8 */}
-
-            {/* You can now safely copy all internal layout from Template8 into this block, replacing #ff7b25 with accentColor */}
-            {/* and default text colors like #333 with primaryColor. If you'd like, I can handle that for you now. */}
-          </div>
-
-          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-            {editMode ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  style={{
-                    backgroundColor: "#16a34a",
-                    color: "#ffffff",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "0.375rem",
-                    margin: "0 0.5rem",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Save
-                </button>
-                <button
-                  onClick={handleCancel}
-                  style={{
-                    backgroundColor: "#9ca3af",
-                    color: "#ffffff",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "0.375rem",
-                    margin: "0 0.5rem",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditMode(true)}
-                style={{
-                  backgroundColor: accentColor,
-                  color: "#ffffff",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "0.375rem",
-                  margin: "0 0.5rem",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Template20;
-
-
-//content example
-<div
           style={{
             flexGrow: 1,
             padding: "2.5rem",
@@ -615,3 +519,61 @@ export default Template20;
               ))}
             </div>
           </div>
+
+          {/* Edit/Save/Cancel Buttons */}
+          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+            {editMode ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  style={{
+                    backgroundColor: "#16a34a",
+                    color: "#ffffff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.375rem",
+                    margin: "0 0.5rem",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  style={{
+                    backgroundColor: "#9ca3af",
+                    color: "#ffffff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.375rem",
+                    margin: "0 0.5rem",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setEditMode(true)}
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "0.375rem",
+                  margin: "0 0.5rem",
+                  border: "none",
+                  cursor: "pointer"
+                }}
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Template8;
