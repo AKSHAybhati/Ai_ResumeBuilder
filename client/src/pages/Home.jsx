@@ -352,53 +352,39 @@ const App = () => {
                     get noticed by top recruiters instantly.
                   </motion.p>
                   <motion.div
-                    className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6"
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.8 }}
-                  >
-                    <motion.button
-                      onClick={handleGetStarted}
-                      className="w-full sm:w-auto px-8 py-5 text-white font-bold rounded-2xl hover:shadow-2xl transition-all duration-300 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
-                      style={{
-                        background:
-                          'linear-gradient(45deg, #ff6d34, #ff8c00, #ff6d34)',
-                        backgroundSize: '200% 200%',
-                        animation: 'gradient 4s ease infinite',
-                        border: '2px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 15px 35px -10px rgba(255, 109, 52, 0.7)',
-                      }}
-                      whileHover={{
-                        scale: 1.02,
-                        y: -2
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <span className="relative z-10 flex items-center justify-center">
-                        🚀 Get Started For Free
-                      </span>
-                    </motion.button>
-                    <motion.a
-                      href="#how-it-works"
-                      className="w-full sm:w-auto px-8 py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-teal-700 text-white font-bold rounded-2xl border-2 border-teal-600 hover:shadow-2xl transition-all duration-300 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-xl btn-shine relative overflow-hidden"
-                      aria-label="Learn More About Resume Builder"
-                      style={{
-                        backgroundSize: '200% 200%',
-                        animation: 'gradient 4s ease infinite',
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        boxShadow: '0 15px 35px -10px rgba(0, 189, 166, 0.6)',
-                      }}
-                      whileHover={{
-                        scale: 1.02,
-                        y: -2
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <span className="relative z-10 flex items-center justify-center">
-                        📚 Learn More
-                      </span>
-                    </motion.a>
-                  </motion.div>
+  className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+  initial={{ opacity: 0, y: 40 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.9, delay: 0.8 }}
+>
+  <button
+    onClick={handleGetStarted}
+    className="w-full sm:w-auto px-6 py-4 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-500 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-md btn-shine relative overflow-hidden"
+    style={{
+      background: 'linear-gradient(to right, #ff6a00, #ff8c00)',
+      backgroundSize: '200% 200%',
+      animation: 'gradient 5s ease infinite',
+      border: '1px solid #ff7000',
+      boxShadow: '0 10px 25px -5px rgba(255, 112, 0, 0.6)',
+    }}
+  >
+    Build Your Resume
+  </button>
+  
+  <button
+    onClick={() => navigate('/ai-edit')}
+    className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-green-400 via-green-500 to-green-700 text-white font-bold rounded-xl border border-green-600 hover:shadow-2xl transition-all duration-500 text-center text-base sm:text-lg transform hover:-translate-y-1 hover:scale-105 shadow-md btn-shine relative overflow-hidden"
+    aria-label="AI Edit Resume"
+    style={{
+      backgroundSize: '200% 200%',
+      animation: 'gradient 5s ease infinite',
+      border: '1px solid rgba(255,255,255,0.2)',
+      boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.5)',
+    }}
+  >
+    AI Edit
+  </button>
+</motion.div>
                   <motion.div
                     className="mt-8 flex items-center space-x-4"
                     initial={{ opacity: 0 }}

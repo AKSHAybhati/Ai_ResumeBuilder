@@ -12,6 +12,8 @@ import SignUp from "../pages/auth/Signup.jsx"
   // Main TemplatePage
 import TemplatePage from '../pages/TemplatePage.jsx';
 
+  // AI Edit Page (Add this import)
+import ResumeUploadPage from '../pages/ResumeUploadPage.jsx'; // or whatever you name your AI Edit component
   // ResumeTemplates
 import Template1 from "../components/ai-resume-templates/Template1.jsx";
 import Template2 from '../components/ai-resume-templates/Template2.jsx';
@@ -33,6 +35,9 @@ const AppRoutes = () => {
   {/* Public Routes */}
   <Route path='/' element={<Home />} />
   <Route path='/templatepage' element={<TemplatePage />} />
+
+  {/* AI Edit Route - Add this line */}
+      <Route path='/ai-edit' element={<ResumeUploadPage />} />
 
           <Route  path='/' element={<Home />} />
           <Route  path='/template1' element={<Template1 />} />
