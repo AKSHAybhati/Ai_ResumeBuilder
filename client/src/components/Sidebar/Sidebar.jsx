@@ -72,27 +72,34 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
         contentToSend = resumeData.skills?.join(", ");
         break;
       case "education":
-        contentToSend = JSON.stringify(resumeData.education);
+        contentToSend = resumeData.education
+          .map(
+            (edu) =>
+              `${edu.degree}\n${edu.institution}\n${edu.duration}\n${edu.location}`
+          )
+          .join("\n\n");
         break;
       case "experience":
         contentToSend = resumeData.experience
-          ?.map((exp) => exp.accomplishment?.join("\n"))
-          .join("\n");
+          .map((exp) => exp.accomplishment?.join("\n"))
+          .join("\n\n");
         break;
       case "achievements":
         contentToSend = resumeData.achievements?.join("\n") || "";
         break;
       case "projects":
         contentToSend = resumeData.projects
-          ?.map(
+          .map(
             (proj) =>
-              `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
+              `${proj.name} – ${proj.technologies?.join(", ")}\n${
+                proj.description
+              }`
           )
           .join("\n\n");
         break;
       case "certifications":
         contentToSend = resumeData.certifications
-          ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
+          .map((cert) => `${cert.title} from ${cert.issuer} - ${cert.date}`)
           .join("\n");
         break;
       case "languages":
@@ -111,26 +118,59 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
 
     const updated = { ...resumeData };
 
-    if (["summary", "achievements", "languages", "interests"].includes(section)) {
-      updated[section] = aiResponse
-        .split("\n")
+    const splitClean = (text, delimiter = "\n") =>
+      text
+        .split(delimiter)
         .map((s) => s.replace(/^[-*•]\s*/, "").trim())
         .filter(Boolean);
+
+    if (
+      ["summary", "achievements", "languages", "interests"].includes(section)
+    ) {
+      updated[section] = splitClean(aiResponse, /,|\n/);
     } else if (section === "skills") {
-      updated.skills = aiResponse
-        .split(/,|\n/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+      updated.skills = splitClean(aiResponse, /,|\n/);
     } else if (section === "experience") {
-      updated.experience[0].accomplishment = aiResponse
-        .split("\n")
-        .filter(Boolean);
+      updated.experience = resumeData.experience.map((exp, index) => ({
+        ...exp,
+        accomplishment:
+          aiResponse.split("\n\n")[index]?.split("\n").filter(Boolean) ||
+          exp.accomplishment,
+      }));
     } else if (section === "education") {
-      updated.educationText = aiResponse;
+      updated.education = aiResponse.split("\n\n").map((block) => {
+        const [degree, institution, duration, location] = block.split("\n");
+        return {
+          degree: degree?.trim(),
+          institution: institution?.trim(),
+          duration: duration?.trim(),
+          location: location?.trim(),
+        };
+      });
     } else if (section === "projects") {
-      updated.projects[0].description = aiResponse;
+      updated.projects = resumeData.projects.map((proj, index) => {
+        const block = aiResponse.split("\n\n")[index] || "";
+        const [titleLine, ...descLines] = block.trim().split("\n");
+        const [name, techUsed = ""] = titleLine.split(" – ");
+        return {
+          ...proj,
+          name: name?.trim() || proj.name,
+          technologies:
+            techUsed.split(",").map((t) => t.trim()) || proj.technologies,
+          description: descLines.join(" ").trim() || proj.description,
+        };
+      });
     } else if (section === "certifications") {
-      updated.certificationsText = aiResponse;
+      updated.certifications = aiResponse.split("\n").map((line, index) => {
+        const [titleOrg = "", date = ""] = line.split(/\s*[-–]\s*/);
+        const [title = "", issuer = ""] = titleOrg.split(" from ");
+        return {
+          ...resumeData.certifications[index],
+          title: title.trim() || resumeData.certifications[index]?.title,
+          issuer: issuer.trim() || resumeData.certifications[index]?.issuer,
+          date: date.trim() || resumeData.certifications[index]?.date,
+        };
+      });
     } else {
       updated[section] = aiResponse;
     }
@@ -187,7 +227,9 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
                 <FaMagic className="text-indigo-500" />
                 {enhancingSection === option
                   ? `Enhancing ${option}...`
-                  : `Enhance ${option.charAt(0).toUpperCase() + option.slice(1)}`}
+                  : `Enhance ${
+                      option.charAt(0).toUpperCase() + option.slice(1)
+                    }`}
               </button>
             ))}
           </div>

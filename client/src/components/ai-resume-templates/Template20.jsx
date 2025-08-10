@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
+import Sidebar from "../Sidebar/Sidebar";
 import { useResume } from "../../context/ResumeContext";
+import { FaPhoneAlt, FaEnvelope, FaLinkedin, FaMapMarkerAlt } from "react-icons/fa";
 
 const Template20 = () => {
   const resumeRef = useRef(null);
@@ -31,666 +32,362 @@ const Template20 = () => {
     console.log("Enhance requested for:", section);
   };
 
-  const handleArrayFieldChange = (arrayField, index, subField, value) => {
-    const updated = [...localData[arrayField]];
-    updated[index][subField] = value;
-    handleFieldChange(arrayField, updated);
+  const sectionTitleStyle = {
+    fontWeight: "bold",
+    fontSize: "1.2rem",
+    borderBottom: "2px solid #22c55e",
+    color: "#2563eb",
+    marginTop: "1.5rem",
+    paddingBottom: "0.3rem",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   };
 
-  const handleArrayListChange = (arrayField, index, listField, value) => {
-    const updated = [...localData[arrayField]];
-    updated[index][listField] = value.split("\n").filter((item) => item.trim());
-    handleFieldChange(arrayField, updated);
+  const sectionCardStyle = {
+    backgroundColor: "#f9fafb",
+    padding: "1rem",
+    borderRadius: "0.5rem",
+    marginTop: "0.75rem",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   };
-
-  const primaryColor = "#1e293b"; // dark blue-grey
-  const accentColor = "#0ea5e9"; // sky blue
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "linear-gradient(to bottom right, #fdfbfb, #ebedee)",
-      }}
-    >
+    <div style={{ minHeight: "100vh", backgroundColor: "#ecfdf5" }}>
       <Navbar />
       <div style={{ display: "flex" }}>
         <Sidebar onEnhance={handleEnhance} resumeRef={resumeRef} />
-
         <div
           style={{
             flexGrow: 1,
-            padding: "2.5rem",
+            padding: "2rem",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           }}
         >
           <div
+            ref={resumeRef}
             style={{
-              flexGrow: 1,
+              backgroundColor: "#ffffff",
+              color: "#1f2937",
+              maxWidth: "60rem",
+              width: "100%",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
               padding: "2.5rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              border: "3px solid #22c55e",
+              borderRadius: "1rem",
             }}
           >
-            {/* Page container with border and A4 dimensions */}
+            {/* HEADER */}
             <div
-              ref={resumeRef}
               style={{
-                fontFamily: "Arial, sans-serif",
-                width: "210mm",
-                minHeight: "210mm",
-                maxWidth: "800px",
-                margin: "0 auto",
-                padding: "30px",
-                background:
-                  "linear-gradient(to bottom right, #ffffff, #f3f4f6)",
-                color: "#333",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                boxSizing: "border-box",
-                pageBreakAfter: "always",
+                textAlign: "center",
+                borderBottom: "3px solid #22c55e",
+                paddingBottom: "1rem",
+                marginBottom: "1.5rem",
               }}
             >
-              {/* Header Section */}
-              <div
-                style={{
-                  textAlign: "center",
-                  marginBottom: "20px",
-                  borderBottom: "2px solid #14b8a6",
-                  paddingBottom: "20px",
-                  position: "relative",
-                  background: "linear-gradient(to right, #e0f7fa, #ffffff)",
-                  borderRadius: "10px",
-                  paddingTop: "20px",
-                }}
-              >
-                {editMode ? (
-                  <>
-                    <input
-                      type="text"
-                      value={localData.name}
-                      onChange={(e) =>
-                        handleFieldChange("name", e.target.value)
-                      }
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                        color: "#1e3a8a",
-                        marginBottom: "10px",
-                        textTransform: "uppercase",
-                        textAlign: "center",
-                        border: "1px solid #ccc",
-                        borderRadius: "6px",
-                        padding: "10px",
-                        width: "100%",
-                        backgroundColor: "#f0faff",
-                      }}
-                    />
-                    <input
-                      type="text"
-                      value={localData.role}
-                      onChange={(e) =>
-                        handleFieldChange("role", e.target.value)
-                      }
-                      style={{
-                        fontSize: "20px",
-                        color: "#14b8a6",
-                        marginBottom: "10px",
-                        textTransform: "uppercase",
-                        textAlign: "center",
-                        border: "1px solid #ccc",
-                        borderRadius: "6px",
-                        padding: "8px",
-                        width: "100%",
-                        backgroundColor: "#f0fdfa",
-                      }}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h1
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                        color: "#1e3a8a",
-                        marginBottom: "5px",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {resumeData.name}
-                    </h1>
-                    <h2
-                      style={{
-                        fontSize: "20px",
-                        color: "#14b8a6",
-                        marginBottom: "15px",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {resumeData.role}
-                    </h2>
-                  </>
-                )}
-
-                {/* Contact Info */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                    gap: "20px",
-                  }}
-                >
-                  {["phone", "email", "location", "linkedin"].map((field) => (
-                    <div
-                      key={field}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        fontSize: "14px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "#ff7b25",
-                          marginRight: "5px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {field === "phone" && "📞"}
-                        {field === "email" && "✉️"}
-                        {field === "location" && "📍"}
-                        {field === "linkedin" && "🔗"}
-                      </span>
-                      {editMode ? (
-                        <input
-                          type="text"
-                          value={localData[field]}
-                          onChange={(e) =>
-                            handleFieldChange(field, e.target.value)
-                          }
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "2px 5px",
-                            fontSize: "14px",
-                          }}
-                        />
-                      ) : (
-                        <span>{resumeData[field]}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Summary Section */}
-              <div
-                style={{
-                  marginBottom: "25px",
-                  position: "relative",
-                  padding: "20px",
-                  borderRadius: "10px",
-                  background: "linear-gradient(to right, #e0f7fa, #ffffff)",
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                    color: "#ff7b25",
-                    textTransform: "uppercase",
-                    borderBottom: "1px solid #ccc",
-                    paddingBottom: "5px",
-                    marginBottom: "15px",
-                  }}
-                >
-                  PROFESSIONAL SUMMARY
-                </h3>
-                {editMode ? (
-                  <textarea
-                    value={localData.summary}
-                    onChange={(e) =>
-                      handleFieldChange("summary", e.target.value)
-                    }
+              {editMode ? (
+                <>
+                  <input
+                    type="text"
+                    value={localData.name}
+                    onChange={(e) => handleFieldChange("name", e.target.value)}
                     style={{
-                      fontSize: "14px",
-                      lineHeight: "1.5",
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      textAlign: "center",
                       width: "100%",
-                      minHeight: "80px",
-                      border: "1px solid #ccc",
-                      padding: "10px",
-                      borderRadius: "6px",
-                      resize: "vertical",
                     }}
                   />
-                ) : (
-                  <p
-                    style={{ fontSize: "14px", lineHeight: "1.5", margin: "0" }}
-                  >
-                    {resumeData.summary}
-                  </p>
-                )}
-              </div>
-
-              {/* Skills Section */}
-              <div style={{ marginBottom: "25px" }}>
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "600",
-                    color: "#00796b", // Soft teal for headings
-                    textTransform: "uppercase",
-                    borderBottom: "2px solid #b2dfdb", // Softer border
-                    paddingBottom: "6px",
-                    marginBottom: "15px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Skills
-                </h3>
-
-                {editMode ? (
-                  <textarea
-                    value={localData.skills?.join(", ") || ""}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "skills",
-                        e.target.value
-                          .split(",")
-                          .map((s) => s.trim())
-                          .filter((s) => s)
-                      )
-                    }
+                  <input
+                    type="text"
+                    value={localData.role}
+                    onChange={(e) => handleFieldChange("role", e.target.value)}
                     style={{
+                      fontSize: "1.2rem",
+                      color: "#059669",
+                      textAlign: "center",
                       width: "100%",
-                      minHeight: "60px",
-                      border: "1px solid #ccc",
-                      padding: "10px",
-                      resize: "vertical",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      fontFamily: "inherit",
-                      background: "#ffffffcc",
                     }}
                   />
-                ) : (
-                  <div
+                </>
+              ) : (
+                <>
+                  <h1
                     style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "10px",
-                      marginTop: "10px",
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      color: "#2563eb",
                     }}
                   >
-                    {resumeData.skills?.map((skill, index) => (
-                      <span
-                        key={index}
-                        style={{
-                          backgroundColor: "#00796b", // Teal soft badge
-                          color: "#ffffff",
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          fontSize: "13px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    {resumeData.name}
+                  </h1>
+                  <h2 style={{ fontSize: "1.2rem", color: "#059669" }}>
+                    {resumeData.role}
+                  </h2>
+                </>
+              )}
 
-              {/* Experience Section */}
-              <div style={{ marginBottom: "25px" }}>
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "600",
-                    color: "#00796b",
-                    textTransform: "uppercase",
-                    borderBottom: "2px solid #b2dfdb",
-                    paddingBottom: "6px",
-                    marginBottom: "15px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Professional Experience
-                </h3>
-
-                {resumeData.experience?.map((exp, index) => (
-                  <div key={index} style={{ marginBottom: "20px" }}>
-                    {/* Title and Date */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
-                        fontWeight: "600",
-                        marginBottom: "5px",
-                      }}
-                    >
-                      {editMode ? (
-                        <>
-                          <input
-                            type="text"
-                            value={localData.experience[index]?.title || ""}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "experience",
-                                index,
-                                "title",
-                                e.target.value
-                              )
-                            }
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              flex: "1",
-                              marginRight: "10px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                            placeholder="Job Title"
-                          />
-                          <input
-                            type="text"
-                            value={localData.experience[index]?.date || ""}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "experience",
-                                index,
-                                "date",
-                                e.target.value
-                              )
-                            }
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                            placeholder="Date"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <span>{exp.title}</span>
-                          <span>{exp.date}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Company Name and Location */}
-                    <div
-                      style={{
-                        fontStyle: "italic",
-                        marginBottom: "8px",
-                        fontSize: "14px",
-                        color: "#555",
-                      }}
-                    >
-                      {editMode ? (
-                        <>
-                          <input
-                            type="text"
-                            value={
-                              localData.experience[index]?.companyName || ""
-                            }
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "experience",
-                                index,
-                                "companyName",
-                                e.target.value
-                              )
-                            }
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              marginRight: "10px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                            placeholder="Company Name"
-                          />
-                          <input
-                            type="text"
-                            value={
-                              localData.experience[index]?.companyLocation || ""
-                            }
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "experience",
-                                index,
-                                "companyLocation",
-                                e.target.value
-                              )
-                            }
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                            placeholder="Location"
-                          />
-                        </>
-                      ) : (
-                        <span>
-                          {exp.companyName}, {exp.companyLocation}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Accomplishments */}
-                    <div style={{ paddingLeft: "20px", marginTop: "10px" }}>
-                      {editMode ? (
-                        <textarea
-                          value={
-                            localData.experience[index]?.accomplishment?.join(
-                              "\n"
-                            ) || ""
-                          }
-                          onChange={(e) =>
-                            handleArrayListChange(
-                              "experience",
-                              index,
-                              "accomplishment",
-                              e.target.value
-                            )
-                          }
-                          style={{
-                            width: "100%",
-                            minHeight: "80px",
-                            border: "1px solid #ccc",
-                            borderRadius: "8px",
-                            padding: "10px",
-                            fontSize: "14px",
-                            resize: "vertical",
-                            background: "#ffffffcc",
-                            fontFamily: "inherit",
-                          }}
-                          placeholder="Enter accomplishments, one per line"
-                        />
-                      ) : (
-                        <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                          {exp.accomplishment?.map((item, i) => (
-                            <li
-                              key={i}
-                              style={{
-                                marginBottom: "6px",
-                                fontSize: "14px",
-                                lineHeight: "1.6",
-                                color: "#333",
-                              }}
-                            >
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Education Section */}
-              <div style={{ marginBottom: "25px" }}>
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "600",
-                    color: "#00796b",
-                    textTransform: "uppercase",
-                    borderBottom: "2px solid #b2dfdb",
-                    paddingBottom: "6px",
-                    marginBottom: "15px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Education
-                </h3>
-
-                {resumeData.education?.map((edu, index) => (
-                  <div key={index} style={{ marginBottom: "20px" }}>
-                    {/* Degree and Duration */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
-                        fontWeight: "600",
-                        marginBottom: "5px",
-                      }}
-                    >
-                      {editMode ? (
-                        <>
-                          <input
-                            type="text"
-                            value={localData.education[index]?.degree || ""}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                index,
-                                "degree",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Degree"
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              flex: "1",
-                              marginRight: "10px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <input
-                            type="text"
-                            value={localData.education[index]?.duration || ""}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                index,
-                                "duration",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Duration"
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <span>{edu.degree}</span>
-                          <span>{edu.duration}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Institution and Location */}
-                    <div
-                      style={{
-                        fontStyle: "italic",
-                        marginBottom: "8px",
-                        fontSize: "14px",
-                        color: "#555",
-                      }}
-                    >
-                      {editMode ? (
-                        <>
-                          <input
-                            type="text"
-                            value={
-                              localData.education[index]?.institution || ""
-                            }
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                index,
-                                "institution",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Institution"
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              marginRight: "10px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <input
-                            type="text"
-                            value={localData.education[index]?.location || ""}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                index,
-                                "location",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Location"
-                            style={{
-                              border: "1px solid #ccc",
-                              padding: "4px 8px",
-                              marginBottom: "5px",
-                              borderRadius: "6px",
-                              fontSize: "14px",
-                            }}
-                          />
-                        </>
-                      ) : (
-                        <span>
-                          {edu.institution}, {edu.location}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+              {/* Contact Info */}
+              <div
+                style={{
+                  marginTop: "0.8rem",
+                  fontSize: "0.95rem",
+                  color: "#374151",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  width: "100%",
+                  maxWidth: "40rem",
+                  marginInline: "auto",
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <FaPhoneAlt color="#059669" /> {resumeData.phone}
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <FaEnvelope color="#2563eb" /> {resumeData.email}
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <FaLinkedin color="#2563eb" /> {resumeData.linkedin}
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <FaMapMarkerAlt color="#059669" /> {resumeData.location}
+                </span>
               </div>
             </div>
+
+            {/* SUMMARY */}
+            <h3 style={sectionTitleStyle}>Summary</h3>
+            <div style={sectionCardStyle}>
+              {editMode ? (
+                <textarea
+                  value={localData.summary}
+                  onChange={(e) => handleFieldChange("summary", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "0.25rem",
+                  }}
+                  rows={4}
+                />
+              ) : (
+                <p>{resumeData.summary}</p>
+              )}
+            </div>
+
+            {/* SKILLS */}
+            <h3 style={sectionTitleStyle}>Skills</h3>
+            <div style={sectionCardStyle}>
+              {editMode ? (
+                <textarea
+                  value={localData.skills?.join(", ") || ""}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      "skills",
+                      e.target.value.split(",").map((s) => s.trim())
+                    )
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "0.25rem",
+                  }}
+                />
+              ) : (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                  {resumeData.skills?.map((skill, idx) => (
+                    <span
+                      key={idx}
+                      style={{
+                        backgroundColor: "#dbeafe",
+                        color: "#1e3a8a",
+                        padding: "0.3rem 0.7rem",
+                        borderRadius: "20px",
+                        fontSize: "0.95rem",
+                        fontWeight: "500",
+                        border: "1px solid #93c5fd",
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* EDUCATION */}
+            <h3 style={sectionTitleStyle}>Education</h3>
+            <div style={sectionCardStyle}>
+              {resumeData.education?.map((edu, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    marginBottom: "1rem",
+                    borderBottom: "1px dashed #22c55e",
+                    paddingBottom: "0.5rem",
+                  }}
+                >
+                  {editMode ? (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <input
+                          type="text"
+                          value={localData.education[idx].degree}
+                          onChange={(e) => {
+                            const updated = [...localData.education];
+                            updated[idx].degree = e.target.value;
+                            handleFieldChange("education", updated);
+                          }}
+                          style={{ fontWeight: "600", width: "70%" }}
+                        />
+                        <input
+                          type="text"
+                          value={localData.education[idx].duration}
+                          onChange={(e) => {
+                            const updated = [...localData.education];
+                            updated[idx].duration = e.target.value;
+                            handleFieldChange("education", updated);
+                          }}
+                          style={{ width: "25%", textAlign: "right" }}
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={localData.education[idx].institution}
+                        onChange={(e) => {
+                          const updated = [...localData.education];
+                          updated[idx].institution = e.target.value;
+                          handleFieldChange("education", updated);
+                        }}
+                        style={{ width: "100%", marginTop: "0.3rem" }}
+                      />
+                      <input
+                        type="text"
+                        value={localData.education[idx].location}
+                        onChange={(e) => {
+                          const updated = [...localData.education];
+                          updated[idx].location = e.target.value;
+                          handleFieldChange("education", updated);
+                        }}
+                        style={{ width: "100%", fontSize: "0.85rem" }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <p style={{ fontWeight: "600", color: "#2563eb" }}>{edu.degree}</p>
+                        <p style={{ fontSize: "0.875rem", color: "#059669" }}>{edu.duration}</p>
+                      </div>
+                      <p style={{ color: "#059669" }}>{edu.institution}</p>
+                      <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>{edu.location}</p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* EXPERIENCE */}
+            <h3 style={sectionTitleStyle}>Experience</h3>
+            <div style={sectionCardStyle}>
+              {resumeData.experience?.map((exp, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    marginBottom: "1rem",
+                    borderBottom: "1px dashed #2563eb",
+                    paddingBottom: "0.5rem",
+                  }}
+                >
+                  {editMode ? (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <input
+                          type="text"
+                          value={localData.experience[idx].title}
+                          onChange={(e) => {
+                            const updated = [...localData.experience];
+                            updated[idx].title = e.target.value;
+                            handleFieldChange("experience", updated);
+                          }}
+                          style={{ fontWeight: "600", width: "70%" }}
+                        />
+                        <input
+                          type="text"
+                          value={localData.experience[idx].date}
+                          onChange={(e) => {
+                            const updated = [...localData.experience];
+                            updated[idx].date = e.target.value;
+                            handleFieldChange("experience", updated);
+                          }}
+                          style={{ width: "25%", textAlign: "right" }}
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={localData.experience[idx].companyName}
+                        onChange={(e) => {
+                          const updated = [...localData.experience];
+                          updated[idx].companyName = e.target.value;
+                          handleFieldChange("experience", updated);
+                        }}
+                        style={{ width: "100%", marginTop: "0.3rem" }}
+                      />
+                      <input
+                        type="text"
+                        value={localData.experience[idx].companyLocation}
+                        onChange={(e) => {
+                          const updated = [...localData.experience];
+                          updated[idx].companyLocation = e.target.value;
+                          handleFieldChange("experience", updated);
+                        }}
+                        style={{ width: "100%", marginTop: "0.3rem" }}
+                      />
+                      <textarea
+                        value={localData.experience[idx].accomplishment.join("\n")}
+                        onChange={(e) => {
+                          const updated = [...localData.experience];
+                          updated[idx].accomplishment = e.target.value.split("\n").filter(Boolean);
+                          handleFieldChange("experience", updated);
+                        }}
+                        style={{
+                          width: "100%",
+                          border: "1px solid #d1d5db",
+                          borderRadius: "0.25rem",
+                          padding: "0.5rem",
+                          marginTop: "0.3rem",
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <p style={{ fontWeight: "600", color: "#2563eb" }}>
+                          {exp.title} <span style={{ color: "#374151" }}>at {exp.companyName}</span>
+                        </p>
+                        <p style={{ fontSize: "0.875rem", color: "#059669" }}>{exp.date}</p>
+                      </div>
+                      <p style={{ fontSize: "0.8rem", color: "#6b7280" }}>{exp.companyLocation}</p>
+                      <ul style={{ paddingLeft: "1.5rem", listStyleType: "disc" }}>
+                        {exp.accomplishment.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* BUTTONS */}
           <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
             {editMode ? (
               <>
@@ -698,12 +395,10 @@ const Template20 = () => {
                   onClick={handleSave}
                   style={{
                     backgroundColor: "#16a34a",
-                    color: "#ffffff",
+                    color: "#fff",
                     padding: "0.5rem 1rem",
                     borderRadius: "0.375rem",
                     margin: "0 0.5rem",
-                    border: "none",
-                    cursor: "pointer",
                   }}
                 >
                   Save
@@ -712,12 +407,10 @@ const Template20 = () => {
                   onClick={handleCancel}
                   style={{
                     backgroundColor: "#9ca3af",
-                    color: "#ffffff",
+                    color: "#fff",
                     padding: "0.5rem 1rem",
                     borderRadius: "0.375rem",
                     margin: "0 0.5rem",
-                    border: "none",
-                    cursor: "pointer",
                   }}
                 >
                   Cancel
@@ -727,13 +420,11 @@ const Template20 = () => {
               <button
                 onClick={() => setEditMode(true)}
                 style={{
-                  backgroundColor: accentColor,
-                  color: "#ffffff",
+                  backgroundColor: "#2563eb",
+                  color: "#fff",
                   padding: "0.5rem 1rem",
                   borderRadius: "0.375rem",
                   margin: "0 0.5rem",
-                  border: "none",
-                  cursor: "pointer",
                 }}
               >
                 Edit

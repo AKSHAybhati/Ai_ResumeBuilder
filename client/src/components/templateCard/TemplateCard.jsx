@@ -127,14 +127,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Fiscal Visionary & Strategic Performance Architect-16',
       preview: temp8,
       description: 'Crafting financial clarity, accelerating growth, and engineering operational excellence',
-      url: '/resume-template16'
+      url: '/template16'
     },
     {
       id: 17,
       name: 'Modern Web Developer Resume Template-17',
       preview: temp8,
       description: 'Interactive resume template with vibrant design and essential developer details.',
-      url: '/resume-template17'
+      url: '/template17'
     },
     {
       id: 18,
@@ -162,7 +162,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Sales Specialist-21',
       preview: temp8,
       description: 'Driven retail expert excelling in sales, service, and visual merchandising.',
-      url: '/resume-template21'
+      url: '/template21'
     },
     {
       id: 22,
@@ -218,7 +218,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'UI Crafter-29',
       preview: temp8,
       description: 'Designs seamless user experiences with clean, responsive, modern web interfaces.',
-      url: '/resume-template29'
+      url: '/template29'
     },
     {
       id: 30,
