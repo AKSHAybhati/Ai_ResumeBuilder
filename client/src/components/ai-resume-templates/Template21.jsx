@@ -34,6 +34,17 @@ const Template21 = () => {
     setEditMode(false);
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalData((prev) => ({ ...prev, profileImage: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const sectionTitleStyle = {
     fontWeight: "700",
     fontSize: "1.1rem",
@@ -81,11 +92,12 @@ const Template21 = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
                 marginBottom: "1.5rem",
               }}
             >
-              <div>
+              <div style={{ flex: 1, minWidth: "60%" }}>
                 {editMode ? (
                   <>
                     <input
@@ -140,9 +152,15 @@ const Template21 = () => {
                   </>
                 )}
 
-                {/* 📍 Location & Phone */}
+                {/* 📍 Location, Phone, Email (Single line) */}
                 <div
-                  style={{ display: "flex", gap: "1rem", marginTop: "0.75rem" }}
+                  style={{
+                    display: "flex",
+                    gap: "1.5rem",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    marginTop: "0.75rem",
+                  }}
                 >
                   {editMode ? (
                     <>
@@ -164,6 +182,15 @@ const Template21 = () => {
                         placeholder="Phone"
                         style={{ fontSize: "0.95rem" }}
                       />
+                      <input
+                        type="text"
+                        value={localData.email}
+                        onChange={(e) =>
+                          handleFieldChange("email", e.target.value)
+                        }
+                        placeholder="Email"
+                        style={{ fontSize: "0.95rem" }}
+                      />
                     </>
                   ) : (
                     <>
@@ -176,7 +203,7 @@ const Template21 = () => {
                           color: "#374151",
                         }}
                       >
-                        <MapPin size={16} style={{ marginRight: "4px" }} />{" "}
+                        <MapPin size={16} style={{ marginRight: "4px" }} />
                         {resumeData.location}
                       </p>
                       <p
@@ -188,117 +215,128 @@ const Template21 = () => {
                           color: "#374151",
                         }}
                       >
-                        <Phone size={16} style={{ marginRight: "4px" }} />{" "}
+                        <Phone size={16} style={{ marginRight: "4px" }} />
                         {resumeData.phone}
                       </p>
-                    </>
-                  )}
-                </div>
-
-                {/* ✉️ Email + Socials */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "1rem",
-                    marginTop: "0.5rem",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {editMode ? (
-                    ["email", "linkedin", "github", "portfolio"].map(
-                      (field) => (
-                        <input
-                          key={field}
-                          type="text"
-                          value={localData[field]}
-                          onChange={(e) =>
-                            handleFieldChange(field, e.target.value)
-                          }
-                          placeholder={field}
-                          style={{ fontSize: "0.9rem" }}
-                        />
-                      )
-                    )
-                  ) : (
-                    <>
                       <a
                         href={`mailto:${resumeData.email}`}
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          fontSize: "0.9rem",
+                          fontSize: "0.95rem",
                           color: "#374151",
                           textDecoration: "none",
                         }}
                       >
-                        <Mail size={16} style={{ marginRight: "4px" }} />{" "}
+                        <Mail size={16} style={{ marginRight: "4px" }} />
                         {resumeData.email}
                       </a>
-                      <a
-                        href={resumeData.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: "0.9rem",
-                          color: "#374151",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <Linkedin size={16} style={{ marginRight: "4px" }} />{" "}
-                        LinkedIn
-                      </a>
-                      <a
-                        href={resumeData.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: "0.9rem",
-                          color: "#374151",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <Github size={16} style={{ marginRight: "4px" }} />{" "}
-                        GitHub
-                      </a>
-                      <a
-                        href={resumeData.portfolio}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: "0.9rem",
-                          color: "#374151",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <Globe size={16} style={{ marginRight: "4px" }} />{" "}
-                        Portfolio
-                      </a>
+                    </>
+                  )}
+                </div>
+
+                {/* 🌐 Social Icons Only (on next line) */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "1rem",
+                    marginTop: "0.5rem",
+                    marginLeft: "0.2rem",
+                    alignItems: "center",
+                  }}
+                >
+                  {editMode ? (
+                    ["linkedin", "github", "portfolio"].map((field) => (
+                      <input
+                        key={field}
+                        type="text"
+                        value={localData[field]}
+                        onChange={(e) =>
+                          handleFieldChange(field, e.target.value)
+                        }
+                        placeholder={field}
+                        style={{ fontSize: "0.9rem" }}
+                      />
+                    ))
+                  ) : (
+                    <>
+                      {resumeData.linkedin && (
+                        <a
+                          href={resumeData.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#374151" }}
+                        >
+                          <Linkedin size={18} />
+                        </a>
+                      )}
+                      {resumeData.github && (
+                        <a
+                          href={resumeData.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#374151" }}
+                        >
+                          <Github size={18} />
+                        </a>
+                      )}
+                      {resumeData.portfolio && (
+                        <a
+                          href={resumeData.portfolio}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#374151" }}
+                        >
+                          <Globe size={18} />
+                        </a>
+                      )}
                     </>
                   )}
                 </div>
               </div>
 
               {/* 🖼️ Profile Image */}
-              <div style={{ marginLeft: "1rem" }}>
-                <img
-                  src={
-                    resumeData.profileImage || "https://via.placeholder.com/100"
-                  }
-                  alt="Profile"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    border: "2px solid #6b7280",
-                  }}
-                />
+              <div style={{ marginLeft: "1rem", textAlign: "center" }}>
+                <label
+                  htmlFor="profile-image-upload"
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={localData.profileImage || "/images/profile.jpg"}
+                    alt="Profile"
+                    style={{
+                      width: "120px",
+                      height: "120px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "2px solid #6b7280",
+                    }}
+                  />
+                </label>
+
+                {editMode && (
+                  <>
+                    {/* Hidden File Input */}
+                    <input
+                      type="file"
+                      id="profile-image-upload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      style={{ display: "none" }}
+                    />
+
+                    {/* Caption below the image */}
+                    <p
+                      style={{
+                        fontSize: "0.8rem",
+                        marginTop: "0.4rem",
+                        textAlign: "left",
+                      }}
+                    >
+                      Click image to upload a new one
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -307,7 +345,7 @@ const Template21 = () => {
               <h3
                 style={{
                   ...sectionTitleStyle,
-                  fontSize: "1.7rem",
+                  fontSize: "1.4rem",
                   fontWeight: "700",
                 }}
               >
@@ -330,7 +368,7 @@ const Template21 = () => {
               <h3
                 style={{
                   ...sectionTitleStyle,
-                  fontSize: "1.7rem",
+                  fontSize: "1.4rem",
                   fontWeight: "700",
                 }}
               >
@@ -428,7 +466,7 @@ const Template21 = () => {
               <h3
                 style={{
                   ...sectionTitleStyle,
-                  fontSize: "1.7rem",
+                  fontSize: "1.4rem",
                   fontWeight: "700",
                 }}
               >
@@ -504,7 +542,7 @@ const Template21 = () => {
                 <h3
                   style={{
                     ...sectionTitleStyle,
-                    fontSize: "1.7rem",
+                    fontSize: "1.4rem",
                     fontWeight: "700",
                   }}
                 >
@@ -523,11 +561,9 @@ const Template21 = () => {
                     style={{ width: "100%" }}
                   />
                 ) : (
-                  <ul style={{ paddingLeft: "1.25rem", lineHeight: "1.6" }}>
-                    {resumeData[section].map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
+                  <p style={{ fontSize: "1rem", lineHeight: "1.6" }}>
+                    {resumeData[section].join(", ")}
+                  </p>
                 )}
               </div>
             ))}
@@ -537,7 +573,7 @@ const Template21 = () => {
               <h3
                 style={{
                   ...sectionTitleStyle,
-                  fontSize: "1.7rem",
+                  fontSize: "1.4rem",
                   fontWeight: "700",
                 }}
               >
@@ -606,7 +642,7 @@ const Template21 = () => {
               <h3
                 style={{
                   ...sectionTitleStyle,
-                  fontSize: "1.7rem",
+                  fontSize: "1.4rem",
                   fontWeight: "700",
                 }}
               >

@@ -225,47 +225,35 @@ const Template22 = () => {
                   {localData.education.map((edu, idx) => (
                     <div key={idx}>
                       {editMode ? (
-                        <>
-                          <input
-                            value={edu.degree}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                idx,
-                                "degree",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Degree"
-                            style={{ width: "100%" }}
-                          />
-                          <input
-                            value={edu.institution}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                idx,
-                                "institution",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Institution"
-                            style={{ width: "100%" }}
-                          />
-                          <input
-                            value={edu.duration}
-                            onChange={(e) =>
-                              handleArrayFieldChange(
-                                "education",
-                                idx,
-                                "duration",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Duration"
-                            style={{ width: "100%" }}
-                          />
-                        </>
+                        <input
+                          value={`${edu.degree}, ${edu.institution} (${edu.duration})`}
+                          onChange={(e) => {
+                            const [degree, institutionPart] =
+                              e.target.value.split(",");
+                            const [institution, durationPart] =
+                              institutionPart?.split("(") || ["", ""];
+                            const duration = durationPart?.replace(")", "");
+                            handleArrayFieldChange(
+                              "education",
+                              idx,
+                              "degree",
+                              degree?.trim()
+                            );
+                            handleArrayFieldChange(
+                              "education",
+                              idx,
+                              "institution",
+                              institution?.trim()
+                            );
+                            handleArrayFieldChange(
+                              "education",
+                              idx,
+                              "duration",
+                              duration?.trim()
+                            );
+                          }}
+                          style={{ width: "100%", marginBottom: "0.5rem" }}
+                        />
                       ) : (
                         <p>
                           <strong>{edu.degree}</strong>, {edu.institution} (
@@ -281,50 +269,26 @@ const Template22 = () => {
                   <h3 style={sectionTitleStyle}>Certifications</h3>
                   {editMode
                     ? localData.certifications?.map((item, idx) => (
-                        <div key={idx} style={{ marginBottom: "0.5rem" }}>
-                          <input
-                            type="text"
-                            placeholder="Title"
-                            value={item.title}
-                            onChange={(e) => {
-                              const updated = [...localData.certifications];
-                              updated[idx].title = e.target.value;
-                              setLocalData({
-                                ...localData,
-                                certifications: updated,
-                              });
-                            }}
-                            style={{ width: "100%", marginBottom: "0.25rem" }}
-                          />
-                          <input
-                            type="text"
-                            placeholder="Issuer"
-                            value={item.issuer}
-                            onChange={(e) => {
-                              const updated = [...localData.certifications];
-                              updated[idx].issuer = e.target.value;
-                              setLocalData({
-                                ...localData,
-                                certifications: updated,
-                              });
-                            }}
-                            style={{ width: "100%", marginBottom: "0.25rem" }}
-                          />
-                          <input
-                            type="text"
-                            placeholder="Date"
-                            value={item.date}
-                            onChange={(e) => {
-                              const updated = [...localData.certifications];
-                              updated[idx].date = e.target.value;
-                              setLocalData({
-                                ...localData,
-                                certifications: updated,
-                              });
-                            }}
-                            style={{ width: "100%" }}
-                          />
-                        </div>
+                        <input
+                          key={idx}
+                          type="text"
+                          value={`${item.title} — ${item.issuer}, ${item.date}`}
+                          onChange={(e) => {
+                            const [title, rest] = e.target.value.split("—");
+                            const [issuer, date] = rest?.split(",") || ["", ""];
+                            const updated = [...localData.certifications];
+                            updated[idx] = {
+                              title: title?.trim(),
+                              issuer: issuer?.trim(),
+                              date: date?.trim(),
+                            };
+                            setLocalData({
+                              ...localData,
+                              certifications: updated,
+                            });
+                          }}
+                          style={{ width: "100%", marginBottom: "0.5rem" }}
+                        />
                       ))
                     : localData.certifications?.map((cert, idx) => (
                         <p key={idx}>
@@ -375,16 +339,59 @@ const Template22 = () => {
               >
                 {/* Profile Image */}
                 <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                  <img
-                    src={resumeData.profileImage || "/images/profile.jpg"}
-                    alt="Profile"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                    }}
-                  />
+                  {editMode ? (
+                    <>
+                      <label
+                        htmlFor="profileImageUpload"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <img
+                          src={localData.profileImage || "/images/profile.jpg"}
+                          alt="Profile"
+                          style={{
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "2px solid #6b7280",
+                          }}
+                        />
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg"
+                        id="profileImageUpload"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setLocalData({
+                                ...localData,
+                                profileImage: reader.result,
+                              });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        style={{ display: "none" }}
+                      />
+                      <p style={{ fontSize: "0.8rem", textAlign: "left" }}>
+                        Click image to upload a new one
+                      </p>
+                    </>
+                  ) : (
+                    <img
+                      src={resumeData.profileImage || "/images/profile.jpg"}
+                      alt="Profile"
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
                 </div>
 
                 {/* Contact */}

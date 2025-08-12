@@ -169,14 +169,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Legal Intern-22',
       preview: temp8,
       description: 'Motivated legal intern with strong research, writing, and analytical skills.',
-      url: '/resume-template22'
+      url: '/template22'
     },
     {
       id: 23,
       name: 'Creative Visionary-23',
       preview: temp8,
       description: 'Delivers compelling freelance design solutions with innovation, strategy, and style.',
-      url: '/resume-template23'
+      url: '/template23'
     },
     {
       id: 24,
