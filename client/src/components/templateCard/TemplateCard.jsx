@@ -57,14 +57,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Modern Momentum-6',
       preview: temp6,
       description: 'Perfect for tech professionals seeking a sleek, impactful, and well-structured presentation of their experience and skills.',
-      url: '/resume-template6'
+      url: '/template6'
     },
     {
       id: 7,
       name: 'Creative Spectrum-7',
       preview: temp7,
       description: 'perfect for a graphic designers resume template.',
-      url: '/resume-template7'
+      url: '/template7'
     },
     {
       id: 8,
@@ -78,14 +78,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Tech Forward-9',
       preview: temp9,
       description: 'Modern single-column design with skill tags for tech professionals.',
-      url: '/resume-template9'
+      url: '/template9'
     },
     {
       id: 10,
       name: 'Classic Professional-10',
       preview: temp8,
       description: 'Clean traditional layout ideal for corporate and technical roles.',
-      url: '/resume-template10'
+      url: '/template10'
     },
     {
       id: 11,
@@ -99,7 +99,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Strategic Technology Leader-12',
       preview: temp8,
       description: 'Clean, impactful layout ideal for IT and cybersecurity roles',
-      url: '/resume-template12'
+      url: '/template12'
     },
     {
       id: 13,
@@ -169,14 +169,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Legal Intern-22',
       preview: temp8,
       description: 'Motivated legal intern with strong research, writing, and analytical skills.',
-      url: '/resume-template22'
+      url: '/template22'
     },
     {
       id: 23,
       name: 'Creative Visionary-23',
       preview: temp8,
       description: 'Delivers compelling freelance design solutions with innovation, strategy, and style.',
-      url: '/resume-template23'
+      url: '/template23'
     },
     {
       id: 24,
@@ -204,7 +204,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Design Visionary-27',
       preview: temp8,
       description: 'Creative graphic designer with a passion for clean visual storytelling.',
-      url: '/resume-template27'
+      url: '/template27'
     },
     {
       id: 28,

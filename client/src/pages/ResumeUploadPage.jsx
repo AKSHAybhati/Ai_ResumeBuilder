@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Upload, FileText, Edit3, Download, Eye, AlertCircle } from 'lucide-react';
 import Navbar from "../components/Navbar/Navbar.jsx";
@@ -402,6 +401,17 @@ ADDITIONAL INFORMATION
                 <div className="p-6">
                   <div className="border-2 border-gray-300 rounded-lg bg-white shadow-inner" style={{ aspectRatio: '8.5/11' }}>
                     <div className="p-6 h-full overflow-y-auto">
+                      {/* PDF Preview */}
+                      {uploadedFile && uploadedFile.type === "application/pdf" && (
+                        <iframe
+                          src={URL.createObjectURL(uploadedFile)}
+                          width="100%"
+                          height="600px"
+                          title="PDF Preview"
+                          style={{ border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px" }}
+                        />
+                      )}
+                      {/* Text Preview */}
                       <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono leading-relaxed">
                         {resumeContent}
                       </pre>

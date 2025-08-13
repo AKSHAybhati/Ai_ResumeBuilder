@@ -52,7 +52,7 @@ const Template20 = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#ecfdf5" }}>
+    <div style={{ minHeight: "100vh"}}>
       <Navbar />
       <div style={{ display: "flex" }}>
         <Sidebar onEnhance={handleEnhance} resumeRef={resumeRef} />
@@ -69,7 +69,6 @@ const Template20 = () => {
           <div
             ref={resumeRef}
             style={{
-              backgroundColor: "#ffffff",
               color: "#1f2937",
               maxWidth: "60rem",
               width: "100%",
