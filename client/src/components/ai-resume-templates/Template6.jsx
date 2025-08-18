@@ -2,63 +2,102 @@ import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 import { useResume } from "../../context/ResumeContext";
-import {
-  Mail, Phone, MapPin, Linkedin, Github, Briefcase, GraduationCap, 
-  User, Star, Award, Globe, ChevronRight, Calendar, Building, 
-  Zap, Target, Users, Code2, BookOpen, Trophy
-} from "lucide-react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone, faEnvelope, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faLinkedin } from "@fortawesome/free-brands-svg-icons";
+import defaultProfile from "../../assets/images/profile.jpg";
 
-const Template6 = () => {
+const Template1 = () => {
   const resumeRef = useRef(null);
   const { resumeData, setResumeData } = useResume();
   const [editMode, setEditMode] = useState(false);
   const [localData, setLocalData] = useState(resumeData);
-  const [templateSettings, setTemplateSettings] = useState({
-    github: "github.com/rachelj",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=60",
-    certifications: [
-      { title: "Certified Professional Human Resources (CPHR)", issuedBy: "HRCI", year: "2021" }
-    ],
-    courses: [
-      { title: "Data Handling Training (COURSE)", description: "" },
-      { title: "Contoso Industry Safety & Health Training (COURSE)", description: "" }
-    ],
-    projects: [],
-  });
-  const [uploadedPhoto, setUploadedPhoto] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [headingColor, setHeadingColor] = useState("#2563eb");
+  const colorInputRef = useRef(null);
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     setLocalData(resumeData);
   }, [resumeData]);
 
+  // Watch for changes in resumeData to sync with AI enhancements
+  useEffect(() => {
+    if (!editMode) {
+      setLocalData(resumeData);
+    }
+  }, [resumeData, editMode]);
+
+  const [visibleSections, setVisibleSections] = useState({
+    summary: true,
+    experience: true,
+    education: true,
+    achievements: true,
+    skills: true,
+    courses: true,
+    projects: true,
+  });
+
   const handleFieldChange = (field, value) => {
     setLocalData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleArrayFieldChange = (section, index, key, value) => {
+    const updated = [...localData[section]];
+    updated[index] = { ...updated[index], [key]: value };
+    setLocalData({ ...localData, [section]: updated });
+  };
 
-  const handleNestedChange = (arrayKey, index, field, value) => {
+  const handleSkillsChange = (value) => {
+    const skillsArray = value.split(",").map(skill => skill.trim()).filter(skill => skill);
+    setLocalData({ ...localData, skills: skillsArray });
+  };
+
+  const addNewEntry = (section) => {
+    const newEntry = section === "experience" ? {
+      title: 'Your Title',
+      companyName: 'Company Name',
+      date: 'Date',
+      companyLocation: 'Company Location',
+      description: 'Company Description',
+      accomplishment: 'Your accomplishment'
+    } : section === "education" ? {
+      degree: 'Degree and Field of Study',
+      institution: 'School or University',
+      duration: 'Date Period',
+      grade: "GPA:8.5"
+    } : section === "courses" ? {
+      title: 'Course Name',
+      description: 'Course Description'
+    } : section === "projects" ? {
+      name: 'Project Name',
+      duration: 'Date period',
+      description: 'Project Summary',
+      technologies: [],
+      link: '',
+      github: ''
+    } : section === "achievements" ? {
+      keyAchievements: 'Achievement Title',
+      describe: 'Describe the achievement'
+    } : null;
+
+    if (newEntry) {
+      setLocalData(prev => ({
+        ...prev,
+        [section]: [...(prev[section] || []), newEntry]
+      }));
+    }
+  };
+
+  const removeEntry = (section, index) => {
     setLocalData(prev => ({
       ...prev,
-      [arrayKey]: prev[arrayKey].map((item, i) => i === index ? { ...item, [field]: value } : item)
+      [section]: prev[section].filter((_, i) => i !== index)
     }));
   };
 
-  const handleTemplateSettingsChange = (field, value) => {
-    setTemplateSettings(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleCertificationsChange = (index, field, value) => {
-    setTemplateSettings(prev => ({
-      ...prev,
-      certifications: prev.certifications.map((item, i) => i === index ? { ...item, [field]: value } : item)
-    }));
-  };
-
-  const handleCoursesChange = (index, field, value) => {
-    setTemplateSettings(prev => ({
-      ...prev,
-      courses: prev.courses.map((item, i) => i === index ? { ...item, [field]: value } : item)
-    }));
+  const removeBlock = (block) => {
+    setVisibleSections({ ...visibleSections, [block]: false });
   };
 
   const handleSave = () => {
@@ -73,456 +112,1603 @@ const Template6 = () => {
 
   const handleEnhance = (section) => {
     console.log("Enhance requested for:", section);
+    // This will be handled by the Sidebar component
+    // The Sidebar already has the enhancement logic built-in
   };
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedPhoto(reader.result);
-        setTemplateSettings(prev => ({ ...prev, photo: reader.result }));
-      };
-      reader.readAsDataURL(file);
+  const handleOpenColorPicker = () => {
+    if (colorInputRef && colorInputRef.current) {
+      colorInputRef.current.click();
     }
   };
 
-  const SectionHeader = ({ title, icon: Icon, accentColor = "bg-purple-500" }) => (
-    <div className="flex items-center gap-3 mb-6">
-      <div className={`w-2 h-8 ${accentColor} rounded-full shadow-lg`}></div>
-      <div className="flex items-center gap-3">
-        {Icon && <Icon className="w-6 h-6 text-purple-600" />}
-        <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wide">{title}</h2>
-      </div>
-    </div>
-  );
+  const handleAddPoint = (section) => {
+    setLocalData((prev) => {
+      const existingPoints = prev?.additionalPoints?.[section] || [];
+      const updatedAdditionalPoints = {
+        ...(prev.additionalPoints || {}),
+        [section]: [...existingPoints, ""]
+      };
+      return { ...prev, additionalPoints: updatedAdditionalPoints };
+    });
+  };
+
+  const handleUpdatePoint = (section, index, value) => {
+    setLocalData((prev) => {
+      const currentPoints = prev?.additionalPoints?.[section] || [];
+      const updatedPoints = [...currentPoints];
+      updatedPoints[index] = value;
+      const updatedAdditionalPoints = {
+        ...(prev.additionalPoints || {}),
+        [section]: updatedPoints
+      };
+      return { ...prev, additionalPoints: updatedAdditionalPoints };
+    });
+  };
+
+  const handleOpenPhotoPicker = () => {
+    if (photoInputRef && photoInputRef.current) {
+      photoInputRef.current.click();
+    }
+  };
+
+  const handlePhotoChange = (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setLocalData((prev) => ({ ...prev, photo: objectUrl }));
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div style={{ minHeight: "100vh", backgroundColor: "#f3f4f6" }}>
       <Navbar />
-      <div className="flex">
+      
+      {/* Loading Overlay */}
+      {loading && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 50
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "0.5rem",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{
+              width: "4rem",
+              height: "4rem",
+              border: "2px solid #f3f3f3",
+              borderTop: "2px solid #3b82f6",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 1rem"
+            }}></div>
+            <p style={{
+              fontSize: "1.125rem",
+              fontWeight: "600",
+              color: "#374151"
+            }}>
+              AI is enhancing your resume...
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex" }}>
         <Sidebar onEnhance={handleEnhance} resumeRef={resumeRef} />
 
-        <div className="flex-grow p-8 flex flex-col items-center">
+        <div style={{ 
+          flexGrow: 1, 
+          padding: "2.5rem", 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center",
+          marginLeft: "1.5rem"
+        }}>
           <div
             ref={resumeRef}
-            className="bg-white shadow-3xl rounded-3xl max-w-7xl w-full overflow-hidden border border-gray-200"
+            style={{
+              backgroundColor: "#fff",
+              color: "#111827",
+              maxWidth: "64rem",
+              width: "100%",
+              padding: "1.25rem",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+              borderRadius: "0.5rem",
+              fontSize: "0.75rem",
+              position: "relative"
+            }}
           >
-            {/* Hero Section */}
-            <div className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-purple-800 text-white p-12">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex-1">
-                  {editMode ? (
-                    <>
-                      <input
-                        type="text"
-                        value={localData.name}
-                        onChange={(e) => handleFieldChange("name", e.target.value)}
-                        className="text-5xl font-black bg-transparent text-white border-b-2 border-white/30 focus:outline-none focus:border-white w-full mb-3"
-                        placeholder="Your Name"
-                      />
-                      <input
-                        type="text"
-                        value={localData.role}
-                        onChange={(e) => handleFieldChange("role", e.target.value)}
-                        className="text-2xl text-purple-100 bg-transparent border-b-2 border-white/30 focus:outline-none focus:border-white w-full"
-                        placeholder="Your Role"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <h1 className="text-5xl font-black mb-3 tracking-tight">{resumeData.name}</h1>
-                      <p className="text-2xl text-purple-100 font-medium">{resumeData.role}</p>
-                    </>
-                  )}
-                </div>
-                
-                <div className="ml-12 flex flex-col items-center">
-                  <div className="relative group">
-                    <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl">
-                      <img 
-                        src={uploadedPhoto || templateSettings.photo} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      {editMode && (
-                        <label
-                          htmlFor="photo-upload"
-                          className="absolute bottom-2 right-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full p-3 shadow-lg cursor-pointer transition-colors duration-200 flex items-center justify-center"
-                          title="Change photo"
-                        >
-                          {/* Camera Icon SVG */}
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6m6 0l-4.553-2.276A2 2 0 014 6.382V5a2 2 0 012-2h12a2 2 0 012 2v1.382a2 2 0 01-.447 1.342L15 10z" />
-                          </svg>
-                          <input
-                            id="photo-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoChange}
-                            className="hidden"
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Profile Photo (top-right of header) */}
+            <div style={{ position: "absolute", top: "1rem", right: "1.25rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.375rem" }}>
+              <img
+                src={localData?.photo || resumeData?.photo || defaultProfile}
+                alt="Profile"
+                style={{ width: "6rem", height: "6rem", borderRadius: "9999px", objectFit: "cover", border: `2px solid ${headingColor}` }}
+              />
+              <button
+                onClick={handleOpenPhotoPicker}
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "white",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "0.375rem",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                  transition: "all 0.2s ease-in-out",
+                  border: "none",
+                  fontSize: "0.7rem"
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+              >
+                Browse Photo
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                style={{ display: "none" }}
+                aria-label="Upload profile photo"
+              />
             </div>
-
-            {/* Contact Information */}
-            <div className="bg-gray-900 text-white px-12 py-6">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* First Block - Header */}
+            <div style={{ fontSize: "1rem", textAlign: "left", padding: "0.125rem" }}>
+              {/* Name */}
+              <div style={{ fontSize: "2.125rem", fontWeight: "bolder" }}>
                 {editMode ? (
-                  <>
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                        <Mail className="w-5 h-5 text-white" />
-                      </div>
-                      <input
-                        type="text"
-                        value={localData.email}
-                        onChange={(e) => handleFieldChange("email", e.target.value)}
-                        className="bg-transparent text-white border-none outline-none flex-1 text-sm"
-                        placeholder="Email"
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                        <Phone className="w-5 h-5 text-white" />
-                      </div>
+                  <input
+                    type="text"
+                    value={localData.name}
+                    onChange={(e) => handleFieldChange("name", e.target.value)}
+                    style={{ 
+                      fontSize: "2.125rem", 
+                      fontWeight: "bolder",
+                      width: "100%",
+                      border: "none",
+                      outline: "none",
+                      backgroundColor: "#e7f1ff"
+                    }}
+                  />
+                ) : (
+                  <h2 style={{ fontSize: "1.75rem", fontWeight: "bolder" }}>{resumeData.name}</h2>
+                )}
+              </div>
+
+              {/* Role */}
+              <div style={{ color: "rgb(122, 122, 243)", fontSize: "1.25rem" }}>
+                {editMode ? (
+                  <input
+                    type="text"
+                    value={localData.role}
+                    onChange={(e) => handleFieldChange("role", e.target.value)}
+                    style={{ 
+                      color: "rgb(122, 122, 243)",
+                      fontSize: "1.25rem",
+                      width: "100%",
+                      border: "none",
+                      outline: "none",
+                      backgroundColor: "#e7f1ff"
+                    }}
+                  />
+                ) : (
+                  resumeData.role
+                )}
+              </div>
+
+              {/* Contact Details */}
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "left", 
+                fontSize: "1rem", 
+                margin: "0.625rem", 
+                gap: "0.75rem",
+                flexWrap: "wrap"
+              }}>
+                {/* Phone */}
+                {(resumeData?.phone || editMode) && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3125rem" }}>
+                    <FontAwesomeIcon icon={faPhone} />
+                    {editMode ? (
                       <input
                         type="text"
                         value={localData.phone}
                         onChange={(e) => handleFieldChange("phone", e.target.value)}
-                        className="bg-transparent text-white border-none outline-none flex-1 text-sm"
-                        placeholder="Phone"
+                        style={{ 
+                          border: "none",
+                          outline: "none",
+                          backgroundColor: "#e7f1ff"
+                        }}
                       />
-                    </div>
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-white" />
-                      </div>
+                    ) : (
+                      <span>{resumeData.phone}</span>
+                    )}
+                    {" | "}
+                  </div>
+                )}
+
+                {/* Email */}
+                {(resumeData?.email || editMode) && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3125rem" }}>
+                    <FontAwesomeIcon icon={faEnvelope} />
+                    {editMode ? (
                       <input
-                        type="text"
-                        value={localData.location}
-                        onChange={(e) => handleFieldChange("location", e.target.value)}
-                        className="bg-transparent text-white border-none outline-none flex-1 text-sm"
-                        placeholder="Location"
+                        type="email"
+                        value={localData.email}
+                        onChange={(e) => handleFieldChange("email", e.target.value)}
+                        style={{ 
+                          border: "none",
+                          outline: "none",
+                          backgroundColor: "#e7f1ff"
+                        }}
                       />
-                    </div>
-                    <div className="flex items-center gap-3 group">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                        <Linkedin className="w-5 h-5 text-white" />
-                      </div>
+                    ) : (
+                      <span>{resumeData.email}</span>
+                    )}
+                    {" | "}
+                  </div>
+                )}
+
+                {/* LinkedIn */}
+                {(resumeData?.linkedin || editMode) && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3125rem" }}>
+                    <FontAwesomeIcon icon={faLinkedin} />
+                    {editMode ? (
                       <input
                         type="text"
                         value={localData.linkedin}
                         onChange={(e) => handleFieldChange("linkedin", e.target.value)}
-                        className="bg-transparent text-white border-none outline-none flex-1 text-sm"
-                        placeholder="LinkedIn"
+                        style={{ 
+                          border: "none",
+                          outline: "none",
+                          backgroundColor: "#e7f1ff"
+                        }}
                       />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {resumeData.email && (
-                      <div className="flex items-center gap-3 group hover:scale-105 transition-transform">
-                        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                          <Mail className="w-5 h-5 text-white" />
-                        </div>
-                        <a href={`mailto:${resumeData.email}`} className="text-sm hover:text-purple-300 transition-colors">
-                          {resumeData.email}
-                        </a>
-                      </div>
+                    ) : (
+                      <span>{resumeData.linkedin}</span>
                     )}
-                    {resumeData.phone && (
-                      <div className="flex items-center gap-3 group hover:scale-105 transition-transform">
-                        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                          <Phone className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-sm">{resumeData.phone}</span>
-                      </div>
-                    )}
-                    {resumeData.location && (
-                      <div className="flex items-center gap-3 group hover:scale-105 transition-transform">
-                        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                          <MapPin className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-sm">{resumeData.location}</span>
-                      </div>
-                    )}
-                    {resumeData.linkedin && (
-                      <div className="flex items-center gap-3 group hover:scale-105 transition-transform">
-                        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                          <Linkedin className="w-5 h-5 text-white" />
-                        </div>
-                        <a href={`https://${resumeData.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-purple-300 transition-colors">
-                          {resumeData.linkedin}
-                        </a>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex">
-              {/* Left Column - Main Content */}
-              <div className="flex-1 p-12">
-                {/* Profile Summary */}
-                <SectionHeader title="Professional Summary" icon={User} accentColor="bg-purple-500" />
-                {editMode ? (
-                  <textarea
-                    value={localData.summary}
-                    onChange={(e) => handleFieldChange("summary", e.target.value)}
-                    className="w-full text-gray-700 leading-relaxed p-6 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500 resize-none text-lg"
-                    rows={4}
-                    placeholder="Write your professional summary..."
-                  />
-                ) : (
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-2xl border-l-4 border-purple-500">
-                    <p className="text-gray-700 leading-relaxed text-lg">{resumeData.summary}</p>
+                    {" | "}
                   </div>
                 )}
 
-                {/* Experience Section */}
-                <SectionHeader title="Work Experience" icon={Briefcase} accentColor="bg-pink-500" />
-                <div className="space-y-8">
-                  {(resumeData.experience || []).map((exp, i) => (
-                    <div key={i} className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                      {editMode ? (
-                        <div className="space-y-4">
-                          <input
-                            type="text"
-                            value={localData.experience[i].title}
-                            onChange={(e) => handleNestedChange("experience", i, "title", e.target.value)}
-                            className="text-2xl font-bold text-gray-800 w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500"
-                          />
-                          <div className="flex gap-4">
-                            <input
-                              type="text"
-                              value={localData.experience[i].companyName}
-                              onChange={(e) => handleNestedChange("experience", i, "companyName", e.target.value)}
-                              className="text-lg font-semibold text-purple-600 flex-1 p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500"
-                              placeholder="Company"
-                            />
-                            <input
-                              type="text"
-                              value={localData.experience[i].date}
-                              onChange={(e) => handleNestedChange("experience", i, "date", e.target.value)}
-                              className="text-sm text-gray-600 p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500"
-                              placeholder="Date"
-                            />
-                          </div>
-                          <textarea
-                            value={localData.experience[i].accomplishment[0] || ""}
-                            onChange={(e) => handleNestedChange("experience", i, "accomplishment", [e.target.value])}
-                            className="w-full text-gray-700 p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500 resize-none"
-                            rows={4}
-                            placeholder="Describe your accomplishments..."
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-2xl font-bold text-gray-800 mb-2">{exp.title}</h3>
-                              <div className="flex items-center gap-4">
-                                <span className="text-lg font-semibold text-purple-600">{exp.companyName}</span>
-                                <span className="text-sm text-gray-500 flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  {exp.date}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                              <Building className="w-6 h-6 text-white" />
-                            </div>
-                          </div>
-                          <p className="text-gray-700 leading-relaxed text-lg">{exp.accomplishment[0]}</p>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Education Section */}
-                <SectionHeader title="Education" icon={GraduationCap} accentColor="bg-blue-500" />
-                <div className="space-y-6">
-                  {(resumeData.education || []).map((edu, i) => (
-                    <div key={i} className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
-                      {editMode ? (
-                        <div className="space-y-3">
-                          <input
-                            type="text"
-                            value={localData.education[i].degree}
-                            onChange={(e) => handleNestedChange("education", i, "degree", e.target.value)}
-                            className="text-xl font-bold text-gray-800 w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500"
-                          />
-                          <input
-                            type="text"
-                            value={localData.education[i].institution}
-                            onChange={(e) => handleNestedChange("education", i, "institution", e.target.value)}
-                            className="text-lg font-semibold text-blue-600 w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500"
-                          />
-                          <input
-                            type="text"
-                            value={localData.education[i].duration}
-                            onChange={(e) => handleNestedChange("education", i, "duration", e.target.value)}
-                            className="text-sm text-gray-600 w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500"
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <h3 className="text-xl font-bold text-gray-800 mb-2">{edu.degree}</h3>
-                          <p className="text-lg font-semibold text-blue-600 mb-1">{edu.institution}</p>
-                          <p className="text-sm text-gray-600">{edu.duration}</p>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {/* Location */}
+                {(resumeData?.location || editMode) && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3125rem" }}>
+                    <FontAwesomeIcon icon={faMapMarkerAlt} />
+                    {editMode ? (
+                      <input
+                        type="text"
+                        value={localData.location}
+                        onChange={(e) => handleFieldChange("location", e.target.value)}
+                        style={{ 
+                          border: "none",
+                          outline: "none",
+                          backgroundColor: "#e7f1ff"
+                        }}
+                      />
+                    ) : (
+                      <span>{resumeData.location}</span>
+                    )}
+                  </div>
+                )}
               </div>
+            </div>
 
-              {/* Right Column - Sidebar */}
-              <div className="w-96 bg-gradient-to-b from-gray-50 to-gray-100 p-8">
-                {/* Skills Section */}
-                <SectionHeader title="Technical Skills" icon={Code2} accentColor="bg-green-500" />
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
+            {/* Summary Section */}
+            {visibleSections.summary && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Summary
+                  </h3>
                   {editMode ? (
                     <textarea
-                      value={localData.skills ? localData.skills.join(', ') : ''}
-                      onChange={(e) => handleFieldChange("skills", e.target.value.split(',').map(s => s.trim()).filter(s => s))}
-                      className="w-full text-gray-700 p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-200 focus:border-green-500 resize-none"
-                      rows={4}
-                      placeholder="Enter skills separated by commas"
+                      value={localData.summary}
+                      onChange={(e) => handleFieldChange("summary", e.target.value)}
+                      style={{ 
+                        width: "100%", 
+                        minHeight: "4rem",
+                        border: "none",
+                        outline: "none",
+                        backgroundColor: "#e7f1ff",
+                        resize: "vertical"
+                      }}
                     />
                   ) : (
-                    <div className="flex flex-wrap gap-3">
-                      {resumeData.skills && resumeData.skills.map((skill, i) => (
-                        <span key={i} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+                    <div>{resumeData.summary}</div>
                   )}
-                </div>
-
-                {/* Languages Section */}
-                <SectionHeader title="Languages" icon={Globe} accentColor="bg-orange-500" />
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
-                  {editMode ? (
-                    <textarea
-                      value={localData.languages ? localData.languages.join(', ') : ''}
-                      onChange={(e) => handleFieldChange("languages", e.target.value.split(',').map(s => s.trim()).filter(s => s))}
-                      className="w-full text-gray-700 p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500 resize-none"
-                      rows={3}
-                      placeholder="Enter languages separated by commas"
-                    />
-                  ) : (
-                    <div className="space-y-3">
-                      {resumeData.languages && resumeData.languages.map((lang, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-                          <span className="text-gray-700 font-medium">{lang}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Certifications Section */}
-                <SectionHeader title="Certifications" icon={Trophy} accentColor="bg-yellow-500" />
-                <div className="space-y-4">
-                  {(templateSettings.certifications || []).map((cert, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-4 shadow-lg border-l-4 border-yellow-500">
+                  {(localData?.additionalPoints?.summary?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
                       {editMode ? (
-                        <div className="space-y-2">
-                          <input
-                            type="text"
-                            value={templateSettings.certifications[i].title}
-                            onChange={(e) => handleCertificationsChange(i, "title", e.target.value)}
-                            className="text-sm font-bold text-gray-800 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500"
-                          />
-                          <input
-                            type="text"
-                            value={templateSettings.certifications[i].issuedBy}
-                            onChange={(e) => handleCertificationsChange(i, "issuedBy", e.target.value)}
-                            className="text-sm text-gray-600 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500"
-                          />
-                          <input
-                            type="text"
-                            value={templateSettings.certifications[i].year}
-                            onChange={(e) => handleCertificationsChange(i, "year", e.target.value)}
-                            className="text-sm text-gray-500 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500"
-                          />
-                        </div>
-                      ) : (
                         <>
-                          <h3 className="text-sm font-bold text-gray-800 mb-1">{cert.title}</h3>
-                          <p className="text-sm text-gray-600 mb-1">{cert.issuedBy}</p>
-                          <p className="text-xs text-gray-500">{cert.year}</p>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.summary || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("summary", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          {/* Add Point button removed */}
                         </>
+                      ) : (
+                        (localData?.additionalPoints?.summary?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.summary.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("summary")}
+                  >
+                    Remove Summary
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Experience Section */}
+            {visibleSections.experience && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Experience
+                  </h3>
+                  {localData?.experience?.map((exp, idx) => (
+                    <div key={idx} style={{ marginBottom: "1rem" }}>
+                      <div style={{ 
+                        display: "grid", 
+                        width: "100%", 
+                        gridTemplateColumns: "80% 20%" 
+                      }}>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={exp.companyName}
+                              onChange={(e) => handleArrayFieldChange("experience", idx, "companyName", e.target.value)}
+                              style={{ 
+                                fontSize: "1.125rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1.125rem" }}>{exp.companyName}</p>
+                          )}
+                        </div>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={exp.companyLocation}
+                              onChange={(e) => handleArrayFieldChange("experience", idx, "companyLocation", e.target.value)}
+                              style={{ 
+                                fontSize: "1rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1rem" }}>{exp.companyLocation}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "grid", 
+                        width: "100%", 
+                        gridTemplateColumns: "80% 20%" 
+                      }}>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={exp.title}
+                              onChange={(e) => handleArrayFieldChange("experience", idx, "title", e.target.value)}
+                              style={{ 
+                                fontSize: "1rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1rem" }}>{exp.title}</p>
+                          )}
+                        </div>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={exp.date}
+                              onChange={(e) => handleArrayFieldChange("experience", idx, "date", e.target.value)}
+                              style={{ 
+                                fontSize: "0.9375rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "0.9375rem" }}>{exp.date}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {editMode ? (
+                        <textarea
+                          value={exp.description}
+                          onChange={(e) => handleArrayFieldChange("experience", idx, "description", e.target.value)}
+                          style={{ 
+                            width: "100%", 
+                            minHeight: "3rem",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff",
+                            resize: "vertical"
+                          }}
+                        />
+                      ) : (
+                        <div>{exp.description}</div>
+                      )}
+
+                      {editMode ? (
+                        <textarea
+                          value={exp.accomplishment}
+                          onChange={(e) => handleArrayFieldChange("experience", idx, "accomplishment", e.target.value)}
+                          style={{ 
+                            width: "100%", 
+                            minHeight: "3rem",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff",
+                            resize: "vertical",
+                            marginTop: "0.5rem"
+                          }}
+                        />
+                      ) : (
+                        <div>{exp.accomplishment}</div>
+                      )}
+
+                      {editMode && localData?.experience?.length > 1 && (
+                        <button
+                          onClick={() => removeEntry("experience", idx)}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease-in-out",
+                            border: "none",
+                            margin: "0.3125rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Remove
+                        </button>
                       )}
                     </div>
                   ))}
+                  {editMode && (
+                    <button
+                      onClick={() => addNewEntry("experience")}
+                      style={{
+                        backgroundColor: "#2563eb",
+                        color: "white",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease-in-out",
+                        border: "none"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    >
+                      + New Entry
+                    </button>
+                  )}
+                  {(localData?.additionalPoints?.experience?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      {editMode ? (
+                        <>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.experience || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("experience", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          {/* Add Point button removed */}
+                        </>
+                      ) : (
+                        (localData?.additionalPoints?.experience?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.experience.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem 0px"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("experience")}
+                  >
+                    Remove Experience
+                  </button>
+                )}
+              </div>
+            )}
 
-                {/* Courses Section */}
-                <SectionHeader title="Courses" icon={BookOpen} accentColor="bg-indigo-500" />
-                <div className="space-y-3">
-                  {(templateSettings.courses || []).map((course, i) => (
-                    <div key={i} className="bg-white rounded-xl p-4 shadow-md">
+            {/* Education Section */}
+            {visibleSections.education && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Education
+                  </h3>
+                  {localData?.education?.map((edu, idx) => (
+                    <div key={idx} style={{ marginBottom: "1rem" }}>
+                      <div style={{ 
+                        display: "grid", 
+                        width: "100%", 
+                        gridTemplateColumns: "80% 20%" 
+                      }}>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={edu.institution}
+                              onChange={(e) => handleArrayFieldChange("education", idx, "institution", e.target.value)}
+                              style={{ 
+                                fontSize: "1.125rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1.125rem" }}>{edu.institution}</p>
+                          )}
+                        </div>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={edu.grade}
+                              onChange={(e) => handleArrayFieldChange("education", idx, "grade", e.target.value)}
+                              style={{ 
+                                fontSize: "0.9375rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "0.9375rem" }}>{edu.grade}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "grid", 
+                        width: "100%", 
+                        gridTemplateColumns: "80% 20%" 
+                      }}>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={edu.degree}
+                              onChange={(e) => handleArrayFieldChange("education", idx, "degree", e.target.value)}
+                              style={{ 
+                                fontSize: "1rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1rem" }}>{edu.degree}</p>
+                          )}
+                        </div>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={edu.duration}
+                              onChange={(e) => handleArrayFieldChange("education", idx, "duration", e.target.value)}
+                              style={{ 
+                                fontSize: "0.9375rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "0.9375rem" }}>{edu.duration}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {editMode && localData?.education?.length > 1 && (
+                        <button
+                          onClick={() => removeEntry("education", idx)}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease-in-out",
+                            border: "none",
+                            margin: "0.3125rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {editMode && (
+                    <button
+                      onClick={() => addNewEntry("education")}
+                      style={{
+                        backgroundColor: "#2563eb",
+                        color: "white",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease-in-out",
+                        border: "none"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    >
+                      + New Entry
+                    </button>
+                  )}
+                  {(localData?.additionalPoints?.education?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      {editMode ? (
+                        <>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.education || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("education", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            onClick={() => handleAddPoint("education")}
+                            style={{
+                              backgroundColor: "#2563eb",
+                              color: "white",
+                              cursor: "pointer",
+                              fontWeight: "600",
+                              padding: "0.35rem 0.75rem",
+                              borderRadius: "0.375rem",
+                              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                              transition: "all 0.2s ease-in-out",
+                              border: "none",
+                              marginTop: "0.25rem"
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                            onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                          >
+                            Add Point
+                          </button>
+                        </>
+                      ) : (
+                        (localData?.additionalPoints?.education?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.education.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem 0px"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("education")}
+                  >
+                    Remove Education
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Achievements Section */}
+            {visibleSections.achievements && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Key Achievements
+                  </h3>
+                  {localData?.achievements?.map((ach, idx) => (
+                    <div key={idx} style={{ marginBottom: "1rem" }}>
                       {editMode ? (
                         <input
                           type="text"
-                          value={templateSettings.courses[i].title}
-                          onChange={(e) => handleCoursesChange(i, "title", e.target.value)}
-                          className="text-sm text-gray-700 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500"
+                          value={ach.keyAchievements}
+                          onChange={(e) => handleArrayFieldChange("achievements", idx, "keyAchievements", e.target.value)}
+                          style={{ 
+                            fontSize: "1rem",
+                            width: "100%",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff"
+                          }}
                         />
                       ) : (
-                        <p className="text-sm text-gray-700">{course.title}</p>
+                        <p style={{ fontSize: "1rem" }}>{ach.keyAchievements}</p>
+                      )}
+                      
+                      {editMode ? (
+                        <textarea
+                          value={ach.describe}
+                          onChange={(e) => handleArrayFieldChange("achievements", idx, "describe", e.target.value)}
+                          style={{ 
+                            fontSize: "0.9375rem",
+                            width: "100%",
+                            minHeight: "3rem",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff",
+                            resize: "vertical"
+                          }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: "0.9375rem" }}>{ach.describe}</p>
+                      )}
+
+                      {editMode && localData?.achievements?.length > 1 && (
+                        <button
+                          onClick={() => removeEntry("achievements", idx)}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease-in-out",
+                            border: "none",
+                            margin: "0.3125rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Remove
+                        </button>
                       )}
                     </div>
                   ))}
+                  {editMode && (
+                    <button
+                      onClick={() => addNewEntry("achievements")}
+                      style={{
+                        backgroundColor: "#2563eb",
+                        color: "white",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease-in-out",
+                        border: "none"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    >
+                      + New Entry
+                    </button>
+                  )}
+                  {(localData?.additionalPoints?.achievements?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      {editMode ? (
+                        <>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.achievements || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("achievements", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          {/* Add Point button removed */}
+                        </>
+                      ) : (
+                        (localData?.additionalPoints?.achievements?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.achievements.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem 0px"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("achievements")}
+                  >
+                    Remove Achievements
+                  </button>
+                )}
               </div>
-            </div>
+            )}
+
+            {/* Skills Section */}
+            {visibleSections.skills && (
+              <div style={{ marginBottom: "1.5rem" }}>
+                <h3 style={{ 
+                  fontSize: "1.25rem", 
+                  textAlign: "left", 
+                  margin: "0.625rem 0.0625rem", 
+                  fontWeight: "700", 
+                  color: headingColor,
+                  borderBottom: `2px solid ${headingColor}` 
+                }}>
+                  Skills
+                </h3>
+                {editMode ? (
+                  <textarea
+                    value={localData?.skills?.join(", ")}
+                    onChange={(e) => handleSkillsChange(e.target.value)}
+                    style={{ 
+                      width: "100%", 
+                      minHeight: "3rem",
+                      border: "none",
+                      outline: "none",
+                      backgroundColor: "#e7f1ff",
+                      resize: "vertical"
+                    }}
+                  />
+                ) : (
+                  <div style={{ fontSize: "0.8125rem" }}>{resumeData?.skills?.join(", ")}</div>
+                )}
+                {(localData?.additionalPoints?.skills?.length > 0 || editMode) && (
+                  <div style={{ marginTop: "0.5rem" }}>
+                    {editMode ? (
+                      <>
+                        <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                          {(localData?.additionalPoints?.skills || []).map((pt, i) => (
+                            <li key={i}>
+                              <input
+                                type="text"
+                                value={pt}
+                                onChange={(e) => handleUpdatePoint("skills", i, e.target.value)}
+                                style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          onClick={() => handleAddPoint("skills")}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.35rem 0.75rem",
+                            borderRadius: "0.375rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.2s ease-in-out",
+                            border: "none",
+                            marginTop: "0.25rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Add Point
+                        </button>
+                      </>
+                    ) : (
+                      (localData?.additionalPoints?.skills?.length > 0) && (
+                        <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                          {localData.additionalPoints.skills.map((pt, i) => (
+                            <li key={i}>{pt}</li>
+                          ))}
+                        </ul>
+                      )
+                    )}
+                  </div>
+                )}
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("skills")}
+                  >
+                    Remove Skills
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Courses Section */}
+            {visibleSections.courses && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Courses
+                  </h3>
+                  {localData?.courses?.map((course, idx) => (
+                    <div key={idx} style={{ marginBottom: "1rem" }}>
+                      {editMode ? (
+                        <input
+                          type="text"
+                          value={course.title}
+                          onChange={(e) => handleArrayFieldChange("courses", idx, "title", e.target.value)}
+                          style={{ 
+                            fontSize: "1rem",
+                            width: "100%",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff"
+                          }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: "1rem" }}>{course.title}</p>
+                      )}
+                      
+                      {editMode ? (
+                        <textarea
+                          value={course.description}
+                          onChange={(e) => handleArrayFieldChange("courses", idx, "description", e.target.value)}
+                          style={{ 
+                            fontSize: "0.9375rem",
+                            width: "100%",
+                            minHeight: "3rem",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff",
+                            resize: "vertical"
+                          }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: "0.9375rem" }}>{course.description}</p>
+                      )}
+
+                      {editMode && localData?.courses?.length > 1 && (
+                        <button
+                          onClick={() => removeEntry("courses", idx)}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease-in-out",
+                            border: "none",
+                            margin: "0.3125rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {editMode && (
+                    <button
+                      onClick={() => addNewEntry("courses")}
+                      style={{
+                        backgroundColor: "#2563eb",
+                        color: "white",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease-in-out",
+                        border: "none"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    >
+                      + New Entry
+                    </button>
+                  )}
+                  {(localData?.additionalPoints?.courses?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      {editMode ? (
+                        <>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.courses || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("courses", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          {/* Add Point button removed */}
+                        </>
+                      ) : (
+                        (localData?.additionalPoints?.courses?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.courses.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem 0px"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("courses")}
+                  >
+                    Remove Courses
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Projects Section */}
+            {visibleSections.projects && (
+              <div>
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <h3 style={{ 
+                    fontSize: "1.25rem", 
+                    textAlign: "left", 
+                    margin: "0.625rem 0.0625rem", 
+                    fontWeight: "700", 
+                    color: headingColor,
+                    borderBottom: `2px solid ${headingColor}` 
+                  }}>
+                    Projects
+                  </h3>
+                  {localData?.projects?.map((prj, idx) => (
+                    <div key={idx} style={{ marginBottom: "1rem" }}>
+                      <div style={{ 
+                        display: "grid", 
+                        width: "100%", 
+                        gridTemplateColumns: "80% 20%" 
+                      }}>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={prj.name || prj.title}
+                              onChange={(e) => handleArrayFieldChange("projects", idx, "name", e.target.value)}
+                              style={{ 
+                                fontSize: "1.125rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1.125rem" }}>{prj.name || prj.title}</p>
+                          )}
+                        </div>
+                        <div>
+                          {editMode ? (
+                            <input
+                              type="text"
+                              value={prj.duration}
+                              onChange={(e) => handleArrayFieldChange("projects", idx, "duration", e.target.value)}
+                              style={{ 
+                                fontSize: "1rem",
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "#e7f1ff"
+                              }}
+                            />
+                          ) : (
+                            <p style={{ fontSize: "1rem" }}>{prj.duration}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {editMode ? (
+                        <textarea
+                          value={prj.description}
+                          onChange={(e) => handleArrayFieldChange("projects", idx, "description", e.target.value)}
+                          style={{ 
+                            fontSize: "1rem",
+                            width: "100%",
+                            minHeight: "3rem",
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#e7f1ff",
+                            resize: "vertical"
+                          }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: "1rem" }}>{prj.description}</p>
+                      )}
+
+                      {editMode && localData?.projects?.length > 1 && (
+                        <button
+                          onClick={() => removeEntry("projects", idx)}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            color: "white",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease-in-out",
+                            border: "none",
+                            margin: "0.3125rem"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {editMode && (
+                    <button
+                      onClick={() => addNewEntry("projects")}
+                      style={{
+                        backgroundColor: "#2563eb",
+                        color: "white",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease-in-out",
+                        border: "none"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    >
+                      + New Entry
+                    </button>
+                  )}
+                  {(localData?.additionalPoints?.projects?.length > 0 || editMode) && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      {editMode ? (
+                        <>
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {(localData?.additionalPoints?.projects || []).map((pt, i) => (
+                              <li key={i}>
+                                <input
+                                  type="text"
+                                  value={pt}
+                                  onChange={(e) => handleUpdatePoint("projects", i, e.target.value)}
+                                  style={{ width: "100%", border: "none", outline: "none", backgroundColor: "#e7f1ff" }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            onClick={() => handleAddPoint("projects")}
+                            style={{
+                              backgroundColor: "#2563eb",
+                              color: "white",
+                              cursor: "pointer",
+                              fontWeight: "600",
+                              padding: "0.35rem 0.75rem",
+                              borderRadius: "0.375rem",
+                              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                              transition: "all 0.2s ease-in-out",
+                              border: "none",
+                              marginTop: "0.25rem"
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                            onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                          >
+                            Add Point
+                          </button>
+                        </>
+                      ) : (
+                        (localData?.additionalPoints?.projects?.length > 0) && (
+                          <ul style={{ listStyleType: "disc", marginLeft: "1.25rem" }}>
+                            {localData.additionalPoints.projects.map((pt, i) => (
+                              <li key={i}>{pt}</li>
+                            ))}
+                          </ul>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                {editMode && (
+                  <button
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "0.5rem",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      transition: "all 0.3s ease-in-out",
+                      border: "none",
+                      margin: "0.625rem 0px"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                    onClick={() => removeBlock("projects")}
+                  >
+                    Remove Projects
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Edit/Save Buttons */}
-          <div className="mt-8 text-center">
+          {/* Edit/Save/Cancel Controls */}
+          <div style={{ marginTop: "1rem", textAlign: "center" }}>
             {editMode ? (
-              <div className="flex gap-4 justify-center">
+              <>
+                <button
+                  onClick={handleOpenColorPicker}
+                  style={{ 
+                    backgroundColor: "#2563eb", 
+                    color: "white", 
+                    padding: "0.5rem 1rem", 
+                    borderRadius: "0.375rem", 
+                    marginRight: "0.5rem",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                  onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+                >
+                  Change Color
+                </button>
                 <button
                   onClick={handleSave}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                  style={{ 
+                    backgroundColor: "#10b981", 
+                    color: "white", 
+                    padding: "0.5rem 1rem", 
+                    borderRadius: "0.375rem", 
+                    marginRight: "0.5rem",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
                 >
-                  Save Changes
+                  Save
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                  style={{ 
+                    backgroundColor: "#6b7280", 
+                    color: "white", 
+                    padding: "0.5rem 1rem", 
+                    borderRadius: "0.375rem",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
                 >
                   Cancel
                 </button>
-              </div>
+              </>
             ) : (
               <button
                 onClick={() => setEditMode(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-10 py-4 rounded-2xl font-bold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                style={{ 
+                  backgroundColor: "#3b82f6", 
+                  color: "white", 
+                  padding: "0.5rem 1rem", 
+                  borderRadius: "0.375rem",
+                  border: "none",
+                  cursor: "pointer"
+                }}
               >
-                Edit Resume
+                Edit
               </button>
             )}
+            {!editMode && (
+              <button
+                onClick={handleOpenColorPicker}
+                style={{ 
+                  backgroundColor: "#2563eb", 
+                  color: "white", 
+                  padding: "0.5rem 1rem", 
+                  borderRadius: "0.375rem", 
+                  marginLeft: "0.5rem",
+                  border: "none",
+                  cursor: "pointer"
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = "#1d4ed8"}
+                onMouseOut={(e) => e.target.style.backgroundColor = "#2563eb"}
+              >
+                Change Color
+              </button>
+            )}
+            <input
+              ref={colorInputRef}
+              type="color"
+              value={headingColor}
+              onChange={(e) => setHeadingColor(e.target.value)}
+              style={{ display: "none" }}
+              aria-label="Pick heading color"
+            />
           </div>
         </div>
       </div>
+
+      {/* Mobile Responsive Styles */}
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        @media only screen and (max-width: 776px) {
+          .editResume {
+            margin: 30px 0px;
+          }
+          
+          #resumeBody {
+            box-sizing: border-box;
+            margin: 30px 10px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 5px;
+            min-width: 380px;
+          }
+          
+          .user-name {
+            font-size: 20px;
+          }
+
+          .user-role {
+            font-size: 15px;
+          }
+
+          .user-contacts {
+            font-size: 10px;
+          }
+
+          .headings {
+            font-size: 18px;
+          }
+
+          .user-summary {
+            font-size: 13px;
+          }
+
+          .remove-section-btn {
+            font-size: 10px;
+          }
+
+          .remove-btn {
+            font-size: 10px;
+          }
+
+          .add-btn {
+            font-size: 10px;
+          }
+
+          .exp1 {
+            font-size: 10px;
+          }
+
+          .user-experience {
+            font-size: 13px;
+          }
+
+          .para1 {
+            font-size: 13px;
+          }
+
+          .para2 {
+            font-size: 12px;
+          }
+
+          .para3 {
+            font-size: 11px;
+          }
+
+          .para5 {
+            font-size: 12px;
+          }
+
+          .para4 {
+            font-size: 13px;
+          }
+
+          .skillsblock {
+            font-size: 13px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
-export default Template6;
+export default Template1;

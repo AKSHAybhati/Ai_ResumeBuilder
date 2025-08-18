@@ -3,6 +3,16 @@ import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 import { useResume } from "../../context/ResumeContext";
 
+// Icons
+import {
+  FaLinkedin,
+  FaGithub,
+  FaGlobe,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
+
 const Template7 = () => {
   const resumeRef = useRef(null);
   const { resumeData, setResumeData } = useResume();
@@ -37,7 +47,6 @@ const Template7 = () => {
     console.log("Enhance requested for:", section);
   };
 
-  // Styles object
   const styles = {
     container: {
       minHeight: "100vh",
@@ -65,9 +74,6 @@ const Template7 = () => {
       borderRadius: "1rem",
       boxShadow: "0 10px 15px rgba(0, 0, 0, 0.05)",
     },
-    cardHover: {
-      boxShadow: "0 14px 25px rgba(0, 0, 0, 0.08)",
-    },
     header: {
       display: "flex",
       justifyContent: "space-between",
@@ -88,6 +94,13 @@ const Template7 = () => {
     contactField: {
       marginBottom: "0.25rem",
       fontSize: "0.9rem",
+    },
+    iconWithText: {
+      display: "flex",
+      alignItems: "center",
+      gap: "0.5rem",
+      marginBottom: "0.25rem",
+      justifyContent: "flex-end",
     },
     section: {
       marginBottom: "2rem",
@@ -175,19 +188,60 @@ const Template7 = () => {
                 )}
               </div>
               <div style={styles.contact}>
-                {["email", "phone", "location", "linkedin", "github", "portfolio"].map((field) =>
-                  editMode ? (
+                {editMode ? (
+                  ["email", "phone", "location", "linkedin", "github", "portfolio"].map((field) => (
                     <input
                       key={field}
                       value={localData[field]}
                       onChange={(e) => handleFieldChange(field, e.target.value)}
                       style={styles.input}
                     />
-                  ) : (
-                    <p key={field} style={styles.contactField}>
-                      {resumeData[field]}
-                    </p>
-                  )
+                  ))
+                ) : (
+                  <div>
+                    {resumeData.email && (
+                      <div style={styles.iconWithText}>
+                        <FaEnvelope />
+                        <a href={`mailto:${resumeData.email}`} target="_blank" rel="noopener noreferrer">
+                          {resumeData.email}
+                        </a>
+                      </div>
+                    )}
+                    {resumeData.phone && (
+                      <div style={styles.iconWithText}>
+                        <FaPhone /> {resumeData.phone}
+                      </div>
+                    )}
+                    {resumeData.location && (
+                      <div style={styles.iconWithText}>
+                        <FaMapMarkerAlt /> {resumeData.location}
+                      </div>
+                    )}
+                    {resumeData.linkedin && (
+                      <div style={styles.iconWithText}>
+                        <FaLinkedin />
+                        <a href={resumeData.linkedin} target="_blank" rel="noopener noreferrer">
+                          LinkedIn
+                        </a>
+                      </div>
+                    )}
+                    {resumeData.github && (
+                      <div style={styles.iconWithText}>
+                        <FaGithub />
+                        <a href={resumeData.github} target="_blank" rel="noopener noreferrer">
+                          GitHub
+                        </a>
+                      </div>
+                    )}
+                    {resumeData.portfolio && (
+                      <div style={styles.iconWithText}>
+                        <FaGlobe />
+                        <a href={resumeData.portfolio} target="_blank" rel="noopener noreferrer">
+                          Portfolio
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -224,11 +278,7 @@ const Template7 = () => {
                     style={styles.textarea}
                   />
                 ) : (
-                  <ul style={styles.list}>
-                    {resumeData[section].map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
+                  <div>{resumeData[section].join(", ")}</div>
                 )}
               </div>
             ))}
@@ -359,7 +409,8 @@ const Template7 = () => {
                   ) : (
                     <p>
                       <strong>{proj.name}</strong>: {proj.description} (
-                      <a href={proj.link}>Live</a> | <a href={proj.github}>GitHub</a>)
+                      <a href={proj.link} target="_blank" rel="noopener noreferrer">Live</a> |{" "}
+                      <a href={proj.github} target="_blank" rel="noopener noreferrer">GitHub</a>)
                     </p>
                   )}
                 </div>

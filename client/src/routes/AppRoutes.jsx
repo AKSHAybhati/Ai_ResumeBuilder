@@ -32,6 +32,8 @@ import Template14 from '../components/ai-resume-templates/Template14.jsx';
 import Template15 from '../components/ai-resume-templates/Template15.jsx';
 import Template16 from '../components/ai-resume-templates/Template16.jsx';
 import Template17 from '../components/ai-resume-templates/Template17.jsx';
+import Template18 from '../components/ai-resume-templates/Template18.jsx';
+import Template19 from '../components/ai-resume-templates/Template19.jsx';
 import Template20 from '../components/ai-resume-templates/Template20.jsx';
 import Template21 from '../components/ai-resume-templates/Template21.jsx';
 import Template22 from '../components/ai-resume-templates/Template22.jsx';
@@ -69,6 +71,8 @@ const AppRoutes = () => {
           <Route  path='/template15' element={<Template15 />} />
           <Route  path='/template16' element={<Template16 />} />
           <Route  path='/template17' element={<Template17 />} />
+          <Route  path='/template18' element={<Template18 />} />
+          <Route  path='/template19' element={<Template19 />} />
           <Route  path='/template20' element={<Template20 />} />
           <Route  path='/template21' element={<Template21 />} />
           <Route  path='/template22' element={<Template22 />} />

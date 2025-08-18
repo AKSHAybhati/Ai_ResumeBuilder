@@ -141,14 +141,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Resume Preview-18',
       preview: temp8,
       description: 'Clean and modern layout tailored for retail sales job seekers.',
-      url: '/resume-template18'
+      url: '/template18'
     },
     {
       id: 19,
       name: 'Experience Highlight-19',
       preview: temp8,
       description: 'Showcases impactful achievements in retail sales with measurable success.',
-      url: '/resume-template19'
+      url: '/template19'
     },
     {
       id: 20,
