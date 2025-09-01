@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import temp1 from '../../assets/images/temp1.png';
 import temp2 from '../../assets/images/temp2.png';
@@ -12,7 +12,7 @@ import temp9 from '../../assets/images/temp9.jpg';
 
 
 import { useNavigate } from 'react-router-dom';
-const WithoutAiTemp = ({ setActiveStep }) => {
+const WithoutAiTemp = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [hoveredTemplate, setHoveredTemplate] = useState(null);
 
@@ -57,14 +57,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Modern Momentum-6',
       preview: temp6,
       description: 'Perfect for tech professionals seeking a sleek, impactful, and well-structured presentation of their experience and skills.',
-      url: '/template6'
+      url: '/resume-template6'
     },
     {
       id: 7,
       name: 'Creative Spectrum-7',
       preview: temp7,
       description: 'perfect for a graphic designers resume template.',
-      url: '/template7'
+      url: '/resume-template7'
     },
     {
       id: 8,
@@ -78,14 +78,14 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Tech Forward-9',
       preview: temp9,
       description: 'Modern single-column design with skill tags for tech professionals.',
-      url: '/template9'
+      url: '/resume-template9'
     },
     {
       id: 10,
       name: 'Classic Professional-10',
       preview: temp8,
       description: 'Clean traditional layout ideal for corporate and technical roles.',
-      url: '/template10'
+      url: '/resume-template10'
     },
     {
       id: 11,
@@ -99,7 +99,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Strategic Technology Leader-12',
       preview: temp8,
       description: 'Clean, impactful layout ideal for IT and cybersecurity roles',
-      url: '/template12'
+      url: '/resume-template12'
     },
     {
       id: 13,
@@ -127,21 +127,21 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Fiscal Visionary & Strategic Performance Architect-16',
       preview: temp8,
       description: 'Crafting financial clarity, accelerating growth, and engineering operational excellence',
-      url: '/template16'
+      url: '/resume-template16'
     },
     {
       id: 17,
       name: 'Modern Web Developer Resume Template-17',
       preview: temp8,
       description: 'Interactive resume template with vibrant design and essential developer details.',
-      url: '/template17'
+      url: '/resume-template17'
     },
     {
       id: 18,
       name: 'Resume Preview-18',
       preview: temp8,
       description: 'Clean and modern layout tailored for retail sales job seekers.',
-      url: '/template18'
+      url: '/resume-template18'
     },
     {
       id: 19,
@@ -183,21 +183,21 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'Tech Enthusiast-24',
       preview: temp8,
       description: 'Innovative computer science graduate passionate about coding and future technologies.',
-      url: '/resume-template24'
+      url: '/template24'
     },
     {
       id: 25,
       name: 'Code Innovator-25',
       preview: temp8,
       description: 'Creative software developer specializing in scalable, user-friendly web solutions',
-      url: '/resume-template25'
+      url: '/template25'
     },
     {
       id: 26,
       name: 'Code Crafter-26',
       preview: temp8,
       description: 'Dedicated developer skilled in React, CSS, and problem solving.',
-      url: '/resume-template26'
+      url: '/template26'
     },
     {
       id: 27,
@@ -218,7 +218,7 @@ const WithoutAiTemp = ({ setActiveStep }) => {
       name: 'UI Crafter-29',
       preview: temp8,
       description: 'Designs seamless user experiences with clean, responsive, modern web interfaces.',
-      url: '/template29'
+      url: '/resume-template29'
     },
     {
       id: 30,
@@ -309,7 +309,9 @@ const WithoutAiTemp = ({ setActiveStep }) => {
   const navigate = useNavigate();
   const handleSelectTemplate = (template) => {
     setSelectedTemplate(template.id);
-    navigate(template.url);
+    navigate('/build-option', { 
+      state: { templateId: template.id } 
+    });
   };
 
   return (

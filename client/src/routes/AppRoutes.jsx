@@ -12,12 +12,11 @@ const Loading = () => (
   </div>
 );
 
-// Home
+// Lazy load components
+// Home and Auth
 const Home = lazy(() => import("../pages/Home.jsx"));
-
-// Login
-import Login from "../pages/auth/Login.jsx";
-import SignUp from "../pages/auth/Signup.jsx";
+// const Login = lazy(() => import("../pages/auth/Login.jsx"));
+// const SignUp = lazy(() => import("../pages/auth/Signup.jsx"));
 
 // Main TemplatePage
 const TemplatePage = lazy(() => import("../pages/TemplatePage.jsx"));
@@ -36,7 +35,6 @@ const Education = lazy(() => import("../pages/details/Education.jsx"));
 const Projects = lazy(() => import("../pages/details/Projects.jsx"));
 const OtherDetails = lazy(() => import("../pages/details/OtherDetails.jsx"));
 
-// or whatever you name your AI Edit component
 // ResumeTemplates
 import Template1 from "../components/ai-resume-templates/Template1.jsx";
 import Template2 from "../components/ai-resume-templates/Template2.jsx";
@@ -63,8 +61,9 @@ import Template22 from "../components/ai-resume-templates/Template22.jsx";
 import Template23 from "../components/ai-resume-templates/Template23.jsx";
 import Template27 from "../components/ai-resume-templates/Template27.jsx";
 import Template29 from "../components/ai-resume-templates/Template29.jsx";
+
 // Not Found
-import NotFound from "../pages/NotFound.jsx";
+const NotFound = lazy(() => import("../pages/NotFound.jsx"));
 
 const AppRoutes = () => {
   return (
@@ -88,6 +87,7 @@ const AppRoutes = () => {
         <Route path="/details/education" element={<Education />} />
         <Route path="/details/projects" element={<Projects />} />
         <Route path="/details/other" element={<OtherDetails />} />
+
         {/* Template Routes */}
         <Route path="/template1" element={<Template1 />} />
         <Route path="/template2" element={<Template2 />} />
@@ -116,8 +116,8 @@ const AppRoutes = () => {
         <Route path="/template29" element={<Template29 />} />
 
         {/* Login and Signup */}
-        <Route exact path="/Login" element={<Login />} />
-        <Route exact path="/SignUp" element={<SignUp />} />
+        {/* <Route exact path="/Login" element={<Login />} />
+        <Route exact path="/SignUp" element={<SignUp />} /> */}
 
         {/*  404 Not Found Route  */}
         <Route path="*" element={<NotFound />} />
