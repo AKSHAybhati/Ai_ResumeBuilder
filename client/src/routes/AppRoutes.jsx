@@ -61,6 +61,7 @@ import Template22 from "../components/ai-resume-templates/Template22.jsx";
 import Template23 from "../components/ai-resume-templates/Template23.jsx";
 import Template27 from "../components/ai-resume-templates/Template27.jsx";
 import Template29 from "../components/ai-resume-templates/Template29.jsx";
+import Template31 from "../components/ai-resume-templates/Template31.jsx";
 
 // Not Found
 const NotFound = lazy(() => import("../pages/NotFound.jsx"));
@@ -114,6 +115,7 @@ const AppRoutes = () => {
         <Route path="/template23" element={<Template23 />} />
         <Route path="/template27" element={<Template27 />} />
         <Route path="/template29" element={<Template29 />} />
+        <Route path="/template31" element={<Template31 />} />
 
         {/* Login and Signup */}
         {/* <Route exact path="/Login" element={<Login />} />

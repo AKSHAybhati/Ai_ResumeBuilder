@@ -232,7 +232,7 @@ const WithoutAiTemp = () => {
       name: 'Experience Highlights-31',
       preview: temp8,
       description: ' Demonstrated success in leading teams and optimizing software performance.',
-      url: '/resume-template31'
+      url: 'template31'
     },
     {
       id: 32,

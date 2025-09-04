@@ -61,84 +61,95 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
   }, [downloadRequested, resumeRef]);
 
   const handleEnhanceSection = async (section) => {
-    setEnhancingSection(section);
-    let contentToSend = "";
+  setEnhancingSection(section);
+  let contentToSend = "";
 
-    switch (section) {
-      case "summary":
-        contentToSend = resumeData.summary;
-        break;
-      case "skills":
-        contentToSend = resumeData.skills?.join(", ");
-        break;
-      case "education":
-        contentToSend = JSON.stringify(resumeData.education);
-        break;
-      case "experience":
-        contentToSend = resumeData.experience
-          ?.map((exp) => exp.accomplishment?.join("\n"))
-          .join("\n");
-        break;
-      case "achievements":
-        contentToSend = resumeData.achievements?.join("\n") || "";
-        break;
-      case "projects":
-        contentToSend = resumeData.projects
-          ?.map(
-            (proj) =>
-              `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
-          )
-          .join("\n\n");
-        break;
-      case "certifications":
-        contentToSend = resumeData.certifications
-          ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
-          .join("\n");
-        break;
-      case "languages":
-      case "interests":
-        contentToSend = resumeData[section]?.join(", ");
-        break;
-      default:
-        contentToSend = JSON.stringify(resumeData[section]);
-    }
+  switch (section) {
+    case "summary":
+      contentToSend = resumeData.summary;
+      break;
+    case "skills":
+      contentToSend = resumeData.skills?.join(", ");
+      break;
+    case "education":
+      contentToSend = JSON.stringify(resumeData.education);
+      break;
+    case "experience":
+      contentToSend = resumeData.experience
+        ?.map((exp) => exp.accomplishment?.join("\n"))
+        .join("\n");
+      break;
+    case "achievements":
+      contentToSend = resumeData.achievements?.join("\n") || "";
+      break;
+    case "projects":
+      contentToSend = resumeData.projects
+        ?.map(
+          (proj) =>
+            `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
+        )
+        .join("\n\n");
+      break;
+    case "certifications":
+      contentToSend = resumeData.certifications
+        ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
+        .join("\n");
+      break;
+    case "languages":
+    case "interests":
+      contentToSend = resumeData[section]?.join(", ");
+      break;
+    default:
+      contentToSend = JSON.stringify(resumeData[section]);
+  }
 
-    const aiResponse = await enhanceTextWithGemini(section, contentToSend);
-    if (!aiResponse) {
-      setEnhancingSection(null);
-      return;
-    }
-
-    const updated = { ...resumeData };
-
-    if (["summary", "achievements", "languages", "interests"].includes(section)) {
-      updated[section] = aiResponse
-        .split("\n")
-        .map((s) => s.replace(/^[-*•]\s*/, "").trim())
-        .filter(Boolean);
-    } else if (section === "skills") {
-      updated.skills = aiResponse
-        .split(/,|\n/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-    } else if (section === "experience") {
-      updated.experience[0].accomplishment = aiResponse
-        .split("\n")
-        .filter(Boolean);
-    } else if (section === "education") {
-      updated.educationText = aiResponse;
-    } else if (section === "projects") {
-      updated.projects[0].description = aiResponse;
-    } else if (section === "certifications") {
-      updated.certificationsText = aiResponse;
-    } else {
-      updated[section] = aiResponse;
-    }
-
-    setResumeData(updated);
+  // ✅ safeguard
+  if (!contentToSend || contentToSend.trim() === "") {
+    console.warn(`⚠️ Skipping enhance: No content found for section "${section}"`);
     setEnhancingSection(null);
-    if (onEnhance) onEnhance(section);
-  };
+    return;
+  }
+
+  console.log("🟢 Sending to backend:", { section, data: contentToSend });
+
+  const aiResponse = await enhanceTextWithGemini(section, contentToSend);
+  if (!aiResponse) {
+    setEnhancingSection(null);
+    return;
+  }
+
+  const updated = { ...resumeData };
+
+  // ✅ Handle each section correctly
+  if (["summary", "achievements", "languages", "interests"].includes(section)) {
+    updated[section] = aiResponse
+      .split("\n")
+      .map((s) => s.replace(/^[-*•]\s*/, "").trim())
+      .filter(Boolean);
+  } else if (section === "skills") {
+    updated.skills = aiResponse
+      .split(/,|\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } else if (section === "experience") {
+    updated.experience[0].accomplishment = aiResponse
+      .split("\n")
+      .filter(Boolean);
+  } else if (section === "education") {
+    updated.educationText = aiResponse;
+  } else if (section === "projects") {
+    updated.projects[0].description = aiResponse;
+  } else if (section === "certifications") {
+    updated.certificationsText = aiResponse;
+  } else {
+    updated[section] = aiResponse;
+  }
+
+  setResumeData(updated);
+  setEnhancingSection(null);
+
+  if (onEnhance) onEnhance(section);
+};
 
   return (
     <div
