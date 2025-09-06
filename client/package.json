@@ -19,6 +19,7 @@
     "framer-motion": "^12.6.3",
     "html2pdf.js": "^0.10.3",
     "lucide-react": "^0.479.0",
+    "multer": "^2.0.2",
     "path": "^0.12.7",
     "pdfjs-dist": "^5.4.149",
     "react": "^19.1.0",

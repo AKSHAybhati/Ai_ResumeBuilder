@@ -68,7 +68,7 @@ const WithoutAiTemp = () => {
     },
     {
       id: 8,
-      name: 'Executive Edge-8', 
+      name: 'Executive Edge-8',
       preview: temp8,
       description: 'Professional two-column layout perfect for management and leadership roles.',
       url: '/template8'
@@ -309,8 +309,8 @@ const WithoutAiTemp = () => {
   const navigate = useNavigate();
   const handleSelectTemplate = (template) => {
     setSelectedTemplate(template.id);
-    navigate('/build-option', { 
-      state: { templateId: template.id } 
+    navigate('/build-option', {
+      state: { templateId: template.id }
     });
   };
 
@@ -394,7 +394,12 @@ const WithoutAiTemp = () => {
                 </svg>
               </motion.div>
             )}
-            
+
+            {/* Always Visible Name */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 to-transparent p-4 pb-6">
+              <h4 className="text-lg font-semibold text-white truncate">{template.name}</h4>
+            </div>
+
           </motion.div>
         ))}
       </motion.div>
