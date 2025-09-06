@@ -1,9 +1,11 @@
-
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { extractTextFromPDF } from "../utils/pdftotext.js";
 import { Upload, FileText, Edit3, Download, Eye, AlertCircle } from 'lucide-react';
 import Navbar from "../components/Navbar/Navbar.jsx";
 
-const ResumeUploadPage = () => {
+const ResumeUploadPage = () => {  
+   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState(null);
   const [resumeContent, setResumeContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -154,6 +156,9 @@ Click "AI Enhance" to upgrade your resume!`);
       const content = await readFileContent(file);
       setResumeContent(content);
       setShowPreview(true);
+      navigate('/edit-resume', { state: { file: file, content: content } });
+
+
     } catch (error) {
       setError(error.message);
       setShowPreview(false);
@@ -183,103 +188,66 @@ Click "AI Enhance" to upgrade your resume!`);
     }
   };
 
-  const enhanceWithAI = () => {
+  const enhanceWithAI = async () => {
+if (!uploadedFile) return;
+ setIsProcessing(true);
+ setError(''); // Clear previous errors
+
+ try {
+ // FormData object banaya file bhej ne ke liye
+const formData = new FormData();
+ // 'resumeFile' key ka naam backend (multer) se match hona chahiye
+ formData.append('resumeFile', uploadedFile);
+
+// Backend pe bhejo
+ const res = await fetch("http://localhost:5000/api/enhance", {
+ method: "POST",
+// 'Content-Type' header yahan manually mat likho, browser khud set kar dega
+// 'body' mein FormData object daalo
+ body: formData,
+ });
+
+ if (!res.ok) {
+ throw new Error('Server returned an error: ' + res.status);
+}
+
+ const result = await res.json();
+setResumeContent(result.enhanced || "No enhancement received.");
+ } catch (err) {
+ setError("AI Enhance failed. " + (err.message || ""));
+ }
+ setIsProcessing(false);
+ };
+
+/*  const enhanceWithAI = async () => {
+    if (!uploadedFile) return;
     setIsProcessing(true);
-    // Simulate AI enhancement
-    setTimeout(() => {
-      setResumeContent(`🚀 AI-ENHANCED PROFESSIONAL RESUME
+    try {
+      // 1. PDF se text nikaalo
+      let pdfText = "";
+      if (uploadedFile.type === "application/pdf") {
+        pdfText = await extractTextFromPDF(uploadedFile);
+      } else {
+        pdfText = resumeContent; // For txt/doc/docx, use existing content
+      }
 
-ALEX JOHNSON
-Senior Full-Stack Developer & Technical Lead
-📧 alex.johnson@email.com | 📱 (555) 987-6543 | 💼 linkedin.com/in/alexjohnson | 🌐 github.com/alexjohnson
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-EXECUTIVE SUMMARY
-Results-driven Senior Full-Stack Developer with 6+ years of comprehensive experience in designing, 
-developing, and deploying scalable web applications. Proven expertise in leading cross-functional 
-teams, implementing cutting-edge technologies, and delivering solutions that drive business growth. 
-Specialized in React.js, Node.js, cloud architecture, and agile methodologies with a track record 
-of improving system performance by 45% and reducing development costs by $300K annually.
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-CORE COMPETENCIES & TECHNICAL EXPERTISE
-
-💻 Programming Languages: JavaScript (ES6+), TypeScript, Python, Java, SQL, HTML5, CSS3
-🎨 Frontend Technologies: React.js, Angular, Vue.js, Next.js, Tailwind CSS, Material-UI, Bootstrap
-⚙️ Backend Development: Node.js, Express.js, Django, Spring Boot, RESTful APIs, GraphQL, Microservices
-🗄️ Database Management: MongoDB, PostgreSQL, MySQL, Redis, DynamoDB, Database Optimization
-☁️ Cloud & DevOps: AWS (EC2, S3, Lambda, RDS), Docker, Kubernetes, CI/CD Pipelines, Jenkins
-🔧 Development Tools: Git, GitHub Actions, Webpack, Jest, Cypress, Postman, Jira, Agile/Scrum
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-PROFESSIONAL EXPERIENCE
-
-🏢 SENIOR FULL-STACK DEVELOPER & TECH LEAD | TechCorp Solutions | Jan 2022 - Present
-• Spearheaded development of enterprise-grade microservices platform serving 150,000+ active users
-• Architected and implemented scalable cloud infrastructure reducing server costs by 35% ($200K savings)
-• Led cross-functional team of 8 developers, implementing agile methodologies and best practices
-• Designed and developed responsive web applications with 99.9% uptime and 2s average load time
-• Established automated CI/CD pipelines reducing deployment time from 4 hours to 15 minutes
-• Mentored 6 junior developers, improving team productivity by 40% and code quality scores by 30%
-
-💼 FULL-STACK DEVELOPER | InnovateTech Startup | Mar 2020 - Dec 2021
-• Developed 12+ responsive web applications using React.js, Node.js, and MongoDB tech stack
-• Optimized database queries and implemented caching strategies, improving performance by 60%
-• Integrated 15+ third-party APIs including payment gateways, authentication systems, and analytics
-• Collaborated with UI/UX teams to deliver pixel-perfect, mobile-first responsive designs
-• Implemented comprehensive testing suites achieving 85% code coverage and reducing bugs by 50%
-• Participated in daily standups, sprint planning, and retrospectives in fast-paced startup environment
-
-🚀 SOFTWARE DEVELOPER | DevSolutions Inc. | Jun 2018 - Feb 2020
-• Built and maintained 8+ client-facing web applications using modern JavaScript frameworks
-• Developed RESTful APIs serving 10,000+ daily requests with sub-200ms response times
-• Implemented security best practices including JWT authentication, data encryption, and OWASP guidelines
-• Collaborated with product managers to translate business requirements into technical solutions
-• Contributed to open-source projects and maintained 95% client satisfaction rating
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-EDUCATION & CERTIFICATIONS
-
-🎓 Bachelor of Science in Computer Science | University of Technology | 2018
-   Magna Cum Laude | GPA: 3.8/4.0 | Relevant Coursework: Data Structures, Algorithms, Software Engineering
-
-📜 PROFESSIONAL CERTIFICATIONS:
-• AWS Certified Solutions Architect - Professional (2024)
-• Google Cloud Professional Developer (2023)
-• Microsoft Azure Developer Associate (2023)
-• Certified Scrum Master (CSM) (2022)
-• MongoDB Certified Developer (2021)
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-KEY ACHIEVEMENTS & PROJECTS
-
-🏆 Led digital transformation initiative resulting in 45% performance improvement and $300K cost reduction
-🏆 Architected microservices platform that scaled from 10K to 150K users without performance degradation
-🏆 Published 5+ technical articles on Medium with 25,000+ total reads and 500+ followers
-🏆 Speaker at 3 regional tech conferences on "Modern Web Architecture" and "Cloud-Native Development"
-🏆 Open-source contributor with 2,000+ GitHub stars across multiple repositories
-🏆 Reduced application bundle size by 40% through code splitting and optimization techniques
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-ADDITIONAL INFORMATION
-
-🌟 Languages: English (Native), Spanish (Conversational)
-🌟 Interests: Contributing to open-source projects, tech blogging, mentoring developers
-🌟 Volunteer: Code mentor for underrepresented communities in tech
-🌟 Available for: Full-time positions, contract work, technical consulting
-
-═══════════════════════════════════════════════════════════════════════════════════
-
-✨ This resume has been optimized for ATS systems and enhanced with AI for maximum impact! ✨`);
-      setIsProcessing(false);
-    }, 3000);
-  };
+      // 2. Backend pe bhejo
+      //const res = await fetch("/api/enhance", {
+      const res = await fetch("http://localhost:5000/api/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: "full_resume",
+          data: pdfText,
+        }),
+      });
+      const result = await res.json();
+      setResumeContent(result.enhanced || "No enhancement received.");
+    } catch (err) {
+      setError("AI Enhance failed. " + (err.message || ""));
+    }
+    setIsProcessing(false);
+  };*/
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f97316 0%, #10b981 100%)' }}>
@@ -402,6 +370,17 @@ ADDITIONAL INFORMATION
                 <div className="p-6">
                   <div className="border-2 border-gray-300 rounded-lg bg-white shadow-inner" style={{ aspectRatio: '8.5/11' }}>
                     <div className="p-6 h-full overflow-y-auto">
+                      {/* PDF Preview */}
+                      {uploadedFile && uploadedFile.type === "application/pdf" && (
+                        <iframe
+                          src={URL.createObjectURL(uploadedFile)}
+                          width="100%"
+                          height="600px"
+                          title="PDF Preview"
+                          style={{ border: "1px solid #ccc", borderRadius: "8px", marginBottom: "16px" }}
+                        />
+                      )}
+                      {/* Text Preview */}
                       <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono leading-relaxed">
                         {resumeContent}
                       </pre>
