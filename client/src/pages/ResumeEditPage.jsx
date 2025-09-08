@@ -88,31 +88,172 @@ const ResumeEditPage = () => {
       // Simple PDF generation using html2pdf
       const html2pdf = (await import('html2pdf.js')).default;
 
-      // Create a simple HTML resume
+      // Create a comprehensive HTML resume with proper structure
       const resumeHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6;">
-          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00bda6; padding-bottom: 20px;">
-            <h1 style="color: #00bda6; margin: 0; font-size: 28px;">${extractName(editedContent)}</h1>
-            <div style="margin-top: 10px; color: #666;">
-              ${extractContactInfo(editedContent)}
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Resume - ${extractName(editedContent)}</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: 'Arial', 'Helvetica', sans-serif;
+              background-color: #ffffff;
+              color: #333333;
+              line-height: 1.6;
+              font-size: 14px;
+            }
+            .resume-container {
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 40px;
+              background-color: #ffffff;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 3px solid #00bda6;
+              padding-bottom: 20px;
+            }
+            .name {
+              color: #00bda6;
+              margin: 0 0 10px 0;
+              font-size: 28px;
+              font-weight: bold;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .contact-info {
+              margin-top: 10px;
+              color: #666666;
+              font-size: 14px;
+            }
+            .contact-item {
+              margin: 3px 0;
+              display: block;
+            }
+            .content {
+              font-size: 14px;
+              line-height: 1.8;
+              color: #333333;
+            }
+            .section {
+              margin-bottom: 20px;
+            }
+            .section-title {
+              font-size: 16px;
+              font-weight: bold;
+              color: #00bda6;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              border-bottom: 1px solid #e0e0e0;
+              padding-bottom: 3px;
+            }
+            .experience-item, .education-item {
+              margin-bottom: 15px;
+            }
+            .job-title, .degree {
+              font-weight: bold;
+              color: #333333;
+              font-size: 15px;
+            }
+            .company, .school {
+              color: #00bda6;
+              font-weight: 600;
+              font-size: 13px;
+            }
+            .date {
+              color: #666666;
+              font-style: italic;
+              font-size: 12px;
+            }
+            .description {
+              margin-top: 5px;
+              color: #555555;
+              font-size: 13px;
+            }
+            .skills {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 5px;
+              margin-top: 8px;
+            }
+            .skill-tag {
+              background-color: #f0f9ff;
+              color: #00bda6;
+              padding: 3px 8px;
+              border-radius: 12px;
+              font-size: 11px;
+              font-weight: 500;
+              border: 1px solid #00bda6;
+            }
+            ul {
+              margin: 8px 0;
+              padding-left: 20px;
+            }
+            li {
+              margin-bottom: 3px;
+              color: #555555;
+              font-size: 13px;
+            }
+            .summary {
+              font-style: italic;
+              color: #666666;
+              margin-bottom: 15px;
+              padding: 12px;
+              background-color: #f8f9fa;
+              border-left: 3px solid #00bda6;
+              font-size: 13px;
+            }
+            p {
+              margin: 5px 0;
+              font-size: 13px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="resume-container">
+            <div class="header">
+              <h1 class="name">${extractName(editedContent)}</h1>
+              <div class="contact-info">
+                ${extractContactInfo(editedContent)}
+              </div>
+            </div>
+            <div class="content">
+              ${formatResumeContent(editedContent)}
             </div>
           </div>
-          <div style="white-space: pre-line; font-size: 14px;">${editedContent}</div>
-        </div>
+        </body>
+        </html>
       `;
 
       const opt = {
-        margin: 0.5,
-        filename: 'enhanced-resume.pdf',
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: `resume-${extractName(editedContent).toLowerCase().replace(/\s+/g, '-')}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          allowTaint: true
+        },
+        jsPDF: {
+          unit: 'in',
+          format: 'letter',
+          orientation: 'portrait',
+          compress: true
+        }
       };
 
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = resumeHTML;
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '800px';
+      tempDiv.style.backgroundColor = '#ffffff';
       document.body.appendChild(tempDiv);
 
       await html2pdf().set(opt).from(tempDiv).save();
@@ -141,11 +282,269 @@ const ResumeEditPage = () => {
     for (let i = 1; i < Math.min(5, lines.length); i++) {
       const line = lines[i].trim();
       if (line && (line.includes('@') || line.includes('+') || line.includes('linkedin') || line.includes('github'))) {
-        contactInfo += `<p style="margin: 2px 0;">${line}</p>`;
+        contactInfo += `<div class="contact-item">${line}</div>`;
       }
     }
 
     return contactInfo;
+  };
+
+  const formatResumeContent = (text) => {
+    const lines = text.split('\n');
+    let formattedContent = '';
+    let currentSection = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (!line) continue;
+
+      // Check if this is a section header
+      const sectionHeaders = [
+        'SUMMARY', 'PROFILE', 'OBJECTIVE', 'ABOUT',
+        'EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT',
+        'EDUCATION', 'ACADEMIC BACKGROUND',
+        'SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES',
+        'PROJECTS', 'PROJECT EXPERIENCE',
+        'CERTIFICATIONS', 'CERTIFICATES',
+        'ACHIEVEMENTS', 'AWARDS', 'HONORS',
+        'LANGUAGES', 'LANGUAGE PROFICIENCY',
+        'INTERESTS', 'HOBBIES', 'ACTIVITIES'
+      ];
+
+      const isSectionHeader = sectionHeaders.some(header =>
+        line.toUpperCase().includes(header) && line.length < 50
+      );
+
+      if (isSectionHeader) {
+        currentSection = line.toUpperCase();
+        formattedContent += `<div class="section">
+          <h2 class="section-title">${line}</h2>
+        </div>`;
+      } else if (currentSection.includes('SUMMARY') || currentSection.includes('PROFILE') || currentSection.includes('OBJECTIVE')) {
+        formattedContent += `<div class="summary">${line}</div>`;
+      } else if (currentSection.includes('EXPERIENCE') || currentSection.includes('EMPLOYMENT')) {
+        // Check if this looks like a job title or company
+        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+          if (i + 1 < lines.length && lines[i + 1].trim()) {
+            const nextLine = lines[i + 1].trim();
+            if (nextLine.length < 100 && !nextLine.includes('•') && !nextLine.includes('-')) {
+              // This is likely a job title and company
+              formattedContent += `<div class="experience-item">
+                <div class="job-title">${line}</div>
+                <div class="company">${nextLine}</div>
+              </div>`;
+              i++; // Skip the next line as we've processed it
+            } else {
+              formattedContent += `<div class="job-title">${line}</div>`;
+            }
+          } else {
+            formattedContent += `<div class="job-title">${line}</div>`;
+          }
+        } else {
+          formattedContent += `<div class="description">${line}</div>`;
+        }
+      } else if (currentSection.includes('EDUCATION')) {
+        if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+          formattedContent += `<div class="education-item">
+            <div class="degree">${line}</div>
+          </div>`;
+        } else {
+          formattedContent += `<div class="description">${line}</div>`;
+        }
+      } else if (currentSection.includes('SKILLS')) {
+        // Format skills as tags
+        const skills = line.split(',').map(skill => skill.trim()).filter(skill => skill);
+        if (skills.length > 1) {
+          formattedContent += `<div class="skills">
+            ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+          </div>`;
+        } else {
+          formattedContent += `<div class="description">${line}</div>`;
+        }
+      } else {
+        // Regular content
+        if (line.includes('•') || line.includes('-') || line.includes('*')) {
+          formattedContent += `<ul><li>${line.replace(/^[•\-*]\s*/, '')}</li></ul>`;
+        } else {
+          formattedContent += `<div class="description">${line}</div>`;
+        }
+      }
+    }
+
+    return formattedContent;
+  };
+
+  // Display functions for clean formatting in the preview
+  const extractContactInfoForDisplay = (text) => {
+    const lines = text.split('\n');
+    let contactInfo = [];
+
+    for (let i = 1; i < Math.min(5, lines.length); i++) {
+      const line = lines[i].trim();
+      if (line && (line.includes('@') || line.includes('+') || line.includes('linkedin') || line.includes('github'))) {
+        contactInfo.push(line);
+      }
+    }
+
+    return contactInfo.map((info, index) => (
+      <div key={index} style={{ margin: '2px 0' }}>{info}</div>
+    ));
+  };
+
+  const formatResumeContentForDisplay = (text) => {
+    const lines = text.split('\n');
+    let currentSection = '';
+    let formattedElements = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (!line) continue;
+
+      // Check if this is a section header
+      const sectionHeaders = [
+        'SUMMARY', 'PROFILE', 'OBJECTIVE', 'ABOUT',
+        'EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT',
+        'EDUCATION', 'ACADEMIC BACKGROUND',
+        'SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES',
+        'PROJECTS', 'PROJECT EXPERIENCE',
+        'CERTIFICATIONS', 'CERTIFICATES',
+        'ACHIEVEMENTS', 'AWARDS', 'HONORS',
+        'LANGUAGES', 'LANGUAGE PROFICIENCY',
+        'INTERESTS', 'HOBBIES', 'ACTIVITIES'
+      ];
+
+      const isSectionHeader = sectionHeaders.some(header =>
+        line.toUpperCase().includes(header) && line.length < 50
+      );
+
+      if (isSectionHeader) {
+        currentSection = line.toUpperCase();
+        formattedElements.push(
+          <div key={i} style={{ marginBottom: '15px' }}>
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#00bda6',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              borderBottom: '1px solid #e0e0e0',
+              paddingBottom: '3px'
+            }}>
+              {line}
+            </h2>
+          </div>
+        );
+      } else if (currentSection.includes('SUMMARY') || currentSection.includes('PROFILE') || currentSection.includes('OBJECTIVE')) {
+        formattedElements.push(
+          <div key={i} style={{
+            fontStyle: 'italic',
+            color: '#666',
+            marginBottom: '15px',
+            padding: '12px',
+            backgroundColor: '#f8f9fa',
+            borderLeft: '3px solid #00bda6',
+            fontSize: '13px'
+          }}>
+            {line}
+          </div>
+        );
+      } else if (currentSection.includes('EXPERIENCE') || currentSection.includes('EMPLOYMENT')) {
+        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+          if (i + 1 < lines.length && lines[i + 1].trim()) {
+            const nextLine = lines[i + 1].trim();
+            if (nextLine.length < 100 && !nextLine.includes('•') && !nextLine.includes('-')) {
+              formattedElements.push(
+                <div key={i} style={{ marginBottom: '10px' }}>
+                  <div style={{ fontWeight: 'bold', color: '#333', fontSize: '15px' }}>{line}</div>
+                  <div style={{ color: '#00bda6', fontWeight: '600', fontSize: '13px' }}>{nextLine}</div>
+                </div>
+              );
+              i++; // Skip the next line as we've processed it
+            } else {
+              formattedElements.push(
+                <div key={i} style={{ fontWeight: 'bold', color: '#333', fontSize: '15px', marginBottom: '5px' }}>
+                  {line}
+                </div>
+              );
+            }
+          } else {
+            formattedElements.push(
+              <div key={i} style={{ fontWeight: 'bold', color: '#333', fontSize: '15px', marginBottom: '5px' }}>
+                {line}
+              </div>
+            );
+          }
+        } else {
+          formattedElements.push(
+            <div key={i} style={{ color: '#555', fontSize: '13px', marginBottom: '5px' }}>
+              {line}
+            </div>
+          );
+        }
+      } else if (currentSection.includes('EDUCATION')) {
+        if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+          formattedElements.push(
+            <div key={i} style={{ marginBottom: '10px' }}>
+              <div style={{ fontWeight: 'bold', color: '#333', fontSize: '15px' }}>{line}</div>
+            </div>
+          );
+        } else {
+          formattedElements.push(
+            <div key={i} style={{ color: '#555', fontSize: '13px', marginBottom: '5px' }}>
+              {line}
+            </div>
+          );
+        }
+      } else if (currentSection.includes('SKILLS')) {
+        const skills = line.split(',').map(skill => skill.trim()).filter(skill => skill);
+        if (skills.length > 1) {
+          formattedElements.push(
+            <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '8px' }}>
+              {skills.map((skill, skillIndex) => (
+                <span key={skillIndex} style={{
+                  backgroundColor: '#f0f9ff',
+                  color: '#00bda6',
+                  padding: '3px 8px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  border: '1px solid #00bda6'
+                }}>
+                  {skill}
+                </span>
+              ))}
+            </div>
+          );
+        } else {
+          formattedElements.push(
+            <div key={i} style={{ color: '#555', fontSize: '13px', marginBottom: '5px' }}>
+              {line}
+            </div>
+          );
+        }
+      } else {
+        if (line.includes('•') || line.includes('-') || line.includes('*')) {
+          formattedElements.push(
+            <ul key={i} style={{ margin: '8px 0', paddingLeft: '20px' }}>
+              <li style={{ marginBottom: '3px', color: '#555', fontSize: '13px' }}>
+                {line.replace(/^[•\-*]\s*/, '')}
+              </li>
+            </ul>
+          );
+        } else {
+          formattedElements.push(
+            <div key={i} style={{ color: '#555', fontSize: '13px', marginBottom: '5px' }}>
+              {line}
+            </div>
+          );
+        }
+      }
+    }
+
+    return formattedElements;
   };
 
   const handleShare = async () => {
@@ -322,11 +721,11 @@ const ResumeEditPage = () => {
                         {extractName(editedContent)}
                       </h1>
                       <div style={{ color: '#666', fontSize: '14px' }}>
-                        {extractContactInfo(editedContent)}
+                        {extractContactInfoForDisplay(editedContent)}
                       </div>
                     </div>
-                    <div style={{ whiteSpace: 'pre-line', fontSize: '14px', lineHeight: '1.6' }}>
-                      {editedContent}
+                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                      {formatResumeContentForDisplay(editedContent)}
                     </div>
                   </div>
                 </div>

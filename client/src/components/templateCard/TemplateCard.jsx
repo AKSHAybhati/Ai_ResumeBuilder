@@ -14,7 +14,6 @@ import temp9 from '../../assets/images/temp9.jpg';
 import { useNavigate } from 'react-router-dom';
 const WithoutAiTemp = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [hoveredTemplate, setHoveredTemplate] = useState(null);
 
   const templates = [
     {
@@ -307,7 +306,11 @@ const WithoutAiTemp = () => {
   ];
 
   const navigate = useNavigate();
-  const handleSelectTemplate = (template) => {
+  const handleSelectTemplate = (template, event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     setSelectedTemplate(template.id);
     navigate('/build-option', {
       state: { templateId: template.id }
@@ -343,8 +346,7 @@ const WithoutAiTemp = () => {
           <motion.div
             key={template.id}
             className="relative group cursor-pointer overflow-hidden rounded-2xl border border-gray-700/50 shadow-xl hover:shadow-2xl h-96 bg-gray-800/50 backdrop-blur-sm"
-            onMouseEnter={() => setHoveredTemplate(template.id)}
-            onMouseLeave={() => setHoveredTemplate(null)}
+            onClick={(event) => handleSelectTemplate(template, event)}
             whileHover={{
               scale: 1.02,
               y: -8,
@@ -356,30 +358,11 @@ const WithoutAiTemp = () => {
           >
             {/* Template Image */}
             <div className="relative overflow-hidden rounded-t-2xl h-3/4">
-              <motion.img
+              <img
                 src={template.preview}
                 alt={template.name}
-                className="w-full h-full object-cover transition-transform duration-700"
-                animate={hoveredTemplate === template.id ? { scale: 1.05 } : { scale: 1 }}
+                className="w-full h-full object-cover"
               />
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-
-            {/* Template Info */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-gray-900/95 via-gray-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <h4 className="text-xl font-bold text-white mb-2">{template.name}</h4>
-                <p className="text-gray-300 text-sm mb-4 leading-relaxed">{template.description}</p>
-                <motion.button
-                  onClick={() => handleSelectTemplate(template)}
-                  className="px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {selectedTemplate === template.id ? 'Selected' : 'Use Template'}
-                </motion.button>
-              </div>
             </div>
 
             {/* Selection Indicator */}
@@ -395,9 +378,15 @@ const WithoutAiTemp = () => {
               </motion.div>
             )}
 
-            {/* Always Visible Name */}
+            {/* Always Visible Name and Test Button */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 to-transparent p-4 pb-6">
-              <h4 className="text-lg font-semibold text-white truncate">{template.name}</h4>
+              <h4 className="text-lg font-semibold text-white truncate mb-2">{template.name}</h4>
+              <button
+                onClick={(event) => handleSelectTemplate(template, event)}
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Use Template
+              </button>
             </div>
 
           </motion.div>

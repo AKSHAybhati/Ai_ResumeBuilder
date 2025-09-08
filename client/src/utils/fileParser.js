@@ -200,3 +200,4 @@ export function validateResumeFile(file) {
     warnings
   };
 }
+
