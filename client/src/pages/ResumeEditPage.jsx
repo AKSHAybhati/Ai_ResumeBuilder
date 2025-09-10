@@ -14,6 +14,8 @@ const ResumeEditPage = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [hasBeenEnhanced, setHasBeenEnhanced] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [tempEditContent, setTempEditContent] = useState('');
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -75,6 +77,34 @@ const ResumeEditPage = () => {
     setHasBeenEnhanced(false);
     setSuccessMessage('');
     setError('');
+  };
+
+  // Manual editing functions
+  const handleEditModeToggle = () => {
+    if (!isEditMode) {
+      setTempEditContent(editedContent);
+    }
+    setIsEditMode(!isEditMode);
+    setError('');
+    setSuccessMessage('');
+  };
+
+  const handleManualEditChange = (e) => {
+    setTempEditContent(e.target.value);
+  };
+
+  const handleSaveEdit = () => {
+    setEditedContent(tempEditContent);
+    setIsEditMode(false);
+    setSuccessMessage('✅ Manual edits saved successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const handleCancelEdit = () => {
+    setTempEditContent(editedContent);
+    setIsEditMode(false);
+    setError('');
+    setSuccessMessage('');
   };
 
   // ---- BUTTON HANDLERS ----
@@ -655,11 +685,11 @@ const ResumeEditPage = () => {
             </div>
           )}
 
-          {/* AI Enhance + Reset Buttons */}
+          {/* AI Enhance + Reset + Edit Buttons */}
           <div className="flex justify-center gap-4 mb-8">
             <button
               onClick={enhanceWithAI}
-              disabled={isProcessing}
+              disabled={isProcessing || isEditMode}
               className="flex-1 bg-gradient-to-r from-teal-500 to-orange-500 text-white py-3 rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
@@ -670,7 +700,7 @@ const ResumeEditPage = () => {
               {isProcessing ? 'Enhancing...' : '✨ AI Enhance Resume'}
             </button>
 
-            {hasBeenEnhanced && (
+            {hasBeenEnhanced && !isEditMode && (
               <button
                 onClick={resetToOriginal}
                 className="px-6 py-3 bg-gray-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center"
@@ -679,7 +709,37 @@ const ResumeEditPage = () => {
                 Reset to Original
               </button>
             )}
+
+            {!isEditMode && (
+              <button
+                onClick={handleEditModeToggle}
+                className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center"
+              >
+                <Edit3 className="mr-2" size={20} />
+                Manual Edit
+              </button>
+            )}
           </div>
+
+          {/* Manual Edit Mode Controls */}
+          {isEditMode && (
+            <div className="flex justify-center gap-4 mb-8">
+              <button
+                onClick={handleSaveEdit}
+                className="px-8 py-3 bg-green-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center"
+              >
+                <Save className="mr-2" size={20} />
+                Save Changes
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                className="px-8 py-3 bg-red-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center"
+              >
+                <ArrowLeft className="mr-2" size={20} />
+                Cancel
+              </button>
+            </div>
+          )}
 
           {/* Success Message */}
           {successMessage && (
@@ -708,31 +768,63 @@ const ResumeEditPage = () => {
             {/* AI Generated Resume */}
             <div className="flex flex-col">
               <h3 className="text-xl font-bold text-white mb-3 flex items-center">
-                <Sparkles className="mr-2 text-teal-400" size={24} />
-                AI Generated Resume
+                {isEditMode ? (
+                  <>
+                    <Edit3 className="mr-2 text-blue-400" size={24} />
+                    Manual Edit Mode
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 text-teal-400" size={24} />
+                    AI Generated Resume
+                  </>
+                )}
               </h3>
 
-              {/* Resume Preview */}
-              <div className="bg-white border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
-                <div className="h-full overflow-y-auto p-6">
-                  <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6', fontSize: '14px' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #00bda6', paddingBottom: '20px' }}>
-                      <h1 style={{ color: '#00bda6', margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>
-                        {extractName(editedContent)}
-                      </h1>
-                      <div style={{ color: '#666', fontSize: '14px' }}>
-                        {extractContactInfoForDisplay(editedContent)}
-                      </div>
+              {isEditMode ? (
+                /* Manual Edit Textarea */
+                <div className="bg-gray-900/50 border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
+                  <div className="h-full flex flex-col">
+                    <div className="p-4 bg-gray-800/50 border-b border-gray-600">
+                      <p className="text-sm text-gray-300">
+                        ✏️ Edit your resume content directly. Changes will be reflected in the preview on the right.
+                      </p>
                     </div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                      {formatResumeContentForDisplay(editedContent)}
+                    <textarea
+                      value={tempEditContent}
+                      onChange={handleManualEditChange}
+                      className="flex-1 p-6 bg-transparent text-gray-200 font-mono text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your resume content here..."
+                      style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* Resume Preview */
+                <div className="bg-white border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
+                  <div className="h-full overflow-y-auto p-6">
+                    <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6', fontSize: '14px' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #00bda6', paddingBottom: '20px' }}>
+                        <h1 style={{ color: '#00bda6', margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>
+                          {extractName(editedContent)}
+                        </h1>
+                        <div style={{ color: '#666', fontSize: '14px' }}>
+                          {extractContactInfoForDisplay(editedContent)}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                        {formatResumeContentForDisplay(editedContent)}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <p className="text-xs text-gray-400 mt-2">
-                ✨ This shows your AI-enhanced resume with professional formatting and ATS optimization
+                {isEditMode
+                  ? "✏️ Make your changes directly in the text area above"
+                  : "✨ This shows your AI-enhanced resume with professional formatting and ATS optimization"
+                }
               </p>
             </div>
 
@@ -740,9 +832,29 @@ const ResumeEditPage = () => {
             <div className="flex flex-col">
               <h3 className="text-xl font-bold text-white mb-3 flex items-center">
                 <Eye className="mr-2 text-orange-400" size={24} />
-                Original Uploaded PDF
+                {isEditMode ? 'Live Preview' : 'Original Uploaded PDF'}
               </h3>
-              {isPDF ? (
+              {isEditMode ? (
+                /* Live Preview of Edits */
+                <div className="bg-white border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
+                  <div className="h-full overflow-y-auto p-6">
+                    <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6', fontSize: '14px' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #00bda6', paddingBottom: '20px' }}>
+                        <h1 style={{ color: '#00bda6', margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>
+                          {extractName(tempEditContent)}
+                        </h1>
+                        <div style={{ color: '#666', fontSize: '14px' }}>
+                          {extractContactInfoForDisplay(tempEditContent)}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                        {formatResumeContentForDisplay(tempEditContent)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : isPDF ? (
+                /* Original PDF Preview */
                 <div className="bg-gray-900/50 border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
                   <iframe
                     src={URL.createObjectURL(file)}
@@ -751,6 +863,7 @@ const ResumeEditPage = () => {
                   />
                 </div>
               ) : (
+                /* Original Text Preview */
                 <div className="bg-gray-900/50 border border-gray-600 rounded-xl shadow-lg overflow-hidden h-[700px]">
                   <div className="p-6 h-full overflow-y-auto">
                     <pre className="whitespace-pre-wrap text-sm text-gray-200 font-mono leading-relaxed">
@@ -760,7 +873,10 @@ const ResumeEditPage = () => {
                 </div>
               )}
               <p className="text-xs text-gray-400 mt-2">
-                📄 This shows your original uploaded PDF for reference and comparison
+                {isEditMode
+                  ? "👁️ Live preview of your manual edits - see changes in real-time"
+                  : "📄 This shows your original uploaded PDF for reference and comparison"
+                }
               </p>
             </div>
           </div>

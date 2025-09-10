@@ -15,7 +15,7 @@ const BuildOption = () => {
 
   const handleProceed = () => {
     if (selectedOption === 'upload') {
-      navigate('/upload-resume', { state: { templateId } });
+      navigate('/ai-edit', { state: { templateId } });
     } else if (selectedOption === 'scratch') {
       navigate('/details/personal-details', { 
         state: { 
@@ -94,7 +94,7 @@ const BuildOption = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Upload Resume</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">AI Enhance</h3>
               <p className="text-gray-300 text-sm leading-relaxed">
                 Upload your existing resume and we&apos;ll help you enhance it with AI-powered improvements
               </p>

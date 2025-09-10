@@ -9,7 +9,7 @@ import temp6 from '../../assets/images/temp6.png';
 import temp7 from '../../assets/images/temp7.png';
 import temp8 from '../../assets/images/temp8.jpg';
 import temp9 from '../../assets/images/temp9.jpg';
-
+ 
 
 import { useNavigate } from 'react-router-dom';
 const WithoutAiTemp = () => {

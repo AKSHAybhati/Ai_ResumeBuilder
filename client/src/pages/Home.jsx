@@ -382,7 +382,7 @@ const App = () => {
       boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.5)',
     }}
   >
-    AI Edit
+    AI Enhance
   </button>
 </motion.div>
                   <motion.div
