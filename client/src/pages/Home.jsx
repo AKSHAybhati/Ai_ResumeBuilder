@@ -290,7 +290,7 @@ const App = () => {
       }}
     >
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-20">{/* Added pt-20 for navbar spacing */}
 
 
         <AnimatePresence>
@@ -321,7 +321,7 @@ const App = () => {
                     whileHover={{ scale: 1.02, y: -2 }}
                   >
                     <img
-                      src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
+                      src="/UptoSkills_logo.png"
                       alt="UptoSkills Logo"
                       className="h-10 sm:h-12 md:h-14 flex-shrink-0"
                     />
@@ -526,7 +526,7 @@ const App = () => {
             >
               <span className="text-white mr-2">India's No. 1 </span>
               <img
-                src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
+                src="/UptoSkills_logo.png"
                 alt="UptoSkills Logo"
                 className="h-14 sm:h-16 inline-block mx-2"
               />

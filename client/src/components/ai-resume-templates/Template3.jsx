@@ -10,6 +10,7 @@
  import { motion } from "framer-motion";
  import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
+import { useResume } from "../../context/ResumeContext";
  
  // Add global styles for extra small text
  const globalStyles = `
@@ -215,80 +216,8 @@ import Navbar from "../Navbar/Navbar";
  
  const ResumeEditor = () => {
   const [editMode, setEditMode] = useState(false);
-   const [resumeData, setResumeData] = useState({
-     name: "John Doe",
-    role: "Full Stack Developer",
-    email: "john@example.com",
-    phone: "123-456-7890",
-    location: "Pune",
-    linkedin: "https://linkedin.com/in/john",
-    github: "https://github.com/johndoe",
-    portfolio: "https://johndoe.dev",
-    profileImage: "",
-     summary: "Passionate full-stack developer with 3+ years of experience...",
-     experience: [
-       {
-         title: "Software Developer",
-        companyName: "ABC Pvt Ltd",
-        date: "2020 - Present",
-        companyLocation: "Mumbai",
-        accomplishment: [
-          "Built scalable MERN applications used by 10k+ users",
-          "Improved API performance by 40%",
-        ],
-       },
-   
-     ],
-     education: [
-       {
-        degree: "B.Tech in Computer Science",
-        institution: "XYZ University",
-        duration: "2016 - 2020",
-        location: "Pune",
-       },
-     ],
-     achievements: [
-       {
-         title:  "Winner - Hackathon 2022",
-      
-         description:
-          "Top 5% in Google Code Jam 2023",
-       },
-     ],
-     languages: [
-       { name: "English", level: "Native", dots: 5 },
-       { name: "Spanish", level: "Advanced", dots: 4 },
-     ],
-     skills: [
-       { category: "React", items: ["React"] },
-       { category: "Node.js", items: ["Node.js"] },
-       {
-         category: "MongoDB",
-         items: ["MongoDB"],
-       },
-       {
-         category: "Express",
-         items: ["Express"],
-       },
-       { category: "Tailwind CSS", items: ["Tailwind CSS"] },
-       { category: "Express.js", items: ["Express.js"] },
-     ],
-     Projects: [
-       {
-         title: "Certified Clinical Laboratory Scientist",
-         description:
-           "Received certification through the National Certification Agency for Medical Laboratory Personnel.",
-       },
-       {
-         title: "Advanced Organic Chemistry Certification",
-         description:
-           "Completed an intensive course focused on modern techniques in organic chemistry, offered by American Chemical Society.",
-       },
-     ],
-     passions: [
-      
-     ],
-   });
+  const { resumeData, updateResumeData } = useResume();
+  const [localData, setLocalData] = useState(resumeData);
  
    const [showButtons, setShowButtons] = useState(true);
    const [photo, setPhoto] = useState(null);
@@ -572,9 +501,10 @@ import Navbar from "../Navbar/Navbar";
        }
  
        pdf.save("resume.pdf");
+       // PDF downloaded successfully - no toast notification
      } catch (error) {
        console.error("Error generating PDF:", error);
-       alert("Failed to generate PDF. Please try again.");
+       // Failed to generate PDF - no toast notification
      } finally {
        setShowButtons(true);
        setIsDownloading(false);
@@ -603,9 +533,10 @@ import Navbar from "../Navbar/Navbar";
  
        setShowSaveNotification(true);
        setTimeout(() => setShowSaveNotification(false), 3000);
+       // Resume saved successfully - no toast notification
      } catch (error) {
        console.error("Error saving resume:", error);
-       alert("Failed to save resume. Please try again.");
+       // Failed to save - no toast notification
      }
    }, [resumeData, sectionSettings, branding, sectionsOrder]);
  
@@ -616,8 +547,11 @@ import Navbar from "../Navbar/Navbar";
        .then(() => {
          setShowShareNotification(true);
          setTimeout(() => setShowShareNotification(false), 3000);
+         // Link copied successfully - no toast notification
        })
-       .catch(() => alert("Failed to copy link to clipboard."));
+       .catch(() => {
+         // Failed to copy link - no toast notification
+       });
    }, []);
  
    const handleUploadResume = useCallback(() => {

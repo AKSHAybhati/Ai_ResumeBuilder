@@ -3,14 +3,16 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
-const connectToMongo = require("./config/resumedb");
+const { connectToPostgreSQL } = require("./config/database");
 const { errorHandler } = require("./utils/errorHandler");
+
+// Import routes
+const authRoutes = require("./routes/authRoutes");
 const geminiRoutes = require("./routes/geminiRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
 
-// Dynamic Routes
+// Dynamic Routes (legacy)
 const dynamicResumeTemplateRoutes=require("./routes/dynamicRoutes/dynamicResumeRoutes")
-
-
 const resumeTemplate1Routes = require("./routes/resumeTemplateRoutes/resumeTemplate1Route");
 
 const app = express();
@@ -26,10 +28,13 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "public")));
 
-//  Register Resume Routes with distinct paths
-app.use("/api/resume", resumeTemplate1Routes);
+//  Register API Routes
+app.use("/api/auth", authRoutes); // Authentication routes
+app.use("/api/resumes", resumeRoutes); // Resume management routes
+app.use("/api/enhance", geminiRoutes); // AI enhancement routes
 
-app.use("/api/enhance", geminiRoutes); 
+// Legacy routes (backward compatibility)
+app.use("/api/resume", resumeTemplate1Routes); 
 
 // Health check route
 app.get("/health", (req, res) => {
@@ -42,13 +47,18 @@ app.use(errorHandler);
 // Start server
 async function startServer() {
   try {
-    await connectToMongo(); //  Ensure MongoDB is connected before starting the server
+    const isConnected = await connectToPostgreSQL(); //  Ensure PostgreSQL is connected before starting the server
+    
+    if (!isConnected) {
+      console.error("❌ Failed to connect to PostgreSQL");
+      process.exit(1);
+    }
 
     app.listen(PORT, () => {
-      console.log(` Server running on http://localhost:${PORT}`);
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error(" Failed to start server:", error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 }

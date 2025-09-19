@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useResume } from "../../context/ResumeContext";
+import Sidebar from "../Sidebar/Sidebar";
+import Navbar from "../Navbar/Navbar";
 import {
   Eye, Edit3, Download, PlusCircle, Trash2, Briefcase, GraduationCap, Lightbulb,
   User, Phone, Mail, Linkedin, Github, MapPin,
@@ -8,81 +11,40 @@ import {
 // Helper to generate unique IDs
 const generateId = () => Date.now().toString();
 
-const initialResumeData = {
-  personalInfo: {
-    name: 'Alex Johnson',
-    title: 'Full Stack Developer',
-    email: 'alex.johnson@email.com',
-    phone: '+1 555-123-4567',
-    linkedin: 'linkedin.com/in/alexjohnson',
-    github: 'github.com/alexjohnson',
-    address: '123 Innovation Drive, Tech City, TX 75001',
-  },
-  summary: 'Highly motivated and results-oriented Full Stack Developer with 5+ years of experience in designing, developing, and deploying web applications. Proficient in JavaScript, React, Node.js, and Python. Seeking to leverage technical expertise and problem-solving skills to contribute to a dynamic organization.',
-  experience: [
+const Template31 = () => {
+  const resumeRef = useRef(null);
+  const { resumeData, setResumeData } = useResume();
+  const [editMode, setEditMode] = useState(false);
+  const [localData, setLocalData] = useState(resumeData);
     {
-      id: generateId(),
-      jobTitle: 'Senior Software Engineer',
-      company: 'Innovatech Solutions Ltd.',
-      location: 'San Francisco, CA',
-      startDate: 'Jan 2021',
-      endDate: 'Present',
-      responsibilities: [
-        'Led a team of 5 developers in the design and implementation of a new SaaS platform, resulting in a 20% increase in user engagement.',
-        'Developed and maintained scalable microservices using Node.js and Docker.',
-        'Collaborated with product managers to define project requirements and deliverables.',
-      ],
-    },
-    {
-      id: generateId(),
-      jobTitle: 'Software Developer',
-      company: 'Web Creations Co.',
-      location: 'Austin, TX',
-      startDate: 'Jun 2018',
-      endDate: 'Dec 2020',
-      responsibilities: [
-        'Contributed to the development of e-commerce websites using React and Redux.',
-        'Implemented RESTful APIs and integrated third-party services.',
-        'Participated in agile development cycles and code reviews.',
-      ],
-    },
-  ],
-  education: [
-    {
-      id: generateId(),
-      degree: 'Master of Science in Computer Science',
-      institution: 'Stanford University',
-      location: 'Stanford, CA',
-      graduationDate: 'May 2018',
-      details: 'Thesis on Machine Learning applications in web development. GPA: 3.9/4.0',
-    },
-    {
-      id: generateId(),
-      degree: 'Bachelor of Science in Software Engineering',
-      institution: 'University of Texas at Austin',
-      location: 'Austin, TX',
-      graduationDate: 'May 2016',
-      details: 'Relevant coursework: Data Structures, Algorithms, Database Management. GPA: 3.8/4.0',
-    }
-  ],
-  skills: ['JavaScript (ES6+)', 'React', 'Redux', 'Node.js', 'Express.js', 'Python', 'Django', 'SQL', 'NoSQL (MongoDB)', 'Docker', 'AWS', 'Git', 'Agile Methodologies'],
-  projects: [
-    {
-      id: generateId(),
-      name: 'Project Phoenix - E-commerce Platform',
-      description: 'Developed a full-stack e-commerce platform with features like product catalog, user authentication, shopping cart, and payment integration.',
-      technologies: ['React, Node.js, MongoDB, Stripe API'],
-      link: 'github.com/alexjohnson/project-phoenix',
-    },
-    {
-      id: generateId(),
-      name: 'TaskMaster - Productivity App',
-      description: 'A mobile-first task management application with real-time collaboration features.',
-      technologies: ['React Native, Firebase, Redux Saga'],
-      link: 'github.com/alexjohnson/taskmaster',
-    }
-  ],
-};
+  // Field change handlers with auto-save
+  const handleFieldChange = (field, value) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
+
+  const handleArrayFieldChange = (section, index, key, value) => {
+    const updated = [...localData[section]];
+    updated[index][key] = value;
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
+
+  const handleSave = () => {
+    setResumeData(localData);
+    setEditMode(false);
+  };
+
+  const handleCancel = () => {
+    setLocalData(resumeData);
+    setEditMode(false);
+  };
+
+  const handleEnhance = (section) => {
+    // AI enhancement functionality
+  };
 
 // --- Reusable Input Component ---
 const InputField = ({ label, id, value, onChange, placeholder, type = "text", icon }) => (
@@ -390,7 +352,23 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
 
 
 // --- Main App Component ---
-function App() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex flex-1">
+        <Sidebar resumeRef={resumeRef} />
+        <main className="flex-1 bg-gray-100 p-4">
+          <div className="max-w-4xl mx-auto">
+            <Template31Component />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Main Template31 component
+const Template31Component = () => {
   const [resumeData, setResumeData] = useState(initialResumeData);
   const [viewMode, setViewMode] = useState('preview'); // 'preview' or 'edit'
   const resumePreviewRef = useRef();
@@ -488,7 +466,7 @@ function App() {
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 font-sans">
         {/* Sidebar */}
-        <aside className="w-full md:w-64 bg-white p-4 md:p-6 shadow-lg no-print md:sticky md:top-0 md:h-screen flex flex-col">
+        <aside className="w-full md:w-64 bg-white p-4 md:p-6 shadow-lg no-print md:top-0 md:h-screen flex flex-col">
           <div className="mb-8 text-center">
               <h1 className="text-2xl font-bold text-indigo-700">ResumeCraft</h1>
               <p className="text-xs text-gray-500">Your Personal Resume Builder</p>
@@ -581,6 +559,6 @@ function App() {
       <AiAssistantModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
     </>
   );
-}
+};
 
-export default App;
+export default Template31;

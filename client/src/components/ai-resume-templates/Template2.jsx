@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 import { useResume } from "../../context/ResumeContext";
 
-const Template1 = () => {
+const Template2 = () => {
   const resumeRef = useRef(null);
-  const { resumeData, setResumeData } = useResume();
+  const { resumeData, updateResumeData } = useResume();
   const [editMode, setEditMode] = useState(false);
   const [localData, setLocalData] = useState(resumeData);
 
@@ -14,29 +14,47 @@ const Template1 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayFieldChange = (section, index, key, value) => {
     const updated = [...localData[section]];
     updated[index][key] = value;
-    setLocalData({ ...localData, [section]: updated });
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSkillChange = (index, value) => {
     const updatedSkills = [...localData.skills];
     updatedSkills[index] = value;
-    setLocalData({ ...localData, skills: updatedSkills });
+    const updatedData = { ...localData, skills: updatedSkills };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayStringChange = (section, index, value) => {
     const updated = [...localData[section]];
     updated[index] = value;
-    setLocalData({ ...localData, [section]: updated });
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSave = () => {
-    setResumeData(localData);
+    // Update context with current data
+    updateResumeData(localData);
+    
+    // Save to localStorage - this will trigger the universal save system
+    localStorage.setItem('resumeData', JSON.stringify(localData));
+    
+    // Exit edit mode
     setEditMode(false);
   };
 
@@ -46,7 +64,7 @@ const Template1 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
+    // This will be handled by the Sidebar component
   };
 
   const handleAddSection = (section) => {
@@ -84,7 +102,10 @@ const Template1 = () => {
 
     const newItem = templates[section];
     if (Array.isArray(localData[section])) {
-      setLocalData({ ...localData, [section]: [...localData[section], newItem] });
+      const updatedData = { ...localData, [section]: [...localData[section], newItem] };
+      setLocalData(updatedData);
+      // Auto-save to localStorage for universal save system
+      localStorage.setItem('resumeData', JSON.stringify(updatedData));
     }
   };
 
@@ -92,7 +113,10 @@ const Template1 = () => {
     if (index !== undefined) {
       const updated = [...localData[section]];
       updated.splice(index, 1);
-      setLocalData({ ...localData, [section]: updated });
+      const updatedData = { ...localData, [section]: updated };
+      setLocalData(updatedData);
+      // Auto-save to localStorage for universal save system
+      localStorage.setItem('resumeData', JSON.stringify(updatedData));
     }
   };
 
@@ -964,4 +988,4 @@ const Template1 = () => {
   );
 };
 
-export default Template1;
+export default Template2;

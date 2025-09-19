@@ -62,41 +62,6 @@ const Languages = () => {
     });
   };
 
-  const handleSkip = () => {
-    navigate('/details/other', { 
-      state: { templateId, buildType } 
-    });
-  };
-
-  const handleEnhanceWithAI = () => {
-    alert('AI Enhancement will be implemented later');
-  };
-
-  const handleFinish = () => {
-    const finalData = {
-      ...resumeData,
-      // Map languages to the format expected by templates (array of strings)
-      languages: languages.filter(lang => lang.language.trim()).map(lang => lang.language),
-      // Also keep the structured format for other use
-      languagesDetailed: languages
-    };
-    
-    updateResumeData(finalData);
-    
-    // Navigate to the correct template based on templateId
-    let templateRoute = `/template${templateId}`;
-    
-    // Handle special cases where template routes don't follow the pattern
-    if (templateId === 6 || templateId === 7 || templateId === 9 || templateId === 10 || templateId === 12) {
-      // These templates might not exist or have different routes
-      templateRoute = '/template1'; // fallback to template1
-    }
-    
-    navigate(templateRoute, { 
-      state: { resumeData: finalData } 
-    });
-  };
-
   const handleBackClick = () => {
     navigate('/details/projects', { state: { templateId, buildType } });
   };
@@ -242,26 +207,6 @@ const Languages = () => {
             Next
           </button>
           
-          <button
-            onClick={handleEnhanceWithAI}
-            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Enhance with AI
-          </button>
-          
-          <button
-            onClick={handleSkip}
-            className="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Skip
-          </button>
-          
-          <button
-            onClick={handleFinish}
-            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Finish
-          </button>
         </motion.div>
       </motion.div>
     </div>

@@ -1,10 +1,16 @@
-import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import * as pdfjsLib from "pdfjs-dist";
+import mammoth from "mammoth";
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+// Configure PDF.js worker - try different worker paths
+try {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+  ).toString();
+} catch {
+  // Fallback for different bundlers
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+}
 
 /**
  * Extract text from PDF files using PDF.js
@@ -31,18 +37,22 @@ export async function extractTextFromPDF(file) {
 }
 
 /**
- * Extract text from DOCX files using a simple approach
- * Note: This is a basic implementation. For production, consider using mammoth.js
+ * Extract text from DOCX files using mammoth.js
  * @param {File} file - DOCX file
  * @returns {Promise<string>} - Extracted text content
  */
 export async function extractTextFromDOCX(file) {
   try {
-    // For now, return a placeholder message
-    // In production, you would use mammoth.js or similar library
-    return `DOCX FILE DETECTED: ${file.name}
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    
+    if (result.messages && result.messages.length > 0) {
+      console.warn('DOCX parsing warnings:', result.messages);
+    }
+    
+    return result.value.trim() || `DOCX FILE PROCESSED: ${file.name}
 
-Your Word document has been uploaded successfully. The content will be processed for AI enhancement.
+Your Word document has been processed successfully.
 
 File Details:
 📄 Name: ${file.name}
@@ -50,12 +60,22 @@ File Details:
 📅 Last Modified: ${new Date(file.lastModified).toLocaleDateString()}
 🔖 Type: Microsoft Word Document (.docx)
 
-Note: DOCX parsing requires additional libraries. For now, you can manually copy and paste your resume content into the edit section, or convert your document to PDF for automatic text extraction.
-
-The AI enhancement feature will still work with manually entered content.`;
+Note: The content was extracted but may need formatting adjustments.`;
   } catch (error) {
     console.error("DOCX parsing error:", error);
-    throw new Error(`Failed to parse DOCX: ${error.message}`);
+    
+    // Fallback to placeholder if mammoth fails
+    return `DOCX FILE DETECTED: ${file.name}
+
+Your Word document has been uploaded successfully. The content extraction encountered an issue.
+
+File Details:
+📄 Name: ${file.name}
+📊 Size: ${(file.size / 1024 / 1024).toFixed(2)} MB
+📅 Last Modified: ${new Date(file.lastModified).toLocaleDateString()}
+🔖 Type: Microsoft Word Document (.docx)
+
+Note: Please manually copy and paste your resume content into the edit section for AI enhancement.`;
   }
 }
 

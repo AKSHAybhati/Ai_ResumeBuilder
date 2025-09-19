@@ -1,6 +1,13 @@
-import { useState } from "react"
+import React, { useState, useRef } from "react";
+import { useResume } from "../../context/ResumeContext";
+import Sidebar from "../Sidebar/Sidebar";
+import Navbar from "../Navbar/Navbar";
 
-function App() {
+const Template27 = () => {
+  const resumeRef = useRef(null);
+  const { resumeData, setResumeData } = useResume();
+  const [editMode, setEditMode] = useState(false);
+  const [localData, setLocalData] = useState(resumeData);
 
    const colorMap = {
   darkBlue: "bg-[#001a20]",
@@ -19,80 +26,50 @@ function App() {
   ocean: "text-[#033f4e]",
   maroon: "text-[#4d0604]",
 };
-  const [data , setData] = useState({
-    name : "Rubina",
-    domain :"Graphic designer",
-    phone : "+58 4555548521",
-    email : "example@gmail.com",
-    city : "New York",
-    linked : "LinkedIn",
-    github : "Github",
-    profile : "Enter your profile description....Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ducimus illum corporis officiis sint, ratione quasi pariatur.",
-    education : [
-      {
-        major : "Enter your major",
-        date : "xxxx",
-        institute: "Enter the institution"
-      },
-      {
-        major : "Enter your major",
-        date : "xxxx",
-        institute: "Enter the institution"
-      }
-    ],
-    achievements: [
-      {
-       domain:"domain",
-        year: "xxxx",
-        desc: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ducimus illum corporis officiis sint, ratione quasi pariatur. Accusantium minima ipsa modi sed, porro ad placeat sunt temporibus odio blanditiis vel voluptas."
-      },
-    ],
-    experience: [
-      {
-        comp:"Company name",
-        desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa nobis a possimus, omnis aut deserunt laudantium quasi amet molestiae consequuntur. Voluptatum aperiam corrupti hic ipsam totam placeat obcaecati, fuga maxime!"
-      }
-    ],
-    skills: ["html","react","tailwind","css","C","Js"],
-     references: [
-      {
-        name:"enter name",
-        gmail:"Gmail",
-        contact:"+5654564556"
-      },
-      {
-        name:"enter name",
-        gmail:"Gmail",
-        contact:"+5654564556"
-      },
-    ],
-    font:"sarif",
-    allFont:["Impact","Sarif","Verdana","cursive","Arial","Noto","Gill Sans","Franklin Gothic Medium","Century Gothic","Calibri"],
+  // Field change handlers with auto-save
+  const handleFieldChange = (field, value) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
 
-    Color : "navy",
-    TextColor:["darkBlue","teal","navy","green","ocean","maroon",],
+  const handleArrayFieldChange = (section, index, key, value) => {
+    const updated = [...localData[section]];
+    updated[index][key] = value;
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
 
-    textColor : "navy",
-    text:["darkBlue","teal","navy","green","ocean","maroon",]
+  const handleSave = () => {
+    setResumeData(localData);
+    setEditMode(false);
+  };
 
+  const handleCancel = () => {
+    setLocalData(resumeData);
+    setEditMode(false);
+  };
 
-  })
+  const handleEnhance = (section) => {
+    // AI enhancement functionality
+  };
 
-  const change = (field , value)=> {
-    setData({...data, ...(typeof field === 'object' ? field : {[field]:value})})
+  // Legacy change function for compatibility
+  const change = (field, value) => {
+    handleFieldChange(field, value);
+  };
+
+  const remove = (field, index) => {
+    const temp = [...localData[field]];
+    temp.splice(index, 1);
+    change(field, temp);
   }
 
-  const remove = (field , index) =>{
-  const temp = [...data[field]]
-  temp.splice(index, 1);
-  change(field, temp)
-}
-
-
-const add = (newSection, area)=>{
-  const update = [...data[newSection],area];
-  change(newSection, update)
-}
+  const add = (newSection, area) => {
+    const update = [...localData[newSection], area];
+    change(newSection, update);
+  }
 
 const [opt, changeOpt] = useState(false);
 
@@ -138,9 +115,16 @@ const [opt, changeOpt] = useState(false);
 
 
   return (
-<div className="flex  bg-[#b9b7b4] overflow-x-hidden lg:flex-row flex-col">
-      {/* buttons */}
-  <div className=" w-full lg:w-[18%] bg-gray-50 flex flex-col pb-9 items-center px-2 py-10 lg:rounded-r-4xl">
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex flex-1">
+        <Sidebar resumeRef={resumeRef} />
+        <main className="flex-1 bg-gray-100 p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white shadow-lg rounded-lg p-6">
+              <div className="flex  bg-[#b9b7b4] overflow-x-hidden lg:flex-row flex-col">
+                {/* buttons */}
+                <div className=" w-full lg:w-[18%] bg-gray-50 flex flex-col pb-9 items-center px-2 py-10 lg:rounded-r-4xl">
            <h1 className="text-center text-[1.8rem] font-bold">Resume Tools</h1>
            <div className=" w-full place-items-center lg:w-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:flex  lg:flex-col ">
             
@@ -167,7 +151,7 @@ const [opt, changeOpt] = useState(false);
                           <div className=" mx-1 p-2 mt-2 bg-gray-900  rounded grid grid-cols-3 lg:grid-cols-2  gap-2">
 
                           {
-                            data.TextColor.map((elm,idx)=>(
+                            localData.TextColor.map((elm,idx)=>(
                             <div key={idx} onClick={changeColor} className="bg-gray-300 flex items-center justify-center text-black p-2  rounded-[5px] text-[0.6rem] md:[0.8rem] lg:text-[1rem] xl:text-[1.1rem]">{elm}
                             </div>
                                ))
@@ -202,7 +186,7 @@ const [opt, changeOpt] = useState(false);
                  <div className=" mx-4 p-4 mt-2 bg-gray-900  rounded grid grid-cols-2   gap-2">
 
                          {
-                           data.allFont.map((elm,idx)=>(
+                           localData.allFont.map((elm,idx)=>(
                                   <div key={idx} onClick={changeText} className="bg-gray-300 flex items-center justify-center text-black p-1  rounded-[5px] text-[0.8rem] lg:text-[1rem] xl:text-[1.1rem]">{elm}
                             </div>
                               ))
@@ -218,17 +202,17 @@ const [opt, changeOpt] = useState(false);
 
 
       {/* Resume */}
-      <div className="w-[95vw] lg:w-[80vw] border-2  xl:w-[70vw] mx-auto p-3 bg-gray-100 mt-6" style={{fontFamily : data.font}}>
+      <div className="w-[95vw] lg:w-[80vw] border-2  xl:w-[70vw] mx-auto p-3 bg-gray-100 mt-6" style={{fontFamily : localData.font}}>
 
         {/* name */}
-        <div className= {`flex flex-col items-center justify-center  gap-2  border-b py-10 ${colorMap[data.textColor]}`}>
+        <div className= {`flex flex-col items-center justify-center  gap-2  border-b py-10 ${colorMap[localData.textColor]}`}>
           <input type="text"
-                 value={data.name}
+                 value={localData.name}
                  onChange={(e)=>change('name', e.target.value)}
-                 className={`text-[3rem] bg-gray-200 sm:w-auto w-full text-center font-bold uppercase ${TextColorMap[data.Color]}`} 
+                 className={`text-[3rem] bg-gray-200 sm:w-auto w-full text-center font-bold uppercase ${TextColorMap[localData.Color]}`} 
           />
           <input type="text"
-                 value={data.domain}
+                 value={localData.domain}
                  onChange={(e)=>change('domain', e.target.value)}
                  className={` text-center text-gray-500`}
           />
@@ -238,11 +222,11 @@ const [opt, changeOpt] = useState(false);
 
         {/* Contact */}
         <div className=" flex flex-col gap-1">
-          <h1 className={`text-[1.5rem] font-bold ${TextColorMap[data.Color]}`}>Contact</h1>
+          <h1 className={`text-[1.5rem] font-bold ${TextColorMap[localData.Color]}`}>Contact</h1>
              <div className="flex gap-2">
                   <label >📞</label>
                   <input type="text"
-                    value={data.phone}
+                    value={localData.phone}
                     onChange={(e)=>change('phone',e.target.value)}
                     className="pl-1"
                   />
@@ -250,7 +234,7 @@ const [opt, changeOpt] = useState(false);
              <div className="flex gap-2">
                   <label >📩</label>
                   <input type="text"
-                    value={data.email}
+                    value={localData.email}
                     onChange={(e)=>change('email',e.target.value)}
                     className="pl-1"
                   />
@@ -258,7 +242,7 @@ const [opt, changeOpt] = useState(false);
              <div className="flex gap-2">
                   <label >📍</label>
                   <input type="text"
-                    value={data.city}
+                    value={localData.city}
                     onChange={(e)=>change('city',e.target.value)}
                     className="pl-1"
                   />
@@ -266,7 +250,7 @@ const [opt, changeOpt] = useState(false);
              <div className="flex gap-2">
                   <label >🔗</label>
                   <input type="text"
-                    value={data.linked}
+                    value={localData.linked}
                     onChange={(e)=>change('linked',e.target.value)}
                     className="pl-1"
                   />
@@ -274,7 +258,7 @@ const [opt, changeOpt] = useState(false);
              <div className="flex gap-2">
                   <label >🔍</label>
                   <input type="text"
-                    value={data.github}
+                    value={localData.github}
                     onChange={(e)=>change('github',e.target.value)}
                     className="pl-1"
                   />
@@ -283,8 +267,8 @@ const [opt, changeOpt] = useState(false);
 
         {/* profile */}
         <div className=" flex flex-col mt-5 gap-2">
-            <h1 className={`text-[1.5rem] font-bold border-b ${TextColorMap[data.Color]}`}>Profile</h1>
-            <textarea value={data.profile} 
+            <h1 className={`text-[1.5rem] font-bold border-b ${TextColorMap[localData.Color]}`}>Profile</h1>
+            <textarea value={localData.profile} 
                      onChange={(e)=>change('profile',e.target.value)}
                      className="w-full h-[25vh] p-2 bg-gray-200 sm:h-[20vh] resize-none">
             </textarea>
@@ -294,7 +278,7 @@ const [opt, changeOpt] = useState(false);
         {/* Education */}
         <div className="  flex flex-col mt-5 gap-2">
            <div className="border-b flex justify-between ">
-                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[data.Color]}`}>Education</h1>
+                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[localData.Color]}`}>Education</h1>
                    <button className="text-blue-600 text-sm mt-1"
                        onClick={()=>add('education',{
                            major: "enter your Major",
@@ -306,13 +290,13 @@ const [opt, changeOpt] = useState(false);
 
 
             {
-              data.education.map((elm,idx)=>(
+              localData.education.map((elm,idx)=>(
                 <div key={idx} className="flex flex-col hover:border hover:border-gray-300 my-5">
                   <div className="flex sm:flex-row flex-col sm:items-center justify-between gap-1">
                          <input type="text"  
                               value={elm.major}
                               onChange={(e)=>{
-                              const temp = [...data.education]
+                              const temp = [...localData.education]
                               temp[idx].major = e.target.value
                               change('education',temp)
                             }}
@@ -322,7 +306,7 @@ const [opt, changeOpt] = useState(false);
                         <input type="date"
                               value={elm.date} 
                               onChange={(e)=>{
-                               const temp = [...data.education]
+                               const temp = [...localData.education]
                                temp[idx].date = e.target.value
                               change('education',temp)
                              }}
@@ -333,7 +317,7 @@ const [opt, changeOpt] = useState(false);
                    <input type="text"
                         value={elm.institute}
                          onChange={(e)=>{
-                         const temp = [...data.education]
+                         const temp = [...localData.education]
                          temp[idx].institute = e.target.value
                          change('education',temp)
                         }}
@@ -352,7 +336,7 @@ const [opt, changeOpt] = useState(false);
         {/* Achievements */}
         <div className=" flex flex-col mt-5 gap-2">
             <div className="border-b flex justify-between ">
-                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[data.Color]}`}>Achievements</h1>
+                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[localData.Color]}`}>Achievements</h1>
                    <button className="text-blue-600 text-sm mt-1"
                        onClick={()=>add('achievements',{     
                         domain:"domain",
@@ -364,12 +348,12 @@ const [opt, changeOpt] = useState(false);
            </div>
             
              {
-              data.achievements.map((elm,idx)=>(
+              localData.achievements.map((elm,idx)=>(
                 <div key={idx} className="flex flex-col hover:border hover:border-gray-300 my-5">
                   <input type="text"  
                   value={elm.domain}
                   onChange={(e)=>{
-                const temp = [...data.achievements]
+                const temp = [...localData.achievements]
                 temp[idx].domain = e.target.value
                 change('achievements',temp)
               }}
@@ -378,7 +362,7 @@ const [opt, changeOpt] = useState(false);
                   <input type="text"
                   value={elm.year} 
                   onChange={(e)=>{
-                const temp = [...data.achievements]
+                const temp = [...localData.achievements]
                 temp[idx].year = e.target.value
                 change('achievements',temp)
               }}
@@ -388,7 +372,7 @@ const [opt, changeOpt] = useState(false);
                   <textarea 
                   value={elm.desc}
                   onChange={(e)=>{
-                const temp = [...data.achievements]
+                const temp = [...localData.achievements]
                 temp[idx].desc = e.target.value
                 change('achievements',temp)
                  }}
@@ -408,7 +392,7 @@ const [opt, changeOpt] = useState(false);
         {/* Experience */}
         <div className=" flex flex-col mt-5 gap-2">
             <div className="border-b flex justify-between ">
-                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[data.Color]}`}>Experience</h1>
+                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[localData.Color]}`}>Experience</h1>
                    <button className="text-blue-600 text-sm mt-1"
                        onClick={()=>add('experience',{     
                            comp:"Company name",
@@ -418,12 +402,12 @@ const [opt, changeOpt] = useState(false);
            </div>
             
              {
-              data.experience.map((elm,idx)=>(
+              localData.experience.map((elm,idx)=>(
                 <div key={idx} className="flex flex-col hover:border hover:border-gray-300 my-5">
                   <input type="text"  
                   value={elm.comp}
                   onChange={(e)=>{
-                const temp = [...data.experience]
+                const temp = [...localData.experience]
                 temp[idx].comp = e.target.value
                 change('experience',temp)
               }}
@@ -433,7 +417,7 @@ const [opt, changeOpt] = useState(false);
                   <textarea 
                   value={elm.desc}
                   onChange={(e)=>{
-                const temp = [...data.experience]
+                const temp = [...localData.experience]
                 temp[idx].desc = e.target.value
                 change('experience',temp)
                  }}
@@ -453,19 +437,19 @@ const [opt, changeOpt] = useState(false);
            {/* Skills*/}
         <div className=" flex flex-col mt-5 gap-2">
            <div className="border-b flex justify-between ">
-                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[data.Color]}`}>Skills</h1>
+                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[localData.Color]}`}>Skills</h1>
                   <button className="text-blue-600 text-sm mt-1"
                     onClick={()=>add('skills',"enter your skill")}
                   >+ Add</button>
            </div>
 
            {
-              data.skills.map((elm,idx)=>(
+              localData.skills.map((elm,idx)=>(
                 <div key={idx} className="flex justify-between hover:border hover:border-gray-300">
                   <input type="text"  
                   value={elm}
                   onChange={(e)=>{
-                    const temp  = [...data.skills]
+                    const temp  = [...localData.skills]
                     temp[idx] = e.target.value;
                     change('skills',temp)
                   }}
@@ -488,7 +472,7 @@ const [opt, changeOpt] = useState(false);
          {/* Reference */}
         <div className="  flex flex-col mt-5 gap-2">
            <div className="border-b flex justify-between ">
-                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[data.Color]}`}>Reference</h1>
+                 <h1 className={`text-[1.5rem] font-bold  ${TextColorMap[localData.Color]}`}>Reference</h1>
                    <button className="text-blue-600 text-sm mt-1"
                        onClick={()=>add('references',{
                            name:"enter name",
@@ -501,12 +485,12 @@ const [opt, changeOpt] = useState(false);
 
           <div className="  grid grid-cols-1 sm:grid-cols-2 gap-2">
               {
-              data.references.map((elm,idx)=>(
+              localData.references.map((elm,idx)=>(
                 <div key={idx} className="flex flex-col  hover:border hover:border-gray-300 my-5">
                   <input type="text"  
                           value={elm.name}
                           onChange={(e)=>{
-                          const temp = [...data.references]
+                          const temp = [...localData.references]
                           temp[idx].name = e.target.value
                           change('references',temp)
                         }}
@@ -516,7 +500,7 @@ const [opt, changeOpt] = useState(false);
                   <input type="email"
                   value={elm.gmail} 
                   onChange={(e)=>{
-                const temp = [...data.references]
+                const temp = [...localData.references]
                 temp[idx].gmail = e.target.value
                 change('references',temp)
               }}
@@ -527,7 +511,7 @@ const [opt, changeOpt] = useState(false);
                   <input type="text"
                   value={elm.contact}
                   onChange={(e)=>{
-                const temp = [...data.references]
+                const temp = [...localData.references]
                 temp[idx].contact = e.target.value
                 change('references',temp)
               }}
@@ -546,11 +530,14 @@ const [opt, changeOpt] = useState(false);
 
         </div>
         </div>
-
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-    
-    
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default Template27;
+

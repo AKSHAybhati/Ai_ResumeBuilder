@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+﻿import { useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ResumeContext } from '../../context/ResumeContext';
@@ -35,38 +35,7 @@ const PersonalDetails = () => {
     };
     
     updateResumeData(updatedData);
-    navigate('/details/work-experience', { 
-      state: { templateId, buildType } 
-    });
-  };
-
-  const handleSkip = () => {
-    navigate('/details/work-experience', { 
-      state: { templateId, buildType } 
-    });
-  };
-
-  const handleEnhanceWithAI = () => {
-    // TODO: Implement AI enhancement
-    alert('AI Enhancement will be implemented later');
-  };
-
-  const handleFinish = () => {
-    const updatedData = {
-      ...resumeData,
-      name,
-      role,
-      email,
-      phone,
-      location: location_field,
-      linkedin,
-      github,
-      portfolio,
-      summary
-    };
-    
-    updateResumeData(updatedData);
-    navigate(`/template${templateId}`, { 
+    navigate('/details/education', { 
       state: { templateId, buildType } 
     });
   };
@@ -245,109 +214,19 @@ const PersonalDetails = () => {
             </div>
           </div>
         </motion.div>
-              />
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="block text-white font-semibold mb-2">City</label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
-                placeholder="Enter your city"
-              />
-            </div>
-
-            {/* State */}
-            <div>
-              <label className="block text-white font-semibold mb-2">State</label>
-              <input
-                type="text"
-                name="state"
-                value={formData.state}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
-                placeholder="Enter your state"
-              />
-            </div>
-
-            {/* LinkedIn */}
-            <div>
-              <label className="block text-white font-semibold mb-2">LinkedIn</label>
-              <input
-                type="url"
-                name="linkedIn"
-                value={formData.linkedIn}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
-                placeholder="Enter your LinkedIn URL"
-              />
-            </div>
-
-            {/* Portfolio */}
-            <div>
-              <label className="block text-white font-semibold mb-2">Portfolio</label>
-              <input
-                type="url"
-                name="portfolio"
-                value={formData.portfolio}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
-                placeholder="Enter your portfolio URL"
-              />
-            </div>
-          </div>
-
-          {/* Summary */}
-          <div className="mt-6">
-            <label className="block text-white font-semibold mb-2">Professional Summary</label>
-            <textarea
-              name="summary"
-              value={formData.summary}
-              onChange={handleInputChange}
-              rows="4"
-              className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300 resize-none"
-              placeholder="Write a brief summary about yourself"
-            />
-          </div>
-        </motion.div>
 
         {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="flex flex-wrap gap-4 justify-center"
+          className="flex flex-wrap justify-center gap-4"
         >
           <button
             onClick={handleNext}
-            className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             Next
-          </button>
-          
-          <button
-            onClick={handleEnhanceWithAI}
-            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Enhance with AI
-          </button>
-          
-          <button
-            onClick={handleSkip}
-            className="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Skip
-          </button>
-          
-          <button
-            onClick={handleFinish}
-            className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Finish
           </button>
         </motion.div>
       </motion.div>
