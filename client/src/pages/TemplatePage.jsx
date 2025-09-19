@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 import WithoutAiTemp from "../components/templateCard/TemplateCard.jsx";
 
 const WithoutAi = () => {
+  const location = useLocation();
+  const [prefilledData, setPrefilledData] = useState(null);
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Check if we have prefilled data from a saved resume
+    if (location.state?.prefilledData) {
+      setPrefilledData(location.state.prefilledData);
+      toast.success(`Using data from "${location.state.prefilledData.title}"`);
+    }
+  }, [location.state]);
 
   const handleBackClick = () => {
     window.history.back();
@@ -176,7 +187,7 @@ const WithoutAi = () => {
           transition={{ delay: 0.6, duration: 0.6 }}
         >
 
-          <WithoutAiTemp />
+          <WithoutAiTemp prefilledData={prefilledData} resumeText={location.state?.resumeText} />
         </motion.div>
       </motion.div>
     </div>

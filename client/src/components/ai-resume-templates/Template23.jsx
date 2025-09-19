@@ -16,13 +16,17 @@ const Template23 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayFieldChange = (section, index, key, value) => {
     const updated = [...localData[section]];
     updated[index] = key ? { ...updated[index], [key]: value } : value;
-    setLocalData({ ...localData, [section]: updated });
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSave = () => {

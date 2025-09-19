@@ -55,13 +55,17 @@ const Template7 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayFieldChange = (section, index, key, value) => {
     const updated = [...localData[section]];
     updated[index][key] = value;
-    setLocalData({ ...localData, [section]: updated });
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSave = () => {
@@ -75,7 +79,6 @@ const Template7 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   // Experience handlers

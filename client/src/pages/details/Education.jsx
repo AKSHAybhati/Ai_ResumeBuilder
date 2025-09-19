@@ -70,47 +70,6 @@ const Education = () => {
     });
   };
 
-  const handleSkip = () => {
-    navigate('/details/work-experience', { 
-      state: { templateId, buildType } 
-    });
-  };
-
-  const handleEnhanceWithAI = () => {
-    alert('AI Enhancement will be implemented later');
-  };
-
-  const handleFinish = () => {
-    const finalData = {
-      ...resumeData,
-      // Map education to the format expected by templates
-      education: education.map(edu => ({
-        degree: edu.degree,
-        institution: edu.institution,
-        duration: edu.year,
-        location: '', // Can be added later if needed
-        grade: edu.grade
-      })).filter(edu => edu.degree.trim() || edu.institution.trim()),
-      // Also keep the structured format for other use
-      educationDetailed: education
-    };
-    
-    updateResumeData(finalData);
-    
-    // Navigate to the correct template based on templateId
-    let templateRoute = `/template${templateId}`;
-    
-    // Handle special cases where template routes don't follow the pattern
-    if (templateId === 6 || templateId === 7 || templateId === 9 || templateId === 10 || templateId === 12) {
-      // These templates might not exist or have different routes
-      templateRoute = '/template1'; // fallback to template1
-    }
-    
-    navigate(templateRoute, { 
-      state: { resumeData: finalData } 
-    });
-  };
-
   const handleBackClick = () => {
     navigate('/details/personal-details', { 
       state: { templateId, buildType } 
@@ -247,27 +206,6 @@ const Education = () => {
             className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Next
-          </button>
-          
-          <button
-            onClick={handleEnhanceWithAI}
-            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Enhance with AI
-          </button>
-          
-          <button
-            onClick={handleSkip}
-            className="px-8 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Skip
-          </button>
-          
-          <button
-            onClick={handleFinish}
-            className="px-12 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl text-lg"
-          >
-            Finish & Generate Resume
           </button>
         </motion.div>
       </motion.div>

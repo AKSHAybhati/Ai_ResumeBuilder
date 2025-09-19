@@ -54,7 +54,7 @@ const AuthLayout = ({ children }) => {
             >
               {/* The logo image with enhanced animation */}
               <motion.img
-                src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
+                src="/UptoSkills_logo.png"
                 alt="UpToSkills Logo"
                 className="w-52 h-52 object-contain relative z-10"
                 animate={{

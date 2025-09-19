@@ -18,16 +18,17 @@ const ResumeEditPage = lazy(() => import("../pages/ResumeEditPage.jsx"));
 // Lazy load components
 // Home and Auth
 const Home = lazy(() => import("../pages/Home.jsx"));
-// const Login = lazy(() => import("../pages/auth/Login.jsx"));
-// const SignUp = lazy(() => import("../pages/auth/Signup.jsx"));
+const SignIn = lazy(() => import("../pages/auth/Login.jsx"));
+const SignUp = lazy(() => import("../pages/auth/SignUp.jsx"));
 
 // Main TemplatePage
 const TemplatePage = lazy(() => import("../pages/TemplatePage.jsx"));
+const MyResumesPage = lazy(() => import("../pages/MyResumesPage.jsx"));
 
 // Build Options and Details Pages
 const BuildOption = lazy(() => import("../pages/BuildOption.jsx"));
-const PersonalDetailsNew = lazy(() =>
-  import("../pages/details/PersonalDetailsNew.jsx")
+const PersonalDetails = lazy(() =>
+  import("../pages/details/PersonalDetails.jsx")
 );
 const WorkExperience = lazy(() =>
   import("../pages/details/WorkExperience.jsx")
@@ -77,6 +78,7 @@ const AppRoutes = () => {
         <Route path="/templatepage" element={<TemplatePage />} />
         <Route path="/ai-edit" element={<ResumeUploadPage />} />
         <Route path="/edit-resume" element={<ResumeEditPage />} />
+        <Route path="/my-resumes" element={<MyResumesPage />} />
 
 
         {/* Build Options */}
@@ -85,7 +87,7 @@ const AppRoutes = () => {
         {/* Details Collection Routes */}
         <Route
           path="/details/personal-details"
-          element={<PersonalDetailsNew />}
+          element={<PersonalDetails />}
         />
         <Route path="/details/work-experience" element={<WorkExperience />} />
         <Route path="/details/languages" element={<Languages />} />
@@ -122,8 +124,8 @@ const AppRoutes = () => {
         <Route path="/template29" element={<Template29 />} />
 
         {/* Login and Signup */}
-        {/* <Route exact path="/Login" element={<Login />} />
-        <Route exact path="/SignUp" element={<SignUp />} /> */}
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
 
         {/*  404 Not Found Route  */}
         <Route path="*" element={<NotFound />} />

@@ -49,7 +49,6 @@ const Template5 = () => {
   }, [resumeData]);
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
     // This will be handled by the Sidebar component
   };
 
@@ -82,17 +81,19 @@ const Template5 = () => {
   };
 
   const handleInputChange = (section, field, value, index) => {
-    setLocalData((prevData) => {
-      if (section && index !== undefined) {
-        const updatedSection = [...prevData[section]];
-        updatedSection[index][field] = value;
-        return { ...prevData, [section]: updatedSection };
-      } else if (section) {
-        return { ...prevData, [section]: value };
-      } else {
-        return { ...prevData, [field]: value };
-      }
-    });
+    let updatedData;
+    if (section && index !== undefined) {
+      const updatedSection = [...localData[section]];
+      updatedSection[index][field] = value;
+      updatedData = { ...localData, [section]: updatedSection };
+    } else if (section) {
+      updatedData = { ...localData, [section]: value };
+    } else {
+      updatedData = { ...localData, [field]: value };
+    }
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleAddSection = (section, itemToDuplicate) => {

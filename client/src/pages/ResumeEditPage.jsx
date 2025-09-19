@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FileText, Edit3, Loader, AlertCircle, Download, Share2, Save, Sparkles, ArrowLeft, RefreshCw, CheckCircle, Eye, FileDown } from 'lucide-react';
+import { FileText, Edit3, Loader, AlertCircle, Download, Share2, Save, Sparkles, ArrowLeft, RefreshCw, CheckCircle, Eye, FileDown, Database, List } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Navbar from "../components/Navbar/Navbar.jsx";
+import resumeService from "../services/resumeService.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const ResumeEditPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { file, content, parsedData, originalFile } = location.state || {};
 
   const [editedContent, setEditedContent] = useState(content || '');
   const [originalContent, setOriginalContent] = useState(content || '');
+  const [resumeTitle, setResumeTitle] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -38,7 +44,8 @@ const ResumeEditPage = () => {
     setSuccessMessage('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/enhance', {
+      
+      const res = await fetch('http://localhost:5000/api/enhance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,13 +57,24 @@ const ResumeEditPage = () => {
       });
 
       if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
+        const errorText = await res.text();
+        console.error('❌ Server error response:', errorText);
+        throw new Error(`Server error: ${res.status} - ${errorText}`);
       }
 
       const result = await res.json();
-      const enhancedText = (result.enhanced || '')
+      
+      if (!result.enhanced) {
+        throw new Error('No enhanced content received from AI');
+      }
+
+      const enhancedText = result.enhanced
         .replace(/\*/g, '')
         .trim();
+
+      if (!enhancedText) {
+        throw new Error('AI returned empty enhanced content');
+      }
 
       setEditedContent(enhancedText);
       setHasBeenEnhanced(true);
@@ -65,6 +83,7 @@ const ResumeEditPage = () => {
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (err) {
+      console.error('❌ AI Enhancement error:', err);
       setError('AI Enhancement failed: ' + (err.message || 'Please try again later.'));
     } finally {
       setIsProcessing(false);
@@ -108,9 +127,35 @@ const ResumeEditPage = () => {
   };
 
   // ---- BUTTON HANDLERS ----
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to save your resume");
+      navigate('/login');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const title = resumeTitle.trim() || `Resume - ${new Date().toLocaleDateString()}`;
+      const result = await resumeService.saveResume(editedContent, title);
+      
+      if (result.success) {
+        toast.success("✅ Resume saved to your account!");
+        setSuccessMessage(`✅ Resume "${title}" saved successfully!`);
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        toast.error(result.error || "Failed to save resume");
+      }
+    } catch (error) {
+      toast.error("Failed to save resume. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveLocal = () => {
     localStorage.setItem("resumeContent", editedContent);
-    alert("✅ Resume saved locally!");
+    toast.success("✅ Resume saved locally!");
   };
 
   const handleDownload = async () => {
@@ -585,11 +630,11 @@ const ResumeEditPage = () => {
           text: editedContent.substring(0, 100) + "...",
         });
       } catch (err) {
-        alert("Sharing cancelled.");
+        toast.info("Sharing cancelled.");
       }
     } else {
       navigator.clipboard.writeText(editedContent);
-      alert("📋 Resume copied to clipboard!");
+      toast.success("📋 Resume copied to clipboard!");
     }
   };
 
@@ -638,12 +683,31 @@ const ResumeEditPage = () => {
             </h1>
           </div>
           <div className="flex space-x-3">
-            <button
-              onClick={handleSave}
-              className="px-5 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition flex items-center gap-2"
-            >
-              <Save size={18} /> Save
-            </button>
+            {isAuthenticated ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isSaving ? <Loader className="animate-spin" size={18} /> : <Database size={18} />}
+                  {isSaving ? 'Saving...' : 'Save to Account'}
+                </button>
+                <button
+                  onClick={handleSaveLocal}
+                  className="px-5 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition flex items-center gap-2"
+                >
+                  <Save size={18} /> Save Local
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleSaveLocal}
+                className="px-5 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition flex items-center gap-2"
+              >
+                <Save size={18} /> Save Local
+              </button>
+            )}
             <button
               onClick={handleDownload}
               className="px-5 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition flex items-center gap-2"
@@ -656,8 +720,34 @@ const ResumeEditPage = () => {
             >
               <Share2 size={18} /> Share
             </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => navigate('/my-resumes')}
+                className="px-5 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition flex items-center gap-2"
+              >
+                <List size={18} /> My Resumes
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Resume Title Input (for authenticated users) */}
+        {isAuthenticated && (
+          <div className="mb-6">
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Resume Title (for saving to your account)
+              </label>
+              <input
+                type="text"
+                value={resumeTitle}
+                onChange={(e) => setResumeTitle(e.target.value)}
+                placeholder={`Resume - ${new Date().toLocaleDateString()}`}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Main Card */}
         <div className="bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-gray-700">

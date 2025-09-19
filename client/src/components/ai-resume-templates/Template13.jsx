@@ -49,16 +49,20 @@ const Template13 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleNestedChange = (arrayKey, index, field, value) => {
-    setLocalData((prev) => ({
-      ...prev,
-      [arrayKey]: prev[arrayKey].map((item, i) =>
+    const updatedData = {
+      ...localData,
+      [arrayKey]: localData[arrayKey].map((item, i) =>
         i === index ? { ...item, [field]: value } : item
       ),
-    }));
+    };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleTemplateSettingsChange = (field, value) => {
@@ -85,7 +89,6 @@ const Template13 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   const handlePhotoChange = (e) => {

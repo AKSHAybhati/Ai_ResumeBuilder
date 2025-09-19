@@ -28,7 +28,6 @@ const Template20 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   const handleArrayFieldChange = (arrayField, index, subField, value) => {

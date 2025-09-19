@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import { useResume } from "../../context/ResumeContext";
 import { enhanceTextWithGemini } from "../../services/geminiService";
 import html2pdf from "html2pdf.js";
+import { toast } from "react-toastify";
 
 import {
   FaChevronLeft,
@@ -50,9 +52,12 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
           })
           .from(element)
           .save()
+          .then(() => {
+            toast.success("Resume downloaded successfully!");
+          })
           .catch((err) => {
             console.error("❌ PDF Download Error:", err);
-            alert("Something went wrong while generating the PDF.");
+            toast.error("Something went wrong while generating the PDF. Please try again.");
           });
 
         setDownloadRequested(false);
@@ -109,8 +114,6 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
     setEnhancingSection(null);
     return;
   }
-
-  console.log("🟢 Sending to backend:", { section, data: contentToSend });
 
   const aiResponse = await enhanceTextWithGemini(section, contentToSend);
   if (!aiResponse) {
@@ -278,7 +281,7 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
                 url: window.location.href,
               });
             } else {
-              alert("Sharing not supported on this device");
+              toast.info("Sharing not supported on this device. You can copy the URL manually.");
             }
           }}
           title="Share Resume"

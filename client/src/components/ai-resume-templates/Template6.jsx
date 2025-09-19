@@ -39,13 +39,19 @@ const Template1 = () => {
   });
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayFieldChange = (section, index, key, value) => {
     const updated = [...localData[section]];
     updated[index] = { ...updated[index], [key]: value };
-    setLocalData({ ...localData, [section]: updated });
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSkillsChange = (value) => {
@@ -111,7 +117,6 @@ const Template1 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
     // This will be handled by the Sidebar component
     // The Sidebar already has the enhancement logic built-in
   };

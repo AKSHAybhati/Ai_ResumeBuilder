@@ -24,6 +24,12 @@ const Template14 = () => {
     }
   };
 
+  const handleFieldChange = (field, value) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
+
   const handleSave = () => {
     setResumeData(localData);
     setEditMode(false);
@@ -81,7 +87,6 @@ const Template14 = () => {
   );
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   return (

@@ -2,12 +2,16 @@ import { useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ResumeContext } from '../../context/ResumeContext';
+import { useAuth } from '../../context/AuthContext';
+import resumeService from '../../services/resumeService';
+import { toast } from 'react-toastify';
 
 const OtherDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { templateId, buildType } = location.state || {};
   const { resumeData, updateResumeData } = useContext(ResumeContext);
+  const { isAuthenticated } = useAuth();
 
   const [certifications, setCertifications] = useState(
     resumeData?.certifications || [
@@ -85,17 +89,13 @@ const OtherDetails = () => {
     }
   };
 
-  const handleEnhanceWithAI = () => {
-    alert('AI Enhancement will be implemented later');
-  };
-
   const handleBackClick = () => {
     navigate('/details/languages', { 
       state: { templateId, buildType } 
     });
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     const finalData = {
       ...resumeData,
       // Map certifications to the format expected by templates
@@ -117,6 +117,27 @@ const OtherDetails = () => {
     
     updateResumeData(finalData);
     
+    // Auto-save resume data if user is authenticated
+    if (isAuthenticated) {
+      try {
+        const resumeText = resumeService.structuredDataToText(finalData);
+        const title = `Resume - ${finalData.personalInfo?.name || 'Generated'} - ${new Date().toLocaleDateString()}`;
+        
+        const saveResult = await resumeService.saveResume(resumeText, title);
+        if (saveResult.success) {
+          toast.success('Data saved successfully');
+        } else {
+          console.warn('Auto-save failed:', saveResult.error);
+          toast.error('Failed to save');
+        }
+      } catch (error) {
+        console.warn('Auto-save error:', error);
+        toast.error('Failed to save');
+      }
+    } else {
+      toast.success('Data saved successfully');
+    }
+    
     // Navigate to the correct template based on templateId
     let templateRoute = `/template${templateId}`;
     
@@ -127,7 +148,7 @@ const OtherDetails = () => {
     }
     
     navigate(templateRoute, { 
-      state: { resumeData: finalData } 
+      state: { resumeData: finalData, autoSaved: isAuthenticated } 
     });
   };
 
@@ -309,13 +330,6 @@ const OtherDetails = () => {
           transition={{ delay: 0.6, duration: 0.6 }}
           className="flex flex-wrap gap-4 justify-center"
         >
-          <button
-            onClick={handleEnhanceWithAI}
-            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Enhance with AI
-          </button>
-          
           <button
             onClick={handleFinish}
             className="px-12 py-3 bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl text-lg"

@@ -529,7 +529,7 @@ export default function App() {
     <>
       <PrintStyles />
       <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6 font-sans text-gray-800">
-        <header className="bg-white p-3 mb-4 rounded-lg shadow-md sticky top-2 z-20">
+        <header className="bg-white p-3 mb-4 rounded-lg shadow-md top-2 z-20">
             <div className="flex flex-wrap gap-2 items-center justify-start">
                 <DropdownButton label="Upload" icon={UploadCloud} options={uploadOptions} accentColor={formData.accentColor} />
                 <DropdownButton label="AI Assistant" icon={Palette} options={aiAssistantOptions} accentColor={formData.accentColor} />
@@ -558,7 +558,7 @@ export default function App() {
           </aside>
 
           <main className="md:col-span-7 lg:col-span-8">
-            <div className="sticky top-[84px] z-10 flex items-center justify-center md:justify-end gap-2 mb-2 bg-gray-100 py-1 rounded">
+            <div className="top-[84px] z-10 flex items-center justify-center md:justify-end gap-2 mb-2 bg-gray-100 py-1 rounded">
                 <span className="text-sm font-medium text-gray-700 hidden md:inline">Zoom:</span>
                 <button onClick={() => setZoomLevel(prev => Math.max(0.25, prev - 0.1))} className="btn p-1.5 bg-white hover:bg-gray-200 rounded-md shadow"><ZoomOut size={16}/></button>
                 <button onClick={() => setZoomLevel(1)} className="btn p-1.5 bg-white hover:bg-gray-200 rounded-md shadow"><RotateCcw size={16}/></button>

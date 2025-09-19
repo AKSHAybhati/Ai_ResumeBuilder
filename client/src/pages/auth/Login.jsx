@@ -1,11 +1,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import AuthLayout from "./AuthLayout";
 import AnimatedInput from "./AnimatedInput";
 import AnimatedButton from "./AnimatedButton";
 import SocialLogin from "./SocialLogin";
+import authService from "../../services/authService";
 
-const SignIn = ({ onToggleToSignup }) => {
+const SignIn = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -96,7 +99,7 @@ const SignIn = ({ onToggleToSignup }) => {
 
   // Handle form submission with enhanced animation
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
 
       if (validateForm()) {
@@ -106,54 +109,31 @@ const SignIn = ({ onToggleToSignup }) => {
         const formEl = e.target;
         formEl.classList.add("submitting");
 
-        // Explosion effect on submit
-        for (let i = 0; i < 20; i++) {
-          const particle = document.createElement("div");
-          const size = Math.random() * 10 + 5;
-          const angle = Math.random() * Math.PI * 2;
-          const distance = Math.random() * 100 + 50;
-          const duration = Math.random() * 1 + 0.5;
+        try {
+          // Call our authentication service
+          const result = await authService.login({
+            email: formData.email,
+            password: formData.password,
+          });
 
-          const startX = window.innerWidth / 2;
-          const startY = window.innerHeight / 2;
-          const endX = startX + Math.cos(angle) * distance;
-          const endY = startY + Math.sin(angle) * distance;
-
-          particle.className = "fixed w-3 h-3 rounded-full z-50";
-          particle.style.width = `${size}px`;
-          particle.style.height = `${size}px`;
-          particle.style.background = i % 2 === 0 ? "#0D9488" : "#F97316";
-          particle.style.boxShadow =
-            i % 2 === 0
-              ? "0 0 10px 5px rgba(13, 148, 136, 0.7)"
-              : "0 0 10px 5px rgba(249, 115, 22, 0.7)";
-          particle.style.left = `${startX}px`;
-          particle.style.top = `${startY}px`;
-          particle.style.opacity = "1";
-          particle.style.transition = `all ${duration}s cubic-bezier(.09,.93,.16,.99)`;
-
-          document.body.appendChild(particle);
-
-          setTimeout(() => {
-            particle.style.transform = "scale(0.3)";
-            particle.style.left = `${endX}px`;
-            particle.style.top = `${endY}px`;
-            particle.style.opacity = "0";
-          }, 10);
-
-          setTimeout(() => {
-            document.body.removeChild(particle);
-          }, duration * 1000);
-        }
-
-        // Simulate API call
-        setTimeout(() => {
-          console.log("Sign in form submitted:", formData);
+          if (result.success) {
+            toast.success("Login successful! Welcome back!");
+            
+            // Redirect to home page after successful login
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          } else {
+            toast.error(result.error || "Login failed. Please try again.");
+            setErrors({ general: result.error });
+          }
+        } catch (error) {
+          toast.error("Network error. Please check your connection.");
+          setErrors({ general: "Network error. Please try again." });
+        } finally {
           setLoading(false);
           formEl.classList.remove("submitting");
-          // Here you would normally handle authentication with a backend
-          alert("Login successful!");
-        }, 1500);
+        }
       }
     },
     [formData, validateForm]
@@ -216,7 +196,7 @@ const SignIn = ({ onToggleToSignup }) => {
               >
                 <motion.div className="relative w-32 h-32 flex items-center justify-center mb-6 floating-logo">
                   <motion.img
-                    src="http://uptoskills.com/wp-content/uploads/2023/04/hd-logo-iguru.png"
+                    src="/UptoSkills_logo.png"
                     alt="UpToSkills Logo"
                     className="w-24 h-24 object-contain relative z-10"
                   />
@@ -240,15 +220,13 @@ const SignIn = ({ onToggleToSignup }) => {
               className="mt-3 text-center text-sm text-gray-600"
               variants={itemVariants}
             >
-              Don't have an account?{" "}
-              <motion.button
-                onClick={onToggleToSignup}
+              Don&apos;t have an account?{" "}
+              <Link
+                to="/signup"
                 className="font-medium text-orange-500 hover:text-teal-600 focus:outline-none transition-all duration-300"
-                whileHover={{ scale: 1.15, y: -5, color: "#0D9488" }}
-                whileTap={{ scale: 0.85 }}
               >
                 Sign up
-              </motion.button>
+              </Link>
             </motion.p>
           </motion.div>
         )}
@@ -403,3 +381,10 @@ const SignIn = ({ onToggleToSignup }) => {
 };
 
 export default SignIn;
+
+// Main Login component for routing
+const Login = () => {
+  return <SignIn />;
+};
+
+export { Login };

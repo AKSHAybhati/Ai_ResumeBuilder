@@ -16,7 +16,9 @@ const Template21 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleArrayFieldChange = (field, index, value) => {
@@ -37,7 +39,6 @@ const Template21 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   const sectionTitleStyle = {

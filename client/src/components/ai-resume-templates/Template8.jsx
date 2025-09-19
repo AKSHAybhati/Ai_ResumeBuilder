@@ -14,7 +14,10 @@ const Template8 = () => {
   }, [resumeData]);
 
   const handleFieldChange = (field, value) => {
-    setLocalData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    // Auto-save to localStorage for universal save system
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
   };
 
   const handleSave = () => {
@@ -28,7 +31,6 @@ const Template8 = () => {
   };
 
   const handleEnhance = (section) => {
-    console.log("Enhance requested for:", section);
   };
 
   const handleArrayFieldChange = (arrayField, index, subField, value) => {

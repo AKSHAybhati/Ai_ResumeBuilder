@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   FaEnvelope,
   FaPhone,
@@ -14,8 +14,37 @@ const ResumeTemplate29 = () => {
   const resumeRef = useRef(null);
 
   // Pull everything from ResumeContext (same as Template 4)
-  const { resumeData, theme, font, handleFieldChange, handleArrayFieldChange } =
-    useResume();
+  const { resumeData, setResumeData } = useResume();
+  const [editMode, setEditMode] = useState(false);
+  const [localData, setLocalData] = useState(resumeData);
+  
+  // Add default theme and font for styling
+  const theme = "blue";
+  const font = "sans";
+
+  const handleFieldChange = (field, value) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
+
+  const handleArrayFieldChange = (section, index, key, value) => {
+    const updated = [...localData[section]];
+    updated[index][key] = value;
+    const updatedData = { ...localData, [section]: updated };
+    setLocalData(updatedData);
+    localStorage.setItem('resumeData', JSON.stringify(updatedData));
+  };
+
+  const handleSave = () => {
+    setResumeData(localData);
+    setEditMode(false);
+  };
+
+  const handleCancel = () => {
+    setLocalData(resumeData);
+    setEditMode(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
