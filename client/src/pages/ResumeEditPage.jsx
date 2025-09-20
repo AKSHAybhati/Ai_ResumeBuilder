@@ -10,7 +10,7 @@ const ResumeEditPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { file, content, parsedData, originalFile } = location.state || {};
+  const { file, content, parsedData, originalFile, savedResumeId } = location.state || {};
 
   const [editedContent, setEditedContent] = useState(content || '');
   const [originalContent, setOriginalContent] = useState(content || '');
@@ -22,6 +22,7 @@ const ResumeEditPage = () => {
   const [hasBeenEnhanced, setHasBeenEnhanced] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [tempEditContent, setTempEditContent] = useState('');
+  const [currentResumeId, setCurrentResumeId] = useState(savedResumeId);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -44,7 +45,7 @@ const ResumeEditPage = () => {
     setSuccessMessage('');
 
     try {
-      
+
       const res = await fetch('http://localhost:5000/api/enhance', {
         method: 'POST',
         headers: {
@@ -63,7 +64,7 @@ const ResumeEditPage = () => {
       }
 
       const result = await res.json();
-      
+
       if (!result.enhanced) {
         throw new Error('No enhanced content received from AI');
       }
@@ -137,14 +138,29 @@ const ResumeEditPage = () => {
     setIsSaving(true);
     try {
       const title = resumeTitle.trim() || `Resume - ${new Date().toLocaleDateString()}`;
-      const result = await resumeService.saveResume(editedContent, title);
-      
-      if (result.success) {
-        toast.success("✅ Resume saved to your account!");
-        setSuccessMessage(`✅ Resume "${title}" saved successfully!`);
-        setTimeout(() => setSuccessMessage(''), 3000);
+
+      let result;
+      if (currentResumeId) {
+        // Update existing resume
+        result = await resumeService.updateResume(currentResumeId, editedContent, title);
+        if (result.success) {
+          toast.success("✅ Resume updated in your account!");
+          setSuccessMessage(`✅ Resume "${title}" updated successfully!`);
+        }
       } else {
+        // Create new resume
+        result = await resumeService.saveResume(editedContent, title);
+        if (result.success) {
+          setCurrentResumeId(result.data.id);
+          toast.success("✅ Resume saved to your account!");
+          setSuccessMessage(`✅ Resume "${title}" saved successfully!`);
+        }
+      }
+
+      if (!result.success) {
         toast.error(result.error || "Failed to save resume");
+      } else {
+        setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (error) {
       toast.error("Failed to save resume. Please try again.");
@@ -691,7 +707,7 @@ const ResumeEditPage = () => {
                   className="px-5 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition flex items-center gap-2 disabled:opacity-50"
                 >
                   {isSaving ? <Loader className="animate-spin" size={18} /> : <Database size={18} />}
-                  {isSaving ? 'Saving...' : 'Save to Account'}
+                  {isSaving ? 'Saving...' : (currentResumeId ? 'Update Resume' : 'Save to Account')}
                 </button>
                 <button
                   onClick={handleSaveLocal}
@@ -735,9 +751,17 @@ const ResumeEditPage = () => {
         {isAuthenticated && (
           <div className="mb-6">
             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Resume Title (for saving to your account)
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-300">
+                  Resume Title (for saving to your account)
+                </label>
+                {currentResumeId && (
+                  <div className="flex items-center space-x-1 text-green-400 text-sm">
+                    <Database size={16} />
+                    <span>Already saved</span>
+                  </div>
+                )}
+              </div>
               <input
                 type="text"
                 value={resumeTitle}

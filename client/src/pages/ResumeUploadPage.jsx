@@ -1,21 +1,27 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { parseResumeFile, validateResumeFile } from "../utils/fileParser";
-import { Upload, FileText, Edit3, Download, Eye, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { Upload, FileText, Edit3, Download, Eye, AlertCircle, CheckCircle, Loader2, Database } from 'lucide-react';
 import Navbar from "../components/Navbar/Navbar.jsx";
+import resumeService from "../services/resumeService.js";
+import { useAuth } from "../context/AuthContext.jsx";
+import { toast } from 'react-toastify';
 
 const ResumeUploadPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [uploadedFile, setUploadedFile] = useState(null);
   const [resumeContent, setResumeContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState('');
   const [warnings, setWarnings] = useState([]);
   const [parsedData, setParsedData] = useState(null);
+  const [savedResumeId, setSavedResumeId] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Enhanced file handling with immediate parsing and redirect
+  // Enhanced file handling with immediate parsing, auto-save, and redirect
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -24,6 +30,7 @@ const ResumeUploadPage = () => {
     setError('');
     setWarnings([]);
     setParsedData(null);
+    setSavedResumeId(null);
 
     // Validate file
     const validation = validateResumeFile(file);
@@ -47,6 +54,26 @@ const ResumeUploadPage = () => {
       setResumeContent(parsed.content);
       setShowPreview(true);
 
+      // Auto-save to database if user is authenticated
+      if (isAuthenticated) {
+        setIsSaving(true);
+        try {
+          const saveResult = await resumeService.autoSaveUploadedResume(parsed, file);
+          if (saveResult.success) {
+            setSavedResumeId(saveResult.data.id);
+            toast.success('✅ Resume automatically saved to your account!');
+          } else {
+            console.warn('Failed to auto-save resume:', saveResult.error);
+            toast.warning('Resume parsed but not saved to account. You can save it manually later.');
+          }
+        } catch (saveError) {
+          console.warn('Auto-save error:', saveError);
+          toast.warning('Resume parsed but not saved to account. You can save it manually later.');
+        } finally {
+          setIsSaving(false);
+        }
+      }
+
       // Automatically redirect to edit page with parsed data
       setTimeout(() => {
         navigate('/edit-resume', {
@@ -54,10 +81,11 @@ const ResumeUploadPage = () => {
             file: file,
             content: parsed.content,
             parsedData: parsed,
-            originalFile: file
+            originalFile: file,
+            savedResumeId: savedResumeId
           }
         });
-      }, 1000); // Small delay to show success state
+      }, 2000); // Slightly longer delay to show save status
 
     } catch (error) {
       setError(error.message);
@@ -176,12 +204,32 @@ const ResumeUploadPage = () => {
                       <CheckCircle className="text-emerald-600" size={20} />
                       <div>
                         <span className="font-medium text-emerald-800">{uploadedFile.name}</span>
-                        <p className="text-sm text-emerald-600">Successfully parsed • Redirecting to edit page...</p>
+                        <p className="text-sm text-emerald-600">
+                          Successfully parsed
+                          {isAuthenticated && isSaving && ' • Saving to your account...'}
+                          {isAuthenticated && !isSaving && savedResumeId && ' • Saved to your account!'}
+                          {!isAuthenticated && ' • Redirecting to edit page...'}
+                          {isAuthenticated && !isSaving && !savedResumeId && ' • Redirecting to edit page...'}
+                        </p>
                       </div>
                     </div>
-                    <span className="text-sm text-emerald-600">
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      {isAuthenticated && isSaving && (
+                        <div className="flex items-center space-x-1 text-emerald-600">
+                          <Database size={16} />
+                          <span className="text-xs">Saving...</span>
+                        </div>
+                      )}
+                      {isAuthenticated && savedResumeId && (
+                        <div className="flex items-center space-x-1 text-emerald-600">
+                          <Database size={16} />
+                          <span className="text-xs">Saved!</span>
+                        </div>
+                      )}
+                      <span className="text-sm text-emerald-600">
+                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -191,7 +239,9 @@ const ResumeUploadPage = () => {
                 <div className="mt-6 text-center">
                   <div className="inline-flex items-center space-x-2 text-emerald-600">
                     <Loader2 className="animate-spin" size={20} />
-                    <span>Parsing your resume and preparing for editing...</span>
+                    <span>
+                      {isSaving ? 'Saving to your account...' : 'Parsing your resume and preparing for editing...'}
+                    </span>
                   </div>
                 </div>
               )}

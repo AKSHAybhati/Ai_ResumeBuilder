@@ -9,3 +9,4 @@ COMMENT ON COLUMN resumes.raw_text IS 'Original resume text before parsing into 
 
 -- Update any existing records to have empty raw_text if they don't have it
 UPDATE resumes SET raw_text = '' WHERE raw_text IS NULL;
+

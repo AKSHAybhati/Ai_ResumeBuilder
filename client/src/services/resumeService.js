@@ -433,6 +433,402 @@ class ResumeService {
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
+
+  // Auto-save uploaded resume data (for file uploads)
+  async autoSaveUploadedResume(parsedData, originalFile, title = null) {
+    try {
+      // Extract name from parsed content for better title
+      const extractedName = this.extractNameFromContent(parsedData.content);
+      
+      const resumeData = {
+        title: title || `Resume - ${extractedName || 'Uploaded Resume'}`,
+        templateId: 1, // Default template for uploaded resumes
+        personalInfo: this.extractPersonalInfoFromContent(parsedData.content),
+        summary: this.extractSummaryFromContent(parsedData.content),
+        skills: this.extractSkillsFromContent(parsedData.content),
+        experience: this.extractExperienceFromContent(parsedData.content),
+        education: this.extractEducationFromContent(parsedData.content),
+        projects: this.extractProjectsFromContent(parsedData.content),
+        certifications: this.extractCertificationsFromContent(parsedData.content),
+        achievements: this.extractAchievementsFromContent(parsedData.content),
+        interests: this.extractInterestsFromContent(parsedData.content),
+        languages: this.extractLanguagesFromContent(parsedData.content),
+        rawText: parsedData.content
+      };
+
+      const response = await authService.authenticatedRequest(`${API_BASE}/resumes`, {
+        method: 'POST',
+        body: JSON.stringify(resumeData),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        return { success: true, data: result.data };
+      } else {
+        return { success: false, error: result.message || 'Failed to save uploaded resume' };
+      }
+    } catch (error) {
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  }
+
+  // Helper methods for extracting structured data from content
+  extractNameFromContent(content) {
+    const lines = content.split('\n');
+    return lines[0]?.trim() || '';
+  }
+
+  extractPersonalInfoFromContent(content) {
+    const lines = content.split('\n');
+    const personalInfo = {
+      name: lines[0]?.trim() || '',
+      email: '',
+      phone: '',
+      location: '',
+      linkedin: '',
+      github: '',
+      portfolio: ''
+    };
+
+    // Extract contact information from first few lines
+    for (let i = 1; i < Math.min(6, lines.length); i++) {
+      const line = lines[i].trim();
+      if (line.includes('@') && !personalInfo.email) {
+        personalInfo.email = line.match(/\S+@\S+\.\S+/)?.[0] || '';
+      }
+      if (line.match(/[\+\(]?[\d\s\-\(\)]{7,}/) && !personalInfo.phone) {
+        personalInfo.phone = line;
+      }
+      if (line.toLowerCase().includes('linkedin') && !personalInfo.linkedin) {
+        personalInfo.linkedin = line;
+      }
+      if (line.toLowerCase().includes('github') && !personalInfo.github) {
+        personalInfo.github = line;
+      }
+      if (line.toLowerCase().includes('portfolio') || line.toLowerCase().includes('website') && !personalInfo.portfolio) {
+        personalInfo.portfolio = line;
+      }
+    }
+
+    return personalInfo;
+  }
+
+  extractSummaryFromContent(content) {
+    const lines = content.split('\n');
+    let summary = '';
+    let inSummarySection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['SUMMARY', 'PROFILE', 'OBJECTIVE', 'ABOUT'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inSummarySection = true;
+        continue;
+      }
+
+      if (inSummarySection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          summary += (summary ? ' ' : '') + line;
+        }
+      }
+    }
+
+    return summary;
+  }
+
+  extractSkillsFromContent(content) {
+    const lines = content.split('\n');
+    const skills = [];
+    let inSkillsSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES', 'TECHNOLOGIES'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inSkillsSection = true;
+        continue;
+      }
+
+      if (inSkillsSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          const lineSkills = line.split(',').map(skill => skill.trim()).filter(skill => skill);
+          skills.push(...lineSkills);
+        }
+      }
+    }
+
+    return skills;
+  }
+
+  extractExperienceFromContent(content) {
+    const lines = content.split('\n');
+    const experience = [];
+    let inExperienceSection = false;
+    let currentJob = {};
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT', 'WORK HISTORY'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inExperienceSection = true;
+        continue;
+      }
+
+      if (inExperienceSection) {
+        if (['EDUCATION', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          if (currentJob.title) {
+            experience.push(currentJob);
+          }
+          break;
+        }
+
+        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+          if (currentJob.title && !currentJob.company) {
+            currentJob.company = line;
+          } else {
+            if (currentJob.title) {
+              experience.push(currentJob);
+            }
+            currentJob = { title: line, company: '', duration: '', description: [] };
+          }
+        } else if (line.match(/\d{4}/) && line.length < 50) {
+          currentJob.duration = line;
+        } else if (line) {
+          if (!currentJob.description) currentJob.description = [];
+          currentJob.description.push(line.replace(/^[•\-*]\s*/, ''));
+        }
+      }
+    }
+
+    if (currentJob.title) {
+      experience.push(currentJob);
+    }
+
+    return experience;
+  }
+
+  extractEducationFromContent(content) {
+    const lines = content.split('\n');
+    const education = [];
+    let inEducationSection = false;
+    let currentEdu = {};
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['EDUCATION', 'ACADEMIC BACKGROUND', 'QUALIFICATIONS'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inEducationSection = true;
+        continue;
+      }
+
+      if (inEducationSection) {
+        if (['EXPERIENCE', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          if (currentEdu.degree) {
+            education.push(currentEdu);
+          }
+          break;
+        }
+
+        if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+          if (currentEdu.degree && !currentEdu.institution) {
+            currentEdu.institution = line;
+          } else {
+            if (currentEdu.degree) {
+              education.push(currentEdu);
+            }
+            currentEdu = { degree: line, institution: '', year: '', gpa: '' };
+          }
+        } else if (line.match(/\d{4}/)) {
+          currentEdu.year = line;
+        }
+      }
+    }
+
+    if (currentEdu.degree) {
+      education.push(currentEdu);
+    }
+
+    return education;
+  }
+
+  extractProjectsFromContent(content) {
+    const lines = content.split('\n');
+    const projects = [];
+    let inProjectsSection = false;
+    let currentProject = {};
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['PROJECTS', 'PROJECT EXPERIENCE', 'PORTFOLIO'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inProjectsSection = true;
+        continue;
+      }
+
+      if (inProjectsSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'CERTIFICATIONS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          if (currentProject.name) {
+            projects.push(currentProject);
+          }
+          break;
+        }
+
+        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+          if (currentProject.name) {
+            projects.push(currentProject);
+          }
+          currentProject = { name: line, description: [], technologies: [], link: '' };
+        } else if (line) {
+          if (!currentProject.description) currentProject.description = [];
+          currentProject.description.push(line.replace(/^[•\-*]\s*/, ''));
+        }
+      }
+    }
+
+    if (currentProject.name) {
+      projects.push(currentProject);
+    }
+
+    return projects;
+  }
+
+  extractCertificationsFromContent(content) {
+    const lines = content.split('\n');
+    const certifications = [];
+    let inCertSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['CERTIFICATIONS', 'CERTIFICATES', 'LICENSES'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inCertSection = true;
+        continue;
+      }
+
+      if (inCertSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          certifications.push(line);
+        }
+      }
+    }
+
+    return certifications;
+  }
+
+  extractAchievementsFromContent(content) {
+    const lines = content.split('\n');
+    const achievements = [];
+    let inAchievementsSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['ACHIEVEMENTS', 'AWARDS', 'HONORS', 'ACCOMPLISHMENTS'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inAchievementsSection = true;
+        continue;
+      }
+
+      if (inAchievementsSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          achievements.push(line);
+        }
+      }
+    }
+
+    return achievements;
+  }
+
+  extractInterestsFromContent(content) {
+    const lines = content.split('\n');
+    const interests = [];
+    let inInterestsSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['INTERESTS', 'HOBBIES', 'ACTIVITIES'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inInterestsSection = true;
+        continue;
+      }
+
+      if (inInterestsSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          interests.push(line);
+        }
+      }
+    }
+
+    return interests;
+  }
+
+  extractLanguagesFromContent(content) {
+    const lines = content.split('\n');
+    const languages = [];
+    let inLanguagesSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+
+      if (['LANGUAGES', 'LANGUAGE PROFICIENCY'].some(header => 
+        upperLine.includes(header) && line.length < 50)) {
+        inLanguagesSection = true;
+        continue;
+      }
+
+      if (inLanguagesSection) {
+        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
+          upperLine.includes(header) && line.length < 50)) {
+          break;
+        }
+        if (line) {
+          languages.push(line);
+        }
+      }
+    }
+
+    return languages;
+  }
 }
 
 // Create and export a singleton instance

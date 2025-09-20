@@ -55,3 +55,4 @@ if (require.main === module) {
 }
 
 module.exports = addRawTextColumn;
+
