@@ -14,10 +14,14 @@ const Skills = () => {
   const { isAuthenticated } = useAuth();
 
   const [skills, setSkills] = useState(
-    resumeData?.skills || [
-      { id: 1, skill: '' }
-    ]
-  );
+  (resumeData?.skillsDetailed || []).map((s, index) => ({
+    id: s.id ?? index + 1,   // always give an id
+    ...s
+  })) || [
+    { id: 1, skill: '' }
+  ]
+);
+
 
   const handleSkillChange = (id, value) => {
     setSkills(prev => 

@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS resumes (
     achievements JSONB,
     interests JSONB,
     languages JSONB,
+    raw_text TEXT,
     
     -- Metadata
     is_active BOOLEAN DEFAULT true,

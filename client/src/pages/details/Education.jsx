@@ -10,16 +10,20 @@ const Education = () => {
   const { resumeData, updateResumeData } = useContext(ResumeContext);
 
   const [education, setEducation] = useState(
-    resumeData?.education || [
-      {
-        id: 1,
-        degree: '',
-        institution: '',
-        year: '',
-        grade: ''
-      }
-    ]
-  );
+  (resumeData?.educationDetailed || []).map((edu, index) => ({
+    id: edu.id ?? index + 1, // always ensure an id exists
+    ...edu
+  })) || [
+    {
+      id: 1,
+      degree: '',
+      institution: '',
+      year: '',
+      grade: ''
+    }
+  ]
+);
+
 
   const handleEducationChange = (id, field, value) => {
     setEducation(prev => 

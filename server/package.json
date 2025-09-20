@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node -r dotenv/config server.js",
-    "dev": "nodemon -r dotenv/config server.js"
+    "dev": "nodemon -r dotenv/config server.js",
+    "migrate:add-raw-text": "node -r dotenv/config scripts/migrate_add_raw_text.js"
   },
   "keywords": [],
   "author": "",

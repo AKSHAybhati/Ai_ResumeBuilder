@@ -25,7 +25,7 @@ const WithoutAi = () => {
 
   // Profile image URL
   const profileImage =
-    'https://miro.medium.com/v2/resize:fit:4800/format:webp/1*mAIfR-lj6YkUEI7AaP6CGg.jpeg';
+    'https://i.pinimg.com/1200x/60/94/eb/6094eb49674113107a923e96441065c0.jpg';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 py-12 md:p-12 relative overflow-hidden">
@@ -149,33 +149,6 @@ const WithoutAi = () => {
                 <div className="text-sm text-gray-400">Success Rate</div>
               </div>
             </motion.div>
-
-            <motion.button
-              className="text-white px-10 py-4 rounded-2xl text-lg font-semibold shadow-2xl relative overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-300"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              <span className="relative flex items-center justify-center">
-                🚀 Start Building Now
-                <svg
-                  className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  ></path>
-                </svg>
-              </span>
-            </motion.button>
           </div>
         </motion.div>
 

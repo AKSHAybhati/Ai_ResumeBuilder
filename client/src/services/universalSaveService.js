@@ -136,7 +136,7 @@ const handleResumeDataSave = async (resumeDataStr) => {
 const handleDatabaseSave = async (resumeData, templateId) => {
   try {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     if (!token) {
       toast.info('Resume saved locally. Sign in to save permanently.');
       return;

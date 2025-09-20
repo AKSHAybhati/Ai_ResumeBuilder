@@ -1,10 +1,10 @@
-import { useState, useContext } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ResumeContext } from '../../context/ResumeContext';
-import { useAuth } from '../../context/AuthContext';
-import resumeService from '../../services/resumeService';
-import { toast } from 'react-toastify';
+import { useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ResumeContext } from "../../context/ResumeContext";
+import { useAuth } from "../../context/AuthContext";
+import resumeService from "../../services/resumeService";
+import { toast } from "react-toastify";
 
 const Projects = () => {
   const navigate = useNavigate();
@@ -14,50 +14,58 @@ const Projects = () => {
   const { isAuthenticated } = useAuth();
 
   const [projects, setProjects] = useState(
-    resumeData?.projects || [
-      {
-        id: 1,
-        title: '',
-        description: '',
-        technologies: '',
-        link: '',
-        githubLink: '',
-        startDate: '',
-        endDate: '',
-        isOngoing: false
-      }
-    ]
-  );
+  (resumeData?.projectsDetailed || []).map((p, index) => ({
+    id: p.id ?? index + 1,  // ensure every project has an id
+    ...p,
+    technologies: p.technologies ?? ""
+  })) || [
+    {
+      id: 1,
+      title: '',
+      description: '',
+      technologies: '',
+      link: '',
+      githubLink: '',
+      startDate: '',
+      endDate: '',
+      isOngoing: false
+    }
+  ]
+);
+
 
   const handleProjectChange = (id, field, value) => {
-    setProjects(prev => 
-      prev.map(project => 
+    setProjects((prev) =>
+      prev.map((project) =>
         project.id === id ? { ...project, [field]: value } : project
       )
     );
   };
 
   const addProject = () => {
-    const newId = projects.length > 0 ? Math.max(...projects.map(project => project.id)) + 1 : 1;
-    setProjects(prev => [
+    const newId =
+      projects.length > 0
+        ? Math.max(...projects.map((project) => project.id)) + 1
+        : 1;
+    setProjects((prev) => [
       ...prev,
       {
         id: newId,
-        title: '',
-        description: '',
-        technologies: '',
-        link: '',
-        githubLink: '',
-        startDate: '',
-        endDate: '',
-        isOngoing: false
-      }
+        title: "",
+        description: "",
+        technologies: "",
+        link: "",
+        githubLink: "",
+        startDate: "",
+        endDate: "",
+        isOngoing: false,
+      },
     ]);
   };
 
   const removeProject = (id) => {
     if (projects.length > 1) {
-      setProjects(prev => prev.filter(project => project.id !== id));
+      setProjects((prev) => prev.filter((project) => project.id !== id));
     }
   };
 
@@ -65,21 +73,31 @@ const Projects = () => {
     const updatedData = {
       ...resumeData,
       // Map projects to the format expected by templates
-      projects: projects.map(project => ({
-        title: project.title,
-        description: project.description,
-        technologies: project.technologies.split(',').map(tech => tech.trim()).filter(tech => tech),
-        link: project.link,
-        githubLink: project.githubLink,
-        duration: project.isOngoing ? `${project.startDate} - Present` : `${project.startDate} - ${project.endDate}`
-      })).filter(project => project.title.trim()),
+      projects: projects
+        .map((project) => ({
+          title: project.title,
+          description: project.description,
+          technologies: Array.isArray(project.technologies)
+            ? project.technologies
+            : (project.technologies || "")
+                .split(",")
+                .map((tech) => tech.trim())
+                .filter((tech) => tech),
+
+          link: project.link,
+          githubLink: project.githubLink,
+          duration: project.isOngoing
+            ? `${project.startDate} - Present`
+            : `${project.startDate} - ${project.endDate}`,
+        }))
+        .filter((project) => project.title.trim()),
       // Also keep the structured format for other use
-      projectsDetailed: projects
+      projectsDetailed: projects,
     };
-    
+
     updateResumeData(updatedData);
-    navigate('/details/languages', { 
-      state: { templateId, buildType } 
+    navigate("/details/languages", {
+      state: { templateId, buildType },
     });
   };
 
@@ -87,56 +105,69 @@ const Projects = () => {
     const finalData = {
       ...resumeData,
       // Map projects to the format expected by templates
-      projects: projects.map(project => ({
-        title: project.title,
-        description: project.description,
-        technologies: project.technologies.split(',').map(tech => tech.trim()).filter(tech => tech),
-        link: project.link,
-        githubLink: project.githubLink,
-        duration: project.isOngoing ? `${project.startDate} - Present` : `${project.startDate} - ${project.endDate}`
-      })).filter(project => project.title.trim()),
+      projects: projects
+        .map((project) => ({
+          title: project.title,
+          description: project.description,
+          technologies: project.technologies
+            .split(",")
+            .map((tech) => tech.trim())
+            .filter((tech) => tech),
+          link: project.link,
+          githubLink: project.githubLink,
+          duration: project.isOngoing
+            ? `${project.startDate} - Present`
+            : `${project.startDate} - ${project.endDate}`,
+        }))
+        .filter((project) => project.title.trim()),
       // Also keep the structured format for other use
-      projectsDetailed: projects
+      projectsDetailed: projects,
     };
-    
+
     try {
       // Update context
       updateResumeData(finalData);
-      
+
       // Auto-save to database if user is authenticated
       if (isAuthenticated) {
         const saveResult = await resumeService.saveResumeData(finalData);
         if (saveResult.success) {
-          toast.success('Data saved successfully');
+          toast.success("Data saved successfully");
         } else {
-          console.error('Database save error:', saveResult.error);
-          toast.error('Failed to save');
+          console.error("Database save error:", saveResult.error);
+          toast.error("Failed to save");
         }
       } else {
-        toast.success('Data saved successfully');
+        toast.success("Data saved successfully");
       }
-      
+
       // Navigate to the correct template based on templateId
       let templateRoute = `/template${templateId}`;
-      
+
       // Handle special cases where template routes don't follow the pattern
-      if (templateId === 6 || templateId === 7 || templateId === 9 || templateId === 10 || templateId === 12) {
+      if (
+        templateId === 6 ||
+        templateId === 7 ||
+        templateId === 9 ||
+        templateId === 10 ||
+        templateId === 12
+      ) {
         // These templates might not exist or have different routes
-        templateRoute = '/template1'; // fallback to template1
+        templateRoute = "/template1"; // fallback to template1
       }
-      
-      navigate(templateRoute, { 
-        state: { resumeData: finalData } 
+
+      navigate(templateRoute, {
+        state: { resumeData: finalData },
       });
     } catch (error) {
-      console.error('Error during finish:', error);
+      console.error("Error during finish:", error);
       // Failed to save projects - no toast notification
     }
   };
 
   const handleBackClick = () => {
-    navigate('/details/skills', { 
-      state: { templateId, buildType } 
+    navigate("/details/skills", {
+      state: { templateId, buildType },
     });
   };
 
@@ -161,8 +192,18 @@ const Projects = () => {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-6 h-6 mr-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Back
         </motion.button>
@@ -174,7 +215,10 @@ const Projects = () => {
             <span className="text-gray-400 text-sm">Step 5 of 6</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
-            <div className="bg-gradient-to-r from-teal-500 to-orange-500 h-2 rounded-full" style={{ width: '83%' }}></div>
+            <div
+              className="bg-gradient-to-r from-teal-500 to-orange-500 h-2 rounded-full"
+              style={{ width: "83%" }}
+            ></div>
           </div>
         </div>
 
@@ -203,27 +247,44 @@ const Projects = () => {
           <h2 className="text-2xl font-bold text-white mb-6">Your Projects</h2>
           <div className="space-y-6">
             {projects.map((project, index) => (
-              <div key={project.id} className="border border-gray-600 rounded-xl p-6">
+              <div
+                key={project.id}
+                className="border border-gray-600 rounded-xl p-6"
+              >
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-white">Project {index + 1}</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Project {index + 1}
+                  </h3>
                   {projects.length > 1 && (
                     <button
                       onClick={() => removeProject(project.id)}
                       className="text-red-400 hover:text-red-300 transition-colors duration-300"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
                       </svg>
                     </button>
                   )}
                 </div>
-                
+
                 {/* Project Title */}
                 <div className="grid gap-4 mb-4">
                   <input
                     type="text"
                     value={project.title}
-                    onChange={(e) => handleProjectChange(project.id, 'title', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(project.id, "title", e.target.value)
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                     placeholder="Project Title"
                   />
@@ -233,7 +294,13 @@ const Projects = () => {
                 <div className="grid gap-4 mb-4">
                   <textarea
                     value={project.description}
-                    onChange={(e) => handleProjectChange(project.id, 'description', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(
+                        project.id,
+                        "description",
+                        e.target.value
+                      )
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300 resize-none"
                     placeholder="Brief description of the project"
                     rows="3"
@@ -245,14 +312,22 @@ const Projects = () => {
                   <input
                     type="text"
                     value={project.technologies}
-                    onChange={(e) => handleProjectChange(project.id, 'technologies', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(
+                        project.id,
+                        "technologies",
+                        e.target.value
+                      )
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                     placeholder="Technologies (comma separated)"
                   />
                   <input
                     type="url"
                     value={project.link}
-                    onChange={(e) => handleProjectChange(project.id, 'link', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(project.id, "link", e.target.value)
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                     placeholder="Live Demo URL (optional)"
                   />
@@ -263,14 +338,26 @@ const Projects = () => {
                   <input
                     type="url"
                     value={project.githubLink}
-                    onChange={(e) => handleProjectChange(project.id, 'githubLink', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(
+                        project.id,
+                        "githubLink",
+                        e.target.value
+                      )
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                     placeholder="GitHub URL (optional)"
                   />
                   <input
                     type="text"
                     value={project.startDate}
-                    onChange={(e) => handleProjectChange(project.id, 'startDate', e.target.value)}
+                    onChange={(e) =>
+                      handleProjectChange(
+                        project.id,
+                        "startDate",
+                        e.target.value
+                      )
+                    }
                     className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                     placeholder="Start Date (e.g. Jan 2023)"
                   />
@@ -278,7 +365,13 @@ const Projects = () => {
                     <input
                       type="text"
                       value={project.endDate}
-                      onChange={(e) => handleProjectChange(project.id, 'endDate', e.target.value)}
+                      onChange={(e) =>
+                        handleProjectChange(
+                          project.id,
+                          "endDate",
+                          e.target.value
+                        )
+                      }
                       className="px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:border-teal-400 focus:outline-none transition-all duration-300"
                       placeholder="End Date (e.g. Dec 2023)"
                     />
@@ -291,10 +384,19 @@ const Projects = () => {
                     type="checkbox"
                     id={`ongoing-${project.id}`}
                     checked={project.isOngoing}
-                    onChange={(e) => handleProjectChange(project.id, 'isOngoing', e.target.checked)}
+                    onChange={(e) =>
+                      handleProjectChange(
+                        project.id,
+                        "isOngoing",
+                        e.target.checked
+                      )
+                    }
                     className="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500 focus:ring-2"
                   />
-                  <label htmlFor={`ongoing-${project.id}`} className="ml-2 text-sm text-gray-300">
+                  <label
+                    htmlFor={`ongoing-${project.id}`}
+                    className="ml-2 text-sm text-gray-300"
+                  >
                     This is an ongoing project
                   </label>
                 </div>
