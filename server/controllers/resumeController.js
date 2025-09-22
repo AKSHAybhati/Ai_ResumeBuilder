@@ -112,6 +112,10 @@ const createResume = async (req, res) => {
       rawText
     } = req.body;
 
+    // Enforce DB varchar limits
+    const safeTitle = (title || 'New Resume').toString().slice(0, 255);
+    const safeTemplateId = typeof templateId === 'string' ? templateId.slice(0, 50) : templateId || null;
+
     console.log('📝 Parsed data:');
     console.log('   Title:', title);
     console.log('   Template ID:', templateId);
@@ -127,8 +131,8 @@ const createResume = async (req, res) => {
       RETURNING id, title, template_id, created_at, updated_at
     `, [
       userId,
-      title,
-      templateId,
+      safeTitle,
+      safeTemplateId,
       personalInfo ? JSON.stringify(personalInfo) : null,
       summary,
       skills ? JSON.stringify(skills) : null,
@@ -157,7 +161,7 @@ const createResume = async (req, res) => {
     console.error('❌ Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      error: 'Failed to create resume'
+      error: error.message || 'Failed to create resume'
     });
   }
 };
@@ -228,7 +232,15 @@ const updateResume = async (req, res) => {
   try {
     const userId = req.user.id;
     const resumeId = req.params.id;
-    const updateData = req.body;
+    const updateData = { ...req.body };
+
+    // Enforce varchar limits for updates as well
+    if (typeof updateData.title === 'string') {
+      updateData.title = updateData.title.slice(0, 255);
+    }
+    if (typeof updateData.templateId === 'string') {
+      updateData.templateId = updateData.templateId.slice(0, 50);
+    }
 
     // Check if resume belongs to user
     const existingResume = await pool.query(

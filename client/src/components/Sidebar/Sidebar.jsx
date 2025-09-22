@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { useResume } from "../../context/ResumeContext";
+import { useAuth } from "../../context/AuthContext";
+import resumeService from "../../services/resumeService";
 import { enhanceTextWithGemini } from "../../services/geminiService";
 import html2pdf from "html2pdf.js";
 import { toast } from "react-toastify";
@@ -28,10 +30,12 @@ const enhancementOptions = [
 
 const Sidebar = ({ onEnhance, resumeRef }) => {
   const { resumeData, setResumeData } = useResume();
+  const { isAuthenticated } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [enhancingSection, setEnhancingSection] = useState(null);
   const [downloadRequested, setDownloadRequested] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleDownloadPDF = () => {
     setDownloadRequested(true);
@@ -66,99 +70,167 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
   }, [downloadRequested, resumeRef]);
 
   const handleEnhanceSection = async (section) => {
-  setEnhancingSection(section);
-  let contentToSend = "";
+    setEnhancingSection(section);
+    let contentToSend = "";
 
-  switch (section) {
-    case "summary":
-      contentToSend = resumeData.summary;
-      break;
-    case "skills":
-      contentToSend = resumeData.skills?.join(", ");
-      break;
-    case "education":
-      contentToSend = JSON.stringify(resumeData.education);
-      break;
-    case "experience":
-      contentToSend = resumeData.experience
-        ?.map((exp) => exp.accomplishment?.join("\n"))
-        .join("\n");
-      break;
-    case "achievements":
-      contentToSend = resumeData.achievements?.join("\n") || "";
-      break;
-    case "projects":
-      contentToSend = resumeData.projects
-        ?.map(
-          (proj) =>
-            `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
-        )
-        .join("\n\n");
-      break;
-    case "certifications":
-      contentToSend = resumeData.certifications
-        ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
-        .join("\n");
-      break;
-    case "languages":
-    case "interests":
-      contentToSend = resumeData[section]?.join(", ");
-      break;
-    default:
-      contentToSend = JSON.stringify(resumeData[section]);
-  }
+    switch (section) {
+      case "summary":
+        contentToSend = resumeData.summary;
+        break;
+      case "skills":
+        contentToSend = resumeData.skills?.join(", ");
+        break;
+      case "education":
+        contentToSend = JSON.stringify(resumeData.education);
+        break;
+      case "experience":
+        contentToSend = resumeData.experience
+          ?.map((exp) => exp.accomplishment?.join("\n"))
+          .join("\n");
+        break;
+      case "achievements":
+        contentToSend = resumeData.achievements?.join("\n") || "";
+        break;
+      case "projects":
+        contentToSend = resumeData.projects
+          ?.map(
+            (proj) =>
+              `${proj.name}:\n${proj.description}\nTechnologies: ${proj.technologies?.join(", ")}`
+          )
+          .join("\n\n");
+        break;
+      case "certifications":
+        contentToSend = resumeData.certifications
+          ?.map((cert) => `${cert.title} from ${cert.issuer} (${cert.date})`)
+          .join("\n");
+        break;
+      case "languages":
+      case "interests":
+        contentToSend = resumeData[section]?.join(", ");
+        break;
+      default:
+        contentToSend = JSON.stringify(resumeData[section]);
+    }
 
-  // ✅ safeguard
-  if (!contentToSend || contentToSend.trim() === "") {
-    console.warn(`⚠️ Skipping enhance: No content found for section "${section}"`);
+    // ✅ safeguard
+    if (!contentToSend || contentToSend.trim() === "") {
+      console.warn(`⚠️ Skipping enhance: No content found for section "${section}"`);
+      setEnhancingSection(null);
+      return;
+    }
+
+    const aiResponse = await enhanceTextWithGemini(section, contentToSend);
+    if (!aiResponse) {
+      setEnhancingSection(null);
+      return;
+    }
+
+    const updated = { ...resumeData };
+
+    // ✅ Handle each section correctly
+    if (["summary", "achievements", "languages", "interests"].includes(section)) {
+      updated[section] = aiResponse
+        .split("\n")
+        .map((s) => s.replace(/^[-*•]\s*/, "").trim())
+        .filter(Boolean);
+    } else if (section === "skills") {
+      updated.skills = aiResponse
+        .split(/,|\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (section === "experience") {
+      updated.experience[0].accomplishment = aiResponse
+        .split("\n")
+        .filter(Boolean);
+    } else if (section === "education") {
+      updated.educationText = aiResponse;
+    } else if (section === "projects") {
+      updated.projects[0].description = aiResponse;
+    } else if (section === "certifications") {
+      updated.certificationsText = aiResponse;
+    } else {
+      updated[section] = aiResponse;
+    }
+
+    setResumeData(updated);
     setEnhancingSection(null);
-    return;
-  }
 
-  const aiResponse = await enhanceTextWithGemini(section, contentToSend);
-  if (!aiResponse) {
-    setEnhancingSection(null);
-    return;
-  }
+    if (onEnhance) onEnhance(section);
+  };
 
-  const updated = { ...resumeData };
+  const normalizeForSave = (data) => {
+    const toArray = (v) => Array.isArray(v) ? v : (v ? [v] : []);
+    const experience = toArray(data.experience).map((e) => ({
+      title: e?.title || "",
+      company: e?.company || e?.companyName || "",
+      duration: e?.duration || e?.date || "",
+      description: Array.isArray(e?.accomplishment) ? e.accomplishment.join("\n") : (e?.description || "")
+    }));
+    const education = toArray(data.education).map((ed) => ({
+      degree: ed?.degree || "",
+      institution: ed?.institution || "",
+      year: ed?.year || ed?.duration || "",
+    }));
+    const projects = toArray(data.projects).map((p) => ({
+      name: p?.name || "",
+      description: Array.isArray(p?.description) ? p.description.join("\n") : (p?.description || ""),
+      technologies: Array.isArray(p?.technologies) ? p.technologies : ((p?.technologies || "").split(',').map(s => s.trim()).filter(Boolean))
+    }));
+    const certifications = toArray(data.certifications).map((c) => ({
+      name: c?.name || c?.title || "",
+      organization: c?.organization || c?.issuer || "",
+      year: c?.year || c?.date || ""
+    }));
+    return {
+      templateId: data?.templateId || null,
+      personalInfo: {
+        name: data?.name || "",
+        role: data?.role || "",
+        email: data?.email || "",
+        phone: data?.phone || "",
+        location: data?.location || "",
+        linkedin: data?.linkedin || "",
+        github: data?.github || "",
+        portfolio: data?.portfolio || "",
+      },
+      summary: data?.summary || "",
+      skills: Array.isArray(data?.skills) ? data.skills : [],
+      experience,
+      education,
+      projects,
+      certifications,
+      achievements: toArray(data?.achievements),
+      interests: toArray(data?.interests),
+      languages: toArray(data?.languages).map((l) => (typeof l === 'string' ? l : (l?.language || ""))).filter(Boolean)
+    };
+  };
 
-  // ✅ Handle each section correctly
-  if (["summary", "achievements", "languages", "interests"].includes(section)) {
-    updated[section] = aiResponse
-      .split("\n")
-      .map((s) => s.replace(/^[-*•]\s*/, "").trim())
-      .filter(Boolean);
-  } else if (section === "skills") {
-    updated.skills = aiResponse
-      .split(/,|\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  } else if (section === "experience") {
-    updated.experience[0].accomplishment = aiResponse
-      .split("\n")
-      .filter(Boolean);
-  } else if (section === "education") {
-    updated.educationText = aiResponse;
-  } else if (section === "projects") {
-    updated.projects[0].description = aiResponse;
-  } else if (section === "certifications") {
-    updated.certificationsText = aiResponse;
-  } else {
-    updated[section] = aiResponse;
-  }
-
-  setResumeData(updated);
-  setEnhancingSection(null);
-
-  if (onEnhance) onEnhance(section);
-};
+  const handleSaveToAccount = async () => {
+    if (!isAuthenticated) {
+      toast.info("Please login to save this resume to your account.");
+      return;
+    }
+    try {
+      setSaving(true);
+      const structured = normalizeForSave(resumeData || {});
+      const title = (resumeData?.title || resumeData?.name || 'Resume') + '';
+      const result = await resumeService.saveResumeData(structured, `${title}`);
+      if (result.success) {
+        toast.success('✅ Saved to My Resumes');
+      } else {
+        toast.error(result.error || 'Failed to save');
+      }
+    } catch (e) {
+      toast.error('Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-b from-white to-gray-50 shadow-xl border-r border-gray-200 p-6 flex flex-col justify-start gap-6 transition-all duration-300 ${
-        collapsed ? "w-20" : "w-72"
-      }`}
+      className={`min-h-screen bg-gradient-to-b from-white to-gray-50 shadow-xl border-r border-gray-200 p-6 flex flex-col justify-start gap-6 transition-all duration-300 ${collapsed ? "w-20" : "w-72"
+        }`}
       style={{ position: "relative" }}
     >
       {/* Toggle Button */}
@@ -177,9 +249,9 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
       {/* Header */}
       <div className={`flex items-center gap-3 mb-4 ${collapsed ? "justify-center" : ""}`}>
         <div className="relative">
-          <FaUserCircle 
-            size={collapsed ? 36 : 48} 
-            className="text-indigo-600 drop-shadow-sm" 
+          <FaUserCircle
+            size={collapsed ? 36 : 48}
+            className="text-indigo-600 drop-shadow-sm"
           />
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
         </div>
@@ -193,12 +265,25 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-4">
+        {/* Save to Account Button */}
+        <button
+          disabled={saving}
+          className={`w-full flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 ${collapsed ? "justify-center px-3" : ""
+            }`}
+          onClick={handleSaveToAccount}
+          title="Save to My Resumes"
+        >
+          <FaFileDownload className={saving ? "animate-bounce" : ""} />
+          {!collapsed && (
+            <span className="font-semibold">{saving ? 'Saving…' : 'Save to My Resumes'}</span>
+          )}
+        </button>
+
         {/* AI Enhancement Button */}
         <div className="relative">
           <button
-            className={`w-full flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 transform hover:scale-105 ${
-              collapsed ? "justify-center px-3" : ""
-            }`}
+            className={`w-full flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 transform hover:scale-105 ${collapsed ? "justify-center px-3" : ""
+              }`}
             onClick={() => setShowOptions((prev) => !prev)}
             title="Enhance with AI"
           >
@@ -207,10 +292,9 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
               <span className="font-semibold">Enhance with AI</span>
             )}
             {!collapsed && (
-              <FaChevronRight 
-                className={`ml-auto transition-transform duration-200 ${
-                  showOptions ? "rotate-90" : ""
-                }`} 
+              <FaChevronRight
+                className={`ml-auto transition-transform duration-200 ${showOptions ? "rotate-90" : ""
+                  }`}
               />
             )}
           </button>
@@ -250,9 +334,8 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
         {/* Download PDF Button */}
         <button
           disabled={downloadRequested}
-          className={`w-full flex items-center gap-3 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none ${
-            collapsed ? "justify-center px-3" : ""
-          }`}
+          className={`w-full flex items-center gap-3 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none ${collapsed ? "justify-center px-3" : ""
+            }`}
           onClick={handleDownloadPDF}
           title="Download PDF"
         >
@@ -271,9 +354,8 @@ const Sidebar = ({ onEnhance, resumeRef }) => {
 
         {/* Share Button */}
         <button
-          className={`w-full flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 ${
-            collapsed ? "justify-center px-3" : ""
-          }`}
+          className={`w-full flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 ${collapsed ? "justify-center px-3" : ""
+            }`}
           onClick={() => {
             if (navigator.share) {
               navigator.share({

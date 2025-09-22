@@ -22,14 +22,44 @@ export async function extractTextFromPDF(file) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-    let textContent = "";
+    const pagesText = [];
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
-      const text = await page.getTextContent();
-      textContent += text.items.map((item) => item.str).join(" ") + "\n";
+      const content = await page.getTextContent({ normalizeWhitespace: true });
+
+      // Group text items by their Y position to preserve line breaks
+      const lineMap = new Map();
+      const yTolerance = 2; // pixels
+
+      for (const item of content.items) {
+        const tx = item.transform;
+        const x = tx[4];
+        const y = tx[5];
+
+        // Find an existing line with approximately the same Y
+        let targetKey = null;
+        for (const key of lineMap.keys()) {
+          if (Math.abs(Number(key) - y) <= yTolerance) {
+            targetKey = key;
+            break;
+          }
+        }
+        if (targetKey === null) {
+          targetKey = y;
+          lineMap.set(targetKey, []);
+        }
+        lineMap.get(targetKey).push({ x, str: item.str || '' });
+      }
+
+      // Sort lines top-to-bottom (y desc in PDF coords), items left-to-right
+      const sortedLines = Array.from(lineMap.entries())
+        .sort((a, b) => b[0] - a[0])
+        .map(([_, arr]) => arr.sort((a, b) => a.x - b.x).map(t => t.str).join(' ').replace(/\s+/g, ' ').trim());
+
+      pagesText.push(sortedLines.join('\n'));
     }
 
-    return textContent.trim();
+    return pagesText.join('\n\n').trim();
   } catch (error) {
     console.error("PDF parsing error:", error);
     throw new Error(`Failed to parse PDF: ${error.message}`);

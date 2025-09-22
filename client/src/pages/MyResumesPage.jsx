@@ -13,7 +13,7 @@ const MyResumesPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedResume, setSelectedResume] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
-  
+
   // Use auth hook properly
   const { isAuthenticated, user } = useAuth();
 
@@ -22,16 +22,16 @@ const MyResumesPage = () => {
       navigate('/login');
       return;
     }
-    
+
     fetchResumes();
   }, [isAuthenticated, navigate]); // fetchResumes is defined below, will be called manually
 
   const fetchResumes = async () => {
     setLoading(true);
-    
+
     try {
       const result = await resumeService.getUserResumes();
-      
+
       if (result.success) {
         // Ensure result.data is always an array
         const resumesData = Array.isArray(result.data) ? result.data : [];
@@ -61,7 +61,7 @@ const MyResumesPage = () => {
               onClick={async () => {
                 closeToast();
                 toast.info('Deleting resume...', { autoClose: 1000 });
-                
+
                 try {
                   const result = await resumeService.deleteResume(resumeId);
                   if (result.success) {
@@ -100,10 +100,37 @@ const MyResumesPage = () => {
   };
 
   const handleEditResume = (resume) => {
-    // Show loading toast
     toast.info('Loading resume for editing...', { autoClose: 1500 });
-    
-    // Navigate to edit page with existing resume data
+
+    const templateId = resume.template_id || resume.templateId;
+    const idNum = typeof templateId === 'number' ? templateId : parseInt(String(templateId).replace(/[^0-9]/g, ''), 10);
+    const availableTemplateIds = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 29]);
+    if (idNum && availableTemplateIds.has(idNum)) {
+      // Open the specific template editor with structured data
+      const route = `/template${idNum}`;
+      const resumeData = {
+        ...resume,
+        personalInfo: resume.personalInfo || resume.personal_info,
+        rawText: resume.rawText || resume.raw_text,
+        templateId: idNum
+      };
+      try {
+        localStorage.setItem('resumeData', JSON.stringify(resumeData));
+      } catch (e) { }
+      navigate(route, {
+        state: {
+          buildType: 'template',
+          resumeData,
+          fromMyResumes: true,
+          resumeName: resume.title,
+          preventAutoDownload: true,
+          editMode: true
+        }
+      });
+      return;
+    }
+
+    // Fallback to text editor for non-template resumes
     navigate('/edit-resume', {
       state: {
         file: { name: resume.title, type: 'text/plain' },
@@ -111,7 +138,7 @@ const MyResumesPage = () => {
         parsedData: {
           fileName: resume.title,
           fileType: 'text',
-          fileSize: resume.rawText?.length || 0
+          fileSize: (resume.rawText || resumeService.structuredDataToText(resume))?.length || 0
         },
         isExistingResume: true,
         resumeId: resume.id
@@ -121,10 +148,10 @@ const MyResumesPage = () => {
 
   const handleUseInTemplate = (resume) => {
     // Show success toast for template usage
-    toast.success(`Using "${resume.title}" data for template creation!`, { 
-      autoClose: 2000 
+    toast.success(`Using "${resume.title}" data for template creation!`, {
+      autoClose: 2000
     });
-    
+
     // Navigate to template selection with pre-filled data
     navigate('/templatepage', {
       state: {
@@ -135,6 +162,33 @@ const MyResumesPage = () => {
   };
 
   const handlePreviewResume = (resume) => {
+    const templateId = resume.template_id || resume.templateId;
+    const idNum = typeof templateId === 'number' ? templateId : parseInt(String(templateId).replace(/[^0-9]/g, ''), 10);
+    const availableTemplateIds = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 29]);
+    if (idNum && availableTemplateIds.has(idNum)) {
+      const route = `/template${idNum}`;
+      const resumeData = {
+        ...resume,
+        personalInfo: resume.personalInfo || resume.personal_info,
+        rawText: resume.rawText || resume.raw_text,
+        templateId: idNum
+      };
+      try {
+        localStorage.setItem('resumeData', JSON.stringify(resumeData));
+      } catch (e) { }
+      navigate(route, {
+        state: {
+          buildType: 'template',
+          resumeData,
+          fromMyResumes: true,
+          resumeName: resume.title,
+          preventAutoDownload: true,
+          previewOnly: true
+        }
+      });
+      return;
+    }
+
     toast.info(`Opening preview for "${resume.title}"`, { autoClose: 1500 });
     setSelectedResume(resume);
     setShowPreview(true);
@@ -143,17 +197,17 @@ const MyResumesPage = () => {
   const downloadResumePDF = async (resume) => {
     // Show loading toast
     const loadingToast = toast.loading(`Preparing "${resume.title}" for download...`);
-    
+
     try {
       const resumeText = resume.rawText || resumeService.structuredDataToText(resume);
-      
+
       // Create a temporary element to trigger download
       const element = document.createElement('div');
       element.innerHTML = resumeText.split('\n').map(line => `<p>${line}</p>`).join('');
-      
+
       const html2pdf = (await import('html2pdf.js')).default;
       await html2pdf().from(element).save(`${resume.title}.pdf`);
-      
+
       // Update loading toast to success
       toast.update(loadingToast, {
         render: `"${resume.title}" downloaded successfully!`,
@@ -180,7 +234,7 @@ const MyResumesPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20">{/* Added pt-20 for navbar spacing */}
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -243,7 +297,7 @@ const MyResumesPage = () => {
               <div>
                 <p className="text-gray-300 text-sm">Latest Resume</p>
                 <p className="text-white text-lg font-bold">
-                  {resumes.length > 0 
+                  {resumes.length > 0
                     ? new Date(resumes[0].updated_at || resumes[0].created_at).toLocaleDateString()
                     : 'No resumes yet'
                   }
@@ -301,8 +355,8 @@ const MyResumesPage = () => {
                   {/* Preview of resume content */}
                   <div className="bg-gray-900/50 rounded p-3 mb-4 max-h-20 overflow-hidden">
                     <p className="text-gray-300 text-sm line-clamp-3">
-                      {resume.summary || 
-                       (resume.personalInfo?.name ? `${resume.personalInfo.name} - ${resume.personalInfo.email}` : 'No preview available')}
+                      {resume.summary ||
+                        (resume.personalInfo?.name ? `${resume.personalInfo.name} - ${resume.personalInfo.email}` : 'No preview available')}
                     </p>
                   </div>
 

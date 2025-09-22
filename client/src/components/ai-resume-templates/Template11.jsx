@@ -97,9 +97,9 @@ const Template7 = () => {
       setLocalData({ ...localData, experience: updated });
       setEditingExperience(null);
     } else {
-      setLocalData({ 
-        ...localData, 
-        experience: [...localData.experience, experienceData] 
+      setLocalData({
+        ...localData,
+        experience: [...localData.experience, experienceData]
       });
     }
 
@@ -133,9 +133,9 @@ const Template7 = () => {
       setLocalData({ ...localData, education: updated });
       setEditingEducation(null);
     } else {
-      setLocalData({ 
-        ...localData, 
-        education: [...localData.education, newEducation] 
+      setLocalData({
+        ...localData,
+        education: [...localData.education, newEducation]
       });
     }
 
@@ -171,9 +171,9 @@ const Template7 = () => {
       setLocalData({ ...localData, projects: updated });
       setEditingProject(null);
     } else {
-      setLocalData({ 
-        ...localData, 
-        projects: [...localData.projects, projectData] 
+      setLocalData({
+        ...localData,
+        projects: [...localData.projects, projectData]
       });
     }
 
@@ -207,9 +207,9 @@ const Template7 = () => {
       setLocalData({ ...localData, certifications: updated });
       setEditingCertification(null);
     } else {
-      setLocalData({ 
-        ...localData, 
-        certifications: [...localData.certifications, newCertification] 
+      setLocalData({
+        ...localData,
+        certifications: [...localData.certifications, newCertification]
       });
     }
 
@@ -233,9 +233,9 @@ const Template7 = () => {
   const addSkill = (e) => {
     e.preventDefault();
     if (!newSkill.trim()) return;
-    setLocalData({ 
-      ...localData, 
-      skills: [...localData.skills, newSkill.trim()] 
+    setLocalData({
+      ...localData,
+      skills: [...localData.skills, newSkill.trim()]
     });
     setNewSkill("");
     setShowSkillForm(false);
@@ -252,9 +252,9 @@ const Template7 = () => {
   };
 
   const addArrayItem = (section, item) => {
-    setLocalData({ 
-      ...localData, 
-      [section]: [...localData[section], item] 
+    setLocalData({
+      ...localData,
+      [section]: [...localData[section], item]
     });
   };
 
@@ -264,11 +264,11 @@ const Template7 = () => {
       <div style={{ display: "flex" }}>
         <Sidebar onEnhance={handleEnhance} resumeRef={resumeRef} />
 
-        <div style={{ 
-          flexGrow: 1, 
-          padding: "2.5rem", 
-          display: "flex", 
-          flexDirection: "column", 
+        <div style={{
+          flexGrow: 1,
+          padding: "2.5rem",
+          display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           marginLeft: "0"
         }}>
@@ -285,9 +285,9 @@ const Template7 = () => {
             }}
           >
             {/* Header */}
-            <div style={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
               marginBottom: "1.5rem",
               flexDirection: "column",
               gap: "1rem"
@@ -299,11 +299,11 @@ const Template7 = () => {
                       type="text"
                       value={localData.name}
                       onChange={(e) => handleFieldChange("name", e.target.value)}
-                      style={{ 
-                        fontSize: "2rem", 
-                        fontWeight: "bold", 
-                        display: "block", 
-                        width: "100%", 
+                      style={{
+                        fontSize: "2rem",
+                        fontWeight: "bold",
+                        display: "block",
+                        width: "100%",
                         textAlign: "center",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
@@ -315,10 +315,10 @@ const Template7 = () => {
                       type="text"
                       value={localData.role}
                       onChange={(e) => handleFieldChange("role", e.target.value)}
-                      style={{ 
-                        fontSize: "1.2rem", 
-                        color: "#6b7280", 
-                        width: "100%", 
+                      style={{
+                        fontSize: "1.2rem",
+                        color: "#6b7280",
+                        width: "100%",
                         textAlign: "center",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
@@ -337,10 +337,10 @@ const Template7 = () => {
                   </>
                 )}
               </div>
-              
-              <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                 gap: "0.5rem",
                 fontSize: "0.9rem"
               }}>
@@ -352,7 +352,7 @@ const Template7 = () => {
                       value={localData[field] || ""}
                       onChange={(e) => handleFieldChange(field, e.target.value)}
                       placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                      style={{ 
+                      style={{
                         border: "1px solid #ccc",
                         borderRadius: "4px",
                         padding: "4px 8px"
@@ -378,8 +378,8 @@ const Template7 = () => {
                 <textarea
                   value={localData.summary}
                   onChange={(e) => handleFieldChange("summary", e.target.value)}
-                  style={{ 
-                    width: "100%", 
+                  style={{
+                    width: "100%",
                     minHeight: "4rem",
                     border: "1px solid #ccc",
                     borderRadius: "4px",
@@ -417,10 +417,10 @@ const Template7 = () => {
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
                 {localData.skills.map((skill, i) => (
-                  <div key={i} style={{ 
-                    backgroundColor: "#dbeafe", 
-                    color: "#1e40af", 
-                    padding: "0.25rem 0.75rem", 
+                  <div key={i} style={{
+                    backgroundColor: "#dbeafe",
+                    color: "#1e40af",
+                    padding: "0.25rem 0.75rem",
                     borderRadius: "1rem",
                     fontSize: "0.875rem",
                     display: "flex",
@@ -616,10 +616,10 @@ const Template7 = () => {
                             value={exp.title}
                             onChange={(e) => handleArrayFieldChange("experience", idx, "title", e.target.value)}
                             placeholder="Job Title"
-                            style={{ 
-                              fontWeight: "bold", 
-                              fontSize: "1.1rem", 
-                              width: "100%", 
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: "1.1rem",
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -631,8 +631,8 @@ const Template7 = () => {
                             value={exp.companyName}
                             onChange={(e) => handleArrayFieldChange("experience", idx, "companyName", e.target.value)}
                             placeholder="Company Name"
-                            style={{ 
-                              width: "100%", 
+                            style={{
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -645,7 +645,7 @@ const Template7 = () => {
                               value={exp.date}
                               onChange={(e) => handleArrayFieldChange("experience", idx, "date", e.target.value)}
                               placeholder="Date Range"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -657,7 +657,7 @@ const Template7 = () => {
                               value={exp.companyLocation}
                               onChange={(e) => handleArrayFieldChange("experience", idx, "companyLocation", e.target.value)}
                               placeholder="Location"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -674,8 +674,8 @@ const Template7 = () => {
                               e.target.value.split("\n").filter(item => item.trim())
                             )}
                             placeholder="Accomplishments (one per line)"
-                            style={{ 
-                              width: "100%", 
+                            style={{
+                              width: "100%",
                               minHeight: "4rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -770,9 +770,9 @@ const Template7 = () => {
                             value={edu.degree}
                             onChange={(e) => handleArrayFieldChange("education", idx, "degree", e.target.value)}
                             placeholder="Degree"
-                            style={{ 
-                              fontWeight: "bold", 
-                              width: "100%", 
+                            style={{
+                              fontWeight: "bold",
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -784,8 +784,8 @@ const Template7 = () => {
                             value={edu.institution}
                             onChange={(e) => handleArrayFieldChange("education", idx, "institution", e.target.value)}
                             placeholder="Institution"
-                            style={{ 
-                              width: "100%", 
+                            style={{
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -798,7 +798,7 @@ const Template7 = () => {
                               value={edu.duration}
                               onChange={(e) => handleArrayFieldChange("education", idx, "duration", e.target.value)}
                               placeholder="Duration"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -810,7 +810,7 @@ const Template7 = () => {
                               value={edu.location}
                               onChange={(e) => handleArrayFieldChange("education", idx, "location", e.target.value)}
                               placeholder="Location"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -900,9 +900,9 @@ const Template7 = () => {
                             value={proj.name}
                             onChange={(e) => handleArrayFieldChange("projects", idx, "name", e.target.value)}
                             placeholder="Project Name"
-                            style={{ 
-                              fontWeight: "bold", 
-                              width: "100%", 
+                            style={{
+                              fontWeight: "bold",
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -913,9 +913,9 @@ const Template7 = () => {
                             value={proj.description}
                             onChange={(e) => handleArrayFieldChange("projects", idx, "description", e.target.value)}
                             placeholder="Description"
-                            style={{ 
-                              width: "100%", 
-                              minHeight: "3rem", 
+                            style={{
+                              width: "100%",
+                              minHeight: "3rem",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -927,14 +927,14 @@ const Template7 = () => {
                             type="text"
                             value={proj.technologies.join(", ")}
                             onChange={(e) => handleArrayFieldChange(
-                              "projects", 
-                              idx, 
-                              "technologies", 
+                              "projects",
+                              idx,
+                              "technologies",
                               e.target.value.split(",").map((t) => t.trim()).filter(t => t)
                             )}
                             placeholder="Technologies (comma-separated)"
-                            style={{ 
-                              width: "100%", 
+                            style={{
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -947,7 +947,7 @@ const Template7 = () => {
                               value={proj.link}
                               onChange={(e) => handleArrayFieldChange("projects", idx, "link", e.target.value)}
                               placeholder="Live Link"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -959,7 +959,7 @@ const Template7 = () => {
                               value={proj.github}
                               onChange={(e) => handleArrayFieldChange("projects", idx, "github", e.target.value)}
                               placeholder="GitHub Link"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -981,14 +981,14 @@ const Template7 = () => {
                           </p>
                           <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
                             {proj.link && (
-                              <a href={proj.link} target="_blank" rel="noopener noreferrer" 
-                                 style={{ color: "#3b82f6", textDecoration: "none", fontSize: "0.875rem" }}>
+                              <a href={proj.link} target="_blank" rel="noopener noreferrer"
+                                style={{ color: "#3b82f6", textDecoration: "none", fontSize: "0.875rem" }}>
                                 🔗 Live Demo
                               </a>
                             )}
                             {proj.github && (
-                              <a href={proj.github} target="_blank" rel="noopener noreferrer" 
-                                 style={{ color: "#3b82f6", textDecoration: "none", fontSize: "0.875rem" }}>
+                              <a href={proj.github} target="_blank" rel="noopener noreferrer"
+                                style={{ color: "#3b82f6", textDecoration: "none", fontSize: "0.875rem" }}>
                                 📁 GitHub
                               </a>
                             )}
@@ -1066,9 +1066,9 @@ const Template7 = () => {
                             value={cert.title}
                             onChange={(e) => handleArrayFieldChange("certifications", idx, "title", e.target.value)}
                             placeholder="Certification Title"
-                            style={{ 
-                              fontWeight: "bold", 
-                              width: "100%", 
+                            style={{
+                              fontWeight: "bold",
+                              width: "100%",
                               marginBottom: "0.5rem",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
@@ -1081,7 +1081,7 @@ const Template7 = () => {
                               value={cert.issuer}
                               onChange={(e) => handleArrayFieldChange("certifications", idx, "issuer", e.target.value)}
                               placeholder="Issuer"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -1093,7 +1093,7 @@ const Template7 = () => {
                               value={cert.date}
                               onChange={(e) => handleArrayFieldChange("certifications", idx, "date", e.target.value)}
                               placeholder="Date"
-                              style={{ 
+                              style={{
                                 flex: 1,
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
@@ -1189,11 +1189,11 @@ const Template7 = () => {
                           updated[i] = e.target.value;
                           handleFieldChange("achievements", updated);
                         }}
-                        style={{ 
+                        style={{
                           flex: 1,
-                          border: "1px solid #ccc", 
-                          borderRadius: "4px", 
-                          padding: "8px" 
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                          padding: "8px"
                         }}
                       />
                       <button
@@ -1230,11 +1230,11 @@ const Template7 = () => {
               <>
                 <button
                   onClick={handleSave}
-                  style={{ 
-                    backgroundColor: "#10b981", 
-                    color: "white", 
-                    padding: "0.75rem 1.5rem", 
-                    borderRadius: "0.375rem", 
+                  style={{
+                    backgroundColor: "#10b981",
+                    color: "white",
+                    padding: "0.75rem 1.5rem",
+                    borderRadius: "0.375rem",
                     marginRight: "0.5rem",
                     border: "none",
                     cursor: "pointer",
@@ -1246,10 +1246,10 @@ const Template7 = () => {
                 </button>
                 <button
                   onClick={handleCancel}
-                  style={{ 
-                    backgroundColor: "#6b7280", 
-                    color: "white", 
-                    padding: "0.75rem 1.5rem", 
+                  style={{
+                    backgroundColor: "#6b7280",
+                    color: "white",
+                    padding: "0.75rem 1.5rem",
                     borderRadius: "0.375rem",
                     border: "none",
                     cursor: "pointer",
@@ -1263,10 +1263,10 @@ const Template7 = () => {
             ) : (
               <button
                 onClick={() => setEditMode(true)}
-                style={{ 
-                  backgroundColor: "#3b82f6", 
-                  color: "white", 
-                  padding: "0.75rem 1.5rem", 
+                style={{
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  padding: "0.75rem 1.5rem",
                   borderRadius: "0.375rem",
                   border: "none",
                   cursor: "pointer",
@@ -1836,7 +1836,7 @@ const Template7 = () => {
       )}
 
       {/* Responsive Styles */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .main-content {
             padding: 1rem !important;

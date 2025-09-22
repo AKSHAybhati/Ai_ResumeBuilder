@@ -438,12 +438,13 @@ class ResumeService {
   async autoSaveUploadedResume(parsedData, originalFile, title = null) {
     try {
       // Extract name from parsed content for better title
-      const extractedName = this.extractNameFromContent(parsedData.content);
+      const piForTitle = this.extractPersonalInfoFromContent(parsedData.content);
+      const extractedName = piForTitle.name;
       
       const resumeData = {
-        title: title || `Resume - ${extractedName || 'Uploaded Resume'}`,
+        title: title || `Resume - ${extractedName || 'Uploaded Resume'} (Template 1)`,
         templateId: 1, // Default template for uploaded resumes
-        personalInfo: this.extractPersonalInfoFromContent(parsedData.content),
+        personalInfo: piForTitle,
         summary: this.extractSummaryFromContent(parsedData.content),
         skills: this.extractSkillsFromContent(parsedData.content),
         experience: this.extractExperienceFromContent(parsedData.content),
@@ -828,6 +829,74 @@ class ResumeService {
     }
 
     return languages;
+  }
+
+  // Build data shaped for ResumeContext from raw text
+  buildResumeContextFromContent(content) {
+    const personalInfo = this.extractPersonalInfoFromContent(content);
+    const summary = this.extractSummaryFromContent(content);
+    const skills = this.extractSkillsFromContent(content);
+    const experienceRaw = this.extractExperienceFromContent(content);
+    const educationRaw = this.extractEducationFromContent(content);
+    const projectsRaw = this.extractProjectsFromContent(content);
+    const certificationsRaw = this.extractCertificationsFromContent(content);
+    const achievements = this.extractAchievementsFromContent(content);
+    const interests = this.extractInterestsFromContent(content);
+    const languagesRaw = this.extractLanguagesFromContent(content);
+
+    const experience = (experienceRaw || []).map((e) => ({
+      title: e?.title || '',
+      companyName: e?.company || '',
+      date: e?.duration || '',
+      companyLocation: '',
+      accomplishment: Array.isArray(e?.description) ? e.description : (e?.description ? [e.description] : [])
+    }));
+
+    const education = (educationRaw || []).map((ed) => ({
+      degree: ed?.degree || '',
+      institution: ed?.institution || '',
+      duration: ed?.year || '',
+      location: ''
+    }));
+
+    const projects = (projectsRaw || []).map((p) => ({
+      name: p?.name || '',
+      description: Array.isArray(p?.description) ? p.description.join('\n') : (p?.description || ''),
+      technologies: Array.isArray(p?.technologies) ? p.technologies : ((p?.technologies || '').split(',').map(s=>s.trim()).filter(Boolean)),
+      link: p?.link || '',
+      github: p?.github || ''
+    }));
+
+    const certifications = (certificationsRaw || []).map((c) => (
+      typeof c === 'string'
+        ? { title: c, issuer: '', date: '' }
+        : { title: c?.title || c?.name || '', issuer: c?.issuer || c?.organization || '', date: c?.date || c?.year || '' }
+    ));
+
+    const languages = Array.isArray(languagesRaw)
+      ? languagesRaw.map((l) => (typeof l === 'string' ? l : (l?.language || ''))).filter(Boolean)
+      : [];
+
+    return {
+      name: personalInfo.name || '',
+      role: '',
+      email: personalInfo.email || '',
+      phone: personalInfo.phone || '',
+      location: personalInfo.location || '',
+      linkedin: personalInfo.linkedin || '',
+      github: personalInfo.github || '',
+      portfolio: personalInfo.portfolio || '',
+      profileImage: '',
+      summary: summary || '',
+      skills: skills || [],
+      languages,
+      interests: interests || [],
+      experience,
+      education,
+      projects,
+      certifications,
+      achievements: achievements || []
+    };
   }
 }
 
