@@ -19,8 +19,6 @@ const ResumeUploadPage = () => {
   const [warnings, setWarnings] = useState([]);
   const [parsedData, setParsedData] = useState(null);
   const [savedResumeId, setSavedResumeId] = useState(null);
-  const [resumeName, setResumeName] = useState('');
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
   const fileInputRef = useRef(null);
 
   // Enhanced file handling with immediate parsing, auto-save, and redirect
@@ -56,10 +54,38 @@ const ResumeUploadPage = () => {
       setResumeContent(parsed.content);
       setShowPreview(true);
 
-      // Prompt for resume name before saving/navigating
-      const defaultName = (parsed.content.split('\n')[0] || '').trim() || `Resume - ${new Date().toLocaleDateString()}`;
-      setResumeName(defaultName);
-      setShowNamePrompt(true);
+      // Auto-save to database if user is authenticated
+      if (isAuthenticated) {
+        setIsSaving(true);
+        try {
+          const saveResult = await resumeService.autoSaveUploadedResume(parsed, file);
+          if (saveResult.success) {
+            setSavedResumeId(saveResult.data.id);
+            toast.success('✅ Resume automatically saved to your account!');
+          } else {
+            console.warn('Failed to auto-save resume:', saveResult.error);
+            toast.warning('Resume parsed but not saved to account. You can save it manually later.');
+          }
+        } catch (saveError) {
+          console.warn('Auto-save error:', saveError);
+          toast.warning('Resume parsed but not saved to account. You can save it manually later.');
+        } finally {
+          setIsSaving(false);
+        }
+      }
+
+      // Automatically redirect to edit page with parsed data
+      setTimeout(() => {
+        navigate('/edit-resume', {
+          state: {
+            file: file,
+            content: parsed.content,
+            parsedData: parsed,
+            originalFile: file,
+            savedResumeId: savedResumeId
+          }
+        });
+      }, 2000); // Slightly longer delay to show save status
 
     } catch (error) {
       setError(error.message);
@@ -276,83 +302,6 @@ const ResumeUploadPage = () => {
           </div>
         </div>
       </div>
-      {/* Name Prompt Modal */}
-      {showNamePrompt && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-xl border border-gray-200">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-3">Name your resume</h2>
-              <p className="text-gray-600 mb-4">This helps you find it under "Use Previous Data".</p>
-              <input
-                type="text"
-                value={resumeName}
-                onChange={(e) => setResumeName(e.target.value)}
-                placeholder={`Resume - ${new Date().toLocaleDateString()}`}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-              <div className="flex justify-end gap-2 mt-6">
-                <button
-                  onClick={() => {
-                    setShowNamePrompt(false);
-                    navigate('/edit-resume', {
-                      state: {
-                        file: uploadedFile,
-                        content: resumeContent,
-                        parsedData,
-                        originalFile: uploadedFile,
-                        savedResumeId: null
-                      }
-                    });
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
-                >
-                  Skip
-                </button>
-                <button
-                  onClick={async () => {
-                    setIsSaving(true);
-                    try {
-                      let newId = null;
-                      if (isAuthenticated) {
-                        const saveResult = await resumeService.autoSaveUploadedResume(parsedData, uploadedFile, (resumeName || '').trim() || undefined);
-                        if (saveResult.success) {
-                          newId = saveResult.data.id;
-                          setSavedResumeId(newId);
-                          toast.success('✅ Resume saved to your account');
-                        } else {
-                          toast.warning(saveResult.error || 'Failed to save to account');
-                        }
-                      } else {
-                        toast.info('Login to save this resume to your account');
-                      }
-                      setShowNamePrompt(false);
-                      // Build and cache ResumeContext-shaped data for templates
-                      try {
-                        const ctxData = resumeService.buildResumeContextFromContent(resumeContent);
-                        localStorage.setItem('resumeData', JSON.stringify(ctxData));
-                      } catch { }
-                      navigate('/edit-resume', {
-                        state: {
-                          file: uploadedFile,
-                          content: resumeContent,
-                          parsedData,
-                          originalFile: uploadedFile,
-                          savedResumeId: newId
-                        }
-                      });
-                    } finally {
-                      setIsSaving(false);
-                    }
-                  }}
-                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-emerald-500 text-white rounded-lg font-medium hover:opacity-95 transition"
-                >
-                  Save & Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

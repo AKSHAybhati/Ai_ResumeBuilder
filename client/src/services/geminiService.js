@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const enhanceTextWithGemini = async (section, data) => {
   try {
-    const response = await axios.post("http://localhost:8000/api/enhance", {
+    const response = await axios.post("http://localhost:5000/api/enhance", {
       section,
       data,
     });

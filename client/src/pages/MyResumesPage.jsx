@@ -66,7 +66,8 @@ const MyResumesPage = () => {
                   const result = await resumeService.deleteResume(resumeId);
                   if (result.success) {
                     toast.success('Resume deleted successfully');
-                    setResumes(resumes.filter(resume => resume.id !== resumeId));
+                    // Refresh from server to avoid stale cache/soft-delete inconsistencies
+                    await fetchResumes();
                   } else {
                     toast.error(result.error || 'Failed to delete resume');
                   }
