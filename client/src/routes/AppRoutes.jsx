@@ -64,6 +64,7 @@ import Template21 from "../components/ai-resume-templates/Template21.jsx";
 import Template22 from "../components/ai-resume-templates/Template22.jsx";
 import Template23 from "../components/ai-resume-templates/Template23.jsx";
 import Template27 from "../components/ai-resume-templates/Template27.jsx";
+import Template28 from "../components/ai-resume-templates/Template28.jsx";
 import Template29 from "../components/ai-resume-templates/Template29.jsx";
 
 // Not Found
@@ -121,6 +122,7 @@ const AppRoutes = () => {
         <Route path="/template22" element={<Template22 />} />
         <Route path="/template23" element={<Template23 />} />
         <Route path="/template27" element={<Template27 />} />
+        <Route path="/template28" element={<Template28 />} />
         <Route path="/template29" element={<Template29 />} />
 
         {/* Login and Signup */}
