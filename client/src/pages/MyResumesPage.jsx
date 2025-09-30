@@ -28,17 +28,18 @@ const MyResumesPage = () => {
 
   const fetchResumes = async () => {
     setLoading(true);
-
     try {
       const result = await resumeService.getUserResumes();
+      console.log('Resumes API result:', result);
 
-      if (result.success) {
-        // Ensure result.data is always an array
-        const resumesData = Array.isArray(result.data) ? result.data : [];
-        setResumes(resumesData);
+      // Accept both {success, data} and array
+      if (result && result.success && Array.isArray(result.data)) {
+        setResumes(result.data);
+      } else if (Array.isArray(result)) {
+        setResumes(result);
       } else {
         setResumes([]);
-        toast.error(result.error || 'Failed to fetch resumes');
+        toast.error(result?.error || 'Failed to fetch resumes');
       }
     } catch (err) {
       setResumes([]);
@@ -101,13 +102,14 @@ const MyResumesPage = () => {
   };
 
   const handleEditResume = (resume) => {
-    toast.info('Loading resume for editing...', { autoClose: 1500 });
+    // Extract templateId (number) from resume
+    const templateId = resume.template_id || resume.templateId || resume.templateKey;
+    const idNum = typeof templateId === 'number'
+      ? templateId
+      : parseInt(String(templateId).replace(/[^0-9]/g, ''), 10);
 
-    const templateId = resume.template_id || resume.templateId;
-    const idNum = typeof templateId === 'number' ? templateId : parseInt(String(templateId).replace(/[^0-9]/g, ''), 10);
     const availableTemplateIds = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 29]);
     if (idNum && availableTemplateIds.has(idNum)) {
-      // Open the specific template editor with structured data
       const route = `/template${idNum}`;
       const resumeData = {
         ...resume,
@@ -131,18 +133,15 @@ const MyResumesPage = () => {
       return;
     }
 
-    // Fallback to text editor for non-template resumes
-    navigate('/edit-resume', {
+    // Fallback: open generic template page if templateId is not found
+    navigate('/templatepage', {
       state: {
-        file: { name: resume.title, type: 'text/plain' },
-        content: resume.rawText || resumeService.structuredDataToText(resume),
-        parsedData: {
-          fileName: resume.title,
-          fileType: 'text',
-          fileSize: (resume.rawText || resumeService.structuredDataToText(resume))?.length || 0
-        },
-        isExistingResume: true,
-        resumeId: resume.id
+        prefilledData: resume,
+        resumeText: resume.rawText || '',
+        editMode: true,
+        resumeId: resume.id,
+        resumeName: resume.title,
+        templateId: templateId || null
       }
     });
   };

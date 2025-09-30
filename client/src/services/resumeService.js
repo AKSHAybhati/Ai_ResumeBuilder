@@ -1,34 +1,37 @@
 // Resume data management service
-import authService from './authService';
+import authService from "./authService";
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = "http://localhost:5000/api";
 
 class ResumeService {
   // Parse resume text into structured data
   parseResumeText(text) {
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-    
+    const lines = text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line);
+
     const resumeData = {
       personalInfo: {
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        linkedin: '',
-        github: '',
-        website: ''
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        linkedin: "",
+        github: "",
+        website: "",
       },
-      summary: '',
+      summary: "",
       experience: [],
       education: [],
       skills: [],
       projects: [],
       certifications: [],
       languages: [],
-      achievements: []
+      achievements: [],
     };
 
-    let currentSection = '';
+    let currentSection = "";
     let currentItem = {};
 
     // Extract name (usually first line)
@@ -39,30 +42,40 @@ class ResumeService {
     // Extract contact information
     for (let i = 1; i < Math.min(6, lines.length); i++) {
       const line = lines[i];
-      if (line.includes('@') && !resumeData.personalInfo.email) {
-        resumeData.personalInfo.email = line.match(/\S+@\S+\.\S+/)?.[0] || '';
+      if (line.includes("@") && !resumeData.personalInfo.email) {
+        resumeData.personalInfo.email = line.match(/\S+@\S+\.\S+/)?.[0] || "";
       }
       if (line.match(/[\+\(]?[\d\s\-\(\)]{7,}/)) {
         resumeData.personalInfo.phone = line;
       }
-      if (line.toLowerCase().includes('linkedin')) {
+      if (line.toLowerCase().includes("linkedin")) {
         resumeData.personalInfo.linkedin = line;
       }
-      if (line.toLowerCase().includes('github')) {
+      if (line.toLowerCase().includes("github")) {
         resumeData.personalInfo.github = line;
       }
     }
 
     // Parse sections
     const sectionKeywords = {
-      'SUMMARY': ['summary', 'profile', 'objective', 'about'],
-      'EXPERIENCE': ['experience', 'work experience', 'employment', 'work history'],
-      'EDUCATION': ['education', 'academic background', 'qualifications'],
-      'SKILLS': ['skills', 'technical skills', 'core competencies', 'technologies'],
-      'PROJECTS': ['projects', 'project experience', 'portfolio'],
-      'CERTIFICATIONS': ['certifications', 'certificates', 'licenses'],
-      'LANGUAGES': ['languages', 'language proficiency'],
-      'ACHIEVEMENTS': ['achievements', 'awards', 'honors', 'accomplishments']
+      SUMMARY: ["summary", "profile", "objective", "about"],
+      EXPERIENCE: [
+        "experience",
+        "work experience",
+        "employment",
+        "work history",
+      ],
+      EDUCATION: ["education", "academic background", "qualifications"],
+      SKILLS: [
+        "skills",
+        "technical skills",
+        "core competencies",
+        "technologies",
+      ],
+      PROJECTS: ["projects", "project experience", "portfolio"],
+      CERTIFICATIONS: ["certifications", "certificates", "licenses"],
+      LANGUAGES: ["languages", "language proficiency"],
+      ACHIEVEMENTS: ["achievements", "awards", "honors", "accomplishments"],
     };
 
     for (let i = 0; i < lines.length; i++) {
@@ -70,9 +83,14 @@ class ResumeService {
       const upperLine = line.toUpperCase();
 
       // Check if this is a section header
-      let foundSection = '';
+      let foundSection = "";
       Object.entries(sectionKeywords).forEach(([section, keywords]) => {
-        if (keywords.some(keyword => upperLine.includes(keyword.toUpperCase()) && line.length < 50)) {
+        if (
+          keywords.some(
+            (keyword) =>
+              upperLine.includes(keyword.toUpperCase()) && line.length < 50
+          )
+        ) {
           foundSection = section;
         }
       });
@@ -85,12 +103,12 @@ class ResumeService {
 
       // Process content based on current section
       switch (currentSection) {
-        case 'SUMMARY':
-          resumeData.summary += (resumeData.summary ? ' ' : '') + line;
+        case "SUMMARY":
+          resumeData.summary += (resumeData.summary ? " " : "") + line;
           break;
 
-        case 'EXPERIENCE':
-          if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+        case "EXPERIENCE":
+          if (line.length < 100 && !line.includes("•") && !line.includes("-")) {
             // This looks like a job title or company
             if (currentItem.title && !currentItem.company) {
               currentItem.company = line;
@@ -98,7 +116,12 @@ class ResumeService {
               if (currentItem.title) {
                 resumeData.experience.push(currentItem);
               }
-              currentItem = { title: line, company: '', duration: '', description: [] };
+              currentItem = {
+                title: line,
+                company: "",
+                duration: "",
+                description: [],
+              };
             }
           } else if (line.match(/\d{4}/) && line.length < 50) {
             // This looks like a date
@@ -106,64 +129,77 @@ class ResumeService {
           } else {
             // This looks like description
             if (!currentItem.description) currentItem.description = [];
-            currentItem.description.push(line.replace(/^[•\-*]\s*/, ''));
+            currentItem.description.push(line.replace(/^[•\-*]\s*/, ""));
           }
           break;
 
-        case 'EDUCATION':
-          if (line.length < 100 && !line.includes('•')) {
+        case "EDUCATION":
+          if (line.length < 100 && !line.includes("•")) {
             if (currentItem.degree && !currentItem.institution) {
               currentItem.institution = line;
             } else {
               if (currentItem.degree) {
                 resumeData.education.push(currentItem);
               }
-              currentItem = { degree: line, institution: '', year: '', gpa: '' };
+              currentItem = {
+                degree: line,
+                institution: "",
+                year: "",
+                gpa: "",
+              };
             }
           } else if (line.match(/\d{4}/)) {
             currentItem.year = line;
           }
           break;
 
-        case 'SKILLS':
-          const skills = line.split(',').map(skill => skill.trim()).filter(skill => skill);
+        case "SKILLS":
+          const skills = line
+            .split(",")
+            .map((skill) => skill.trim())
+            .filter((skill) => skill);
           resumeData.skills.push(...skills);
           break;
 
-        case 'PROJECTS':
-          if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+        case "PROJECTS":
+          if (line.length < 100 && !line.includes("•") && !line.includes("-")) {
             if (currentItem.name) {
               resumeData.projects.push(currentItem);
             }
-            currentItem = { name: line, description: [], technologies: [], link: '' };
+            currentItem = {
+              name: line,
+              description: [],
+              technologies: [],
+              link: "",
+            };
           } else {
             if (!currentItem.description) currentItem.description = [];
-            currentItem.description.push(line.replace(/^[•\-*]\s*/, ''));
+            currentItem.description.push(line.replace(/^[•\-*]\s*/, ""));
           }
           break;
 
-        case 'CERTIFICATIONS':
+        case "CERTIFICATIONS":
           resumeData.certifications.push(line);
           break;
 
-        case 'LANGUAGES':
+        case "LANGUAGES":
           resumeData.languages.push(line);
           break;
 
-        case 'ACHIEVEMENTS':
+        case "ACHIEVEMENTS":
           resumeData.achievements.push(line);
           break;
       }
     }
 
     // Add any remaining items
-    if (currentItem.title && currentSection === 'EXPERIENCE') {
+    if (currentItem.title && currentSection === "EXPERIENCE") {
       resumeData.experience.push(currentItem);
     }
-    if (currentItem.degree && currentSection === 'EDUCATION') {
+    if (currentItem.degree && currentSection === "EDUCATION") {
       resumeData.education.push(currentItem);
     }
-    if (currentItem.name && currentSection === 'PROJECTS') {
+    if (currentItem.name && currentSection === "PROJECTS") {
       resumeData.projects.push(currentItem);
     }
 
@@ -174,9 +210,10 @@ class ResumeService {
   async saveResume(resumeText, title = null) {
     try {
       const structuredData = this.parseResumeText(resumeText);
-      
+
       const resumeData = {
-        title: title || `Resume - ${structuredData.personalInfo.name || 'Untitled'}`,
+        title:
+          title || `Resume - ${structuredData.personalInfo.name || "Untitled"}`,
         summary: structuredData.summary,
         personalInfo: structuredData.personalInfo,
         experience: structuredData.experience,
@@ -186,23 +223,29 @@ class ResumeService {
         certifications: structuredData.certifications,
         languages: structuredData.languages,
         achievements: structuredData.achievements,
-        rawText: resumeText
+        rawText: resumeText,
       };
 
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes`, {
-        method: 'POST',
-        body: JSON.stringify(resumeData),
-      });
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes`,
+        {
+          method: "POST",
+          body: JSON.stringify(resumeData),
+        }
+      );
 
       const result = await response.json();
-      
+
       if (response.ok) {
         return { success: true, data: result.data };
       } else {
-        return { success: false, error: result.message || 'Failed to save resume' };
+        return {
+          success: false,
+          error: result.message || "Failed to save resume",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
@@ -210,9 +253,10 @@ class ResumeService {
   async updateResume(resumeId, resumeText, title = null) {
     try {
       const structuredData = this.parseResumeText(resumeText);
-      
+
       const resumeData = {
-        title: title || `Resume - ${structuredData.personalInfo.name || 'Updated'}`,
+        title:
+          title || `Resume - ${structuredData.personalInfo.name || "Updated"}`,
         summary: structuredData.summary,
         personalInfo: structuredData.personalInfo,
         experience: structuredData.experience,
@@ -222,96 +266,130 @@ class ResumeService {
         certifications: structuredData.certifications,
         languages: structuredData.languages,
         achievements: structuredData.achievements,
-        rawText: resumeText
+        rawText: resumeText,
       };
 
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes/${resumeId}`, {
-        method: 'PUT',
-        body: JSON.stringify(resumeData),
-      });
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes/${resumeId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(resumeData),
+        }
+      );
 
       const result = await response.json();
-      
+
       if (response.ok) {
         return { success: true, data: result.data };
       } else {
-        return { success: false, error: result.message || 'Failed to update resume' };
+        return {
+          success: false,
+          error: result.message || "Failed to update resume",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Get all user's resumes
   async getUserResumes() {
     try {
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes/my-resumes`);
+      const url = `${API_BASE}/resumes/my-resumes?cb=${Date.now()}`;
+      const response = await authService.authenticatedRequest(url, {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
       const result = await response.json();
-      
-      if (response.ok) {
-        return { success: true, data: result.data };
-      } else {
-        return { success: false, error: result.message || 'Failed to fetch resumes' };
+
+      // Handle both array and object response shapes
+      if (Array.isArray(result)) {
+        return { success: true, data: result };
       }
+      if (result.success) {
+        return { success: true, data: result.data };
+      }
+      return {
+        success: false,
+        error: result.error || "Failed to fetch resumes",
+      };
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Get specific resume by ID
   async getResume(resumeId) {
     try {
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes/${resumeId}`);
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes/${resumeId}`
+      );
       const result = await response.json();
-      
+
       if (response.ok) {
         return { success: true, data: result.data };
       } else {
-        return { success: false, error: result.message || 'Failed to fetch resume' };
+        return {
+          success: false,
+          error: result.message || "Failed to fetch resume",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Delete resume
   async deleteResume(resumeId) {
     try {
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes/${resumeId}`, {
-        method: 'DELETE',
-      });
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes/${resumeId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         return { success: true };
       } else {
         const result = await response.json();
-        return { success: false, error: result.message || 'Failed to delete resume' };
+        return {
+          success: false,
+          error: result.message || "Failed to delete resume",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Get AI suggestions based on user's resume history
   async getResumesSuggestions() {
     try {
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes/suggestions`);
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes/suggestions`
+      );
       const result = await response.json();
-      
+
       if (response.ok) {
         return { success: true, data: result.data };
       } else {
-        return { success: false, error: result.message || 'Failed to fetch suggestions' };
+        return {
+          success: false,
+          error: result.message || "Failed to fetch suggestions",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Convert structured data back to formatted text
   structuredDataToText(data) {
-    let resumeText = '';
-    
+    let resumeText = "";
+
     // Personal Info - handle both flat and nested structures
     const personalInfo = data.personalInfo || {
       name: data.name,
@@ -319,9 +397,9 @@ class ResumeService {
       phone: data.phone,
       address: data.location,
       linkedin: data.linkedin,
-      github: data.github
+      github: data.github,
     };
-    
+
     if (personalInfo.name) {
       resumeText += `${personalInfo.name}\n`;
     }
@@ -330,119 +408,100 @@ class ResumeService {
     if (personalInfo.address) resumeText += `${personalInfo.address}\n`;
     if (personalInfo.linkedin) resumeText += `${personalInfo.linkedin}\n`;
     if (personalInfo.github) resumeText += `${personalInfo.github}\n`;
-    
-    resumeText += '\n';
+
+    resumeText += "\n";
 
     // Summary
     if (data.summary) {
-      resumeText += 'SUMMARY\n';
+      resumeText += "SUMMARY\n";
       resumeText += `${data.summary}\n\n`;
     }
 
     // Experience
     if (data.experience && data.experience.length > 0) {
-      resumeText += 'WORK EXPERIENCE\n';
-      data.experience.forEach(exp => {
+      resumeText += "WORK EXPERIENCE\n";
+      data.experience.forEach((exp) => {
         resumeText += `${exp.title}\n`;
         if (exp.company) resumeText += `${exp.company}\n`;
         if (exp.duration) resumeText += `${exp.duration}\n`;
         if (exp.description && exp.description.length > 0) {
-          exp.description.forEach(desc => {
+          exp.description.forEach((desc) => {
             resumeText += `• ${desc}\n`;
           });
         }
-        resumeText += '\n';
+        resumeText += "\n";
       });
     }
 
     // Education
     if (data.education && data.education.length > 0) {
-      resumeText += 'EDUCATION\n';
-      data.education.forEach(edu => {
+      resumeText += "EDUCATION\n";
+      data.education.forEach((edu) => {
         resumeText += `${edu.degree}\n`;
         if (edu.institution) resumeText += `${edu.institution}\n`;
         if (edu.year) resumeText += `${edu.year}\n`;
-        resumeText += '\n';
+        resumeText += "\n";
       });
     }
 
     // Skills
     if (data.skills && data.skills.length > 0) {
-      resumeText += 'TECHNICAL SKILLS\n';
-      resumeText += `${data.skills.join(', ')}\n\n`;
+      resumeText += "TECHNICAL SKILLS\n";
+      resumeText += `${data.skills.join(", ")}\n\n`;
     }
 
     // Projects
     if (data.projects && data.projects.length > 0) {
-      resumeText += 'PROJECTS\n';
-      data.projects.forEach(project => {
+      resumeText += "PROJECTS\n";
+      data.projects.forEach((project) => {
         resumeText += `${project.name}\n`;
         if (project.description && project.description.length > 0) {
-          project.description.forEach(desc => {
+          project.description.forEach((desc) => {
             resumeText += `• ${desc}\n`;
           });
         }
-        resumeText += '\n';
+        resumeText += "\n";
       });
     }
 
     // Certifications
     if (data.certifications && data.certifications.length > 0) {
-      resumeText += 'CERTIFICATIONS\n';
-      data.certifications.forEach(cert => {
+      resumeText += "CERTIFICATIONS\n";
+      data.certifications.forEach((cert) => {
         resumeText += `• ${cert}\n`;
       });
-      resumeText += '\n';
+      resumeText += "\n";
     }
 
     return resumeText.trim();
   }
 
   // Save structured resume data (for form-based creation)
-  async saveResumeData(structuredData, title = null) {
-    try {
-      const resumeData = {
-        title: title || `Resume - ${structuredData.personalInfo?.name || 'Untitled'}`,
-        templateId: structuredData.templateId || 1,
-        personalInfo: structuredData.personalInfo,
-        summary: structuredData.summary,
-        skills: structuredData.skills,
-        experience: structuredData.experience,
-        education: structuredData.education,
-        projects: structuredData.projects,
-        certifications: structuredData.certifications,
-        achievements: structuredData.achievements,
-        interests: structuredData.interests,
-        languages: structuredData.languages,
-        rawText: this.structuredDataToText(structuredData)
-      };
-
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes`, {
-        method: 'POST',
-        body: JSON.stringify(resumeData),
-      });
-
-      const result = await response.json();
-      
-      if (response.ok) {
-        return { success: true, data: result.data };
-      } else {
-        return { success: false, error: result.message || 'Failed to save resume' };
-      }
-    } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
-    }
+  async saveResumeData(data, title = null) {
+    const url = `${API_BASE}/resumes`;
+    const response = await authService.authenticatedRequest(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...data, title }),
+    });
+    return response.json();
   }
 
   // Auto-save uploaded resume data (for file uploads)
   async autoSaveUploadedResume(parsedData, originalFile, title = null) {
     try {
       // Extract name from parsed content for better title
-      const piForTitle = this.extractPersonalInfoFromContent(parsedData.content);
+      const piForTitle = this.extractPersonalInfoFromContent(
+        parsedData.content
+      );
       const extractedName = piForTitle.name;
-      
+
       const resumeData = {
-        title: title || `Resume - ${extractedName || 'Uploaded Resume'} (Template 1)`,
+        title:
+          title ||
+          `Resume - ${extractedName || "Uploaded Resume"} (Template 1)`,
         templateId: 1, // Default template for uploaded resumes
         personalInfo: piForTitle,
         summary: this.extractSummaryFromContent(parsedData.content),
@@ -450,64 +509,75 @@ class ResumeService {
         experience: this.extractExperienceFromContent(parsedData.content),
         education: this.extractEducationFromContent(parsedData.content),
         projects: this.extractProjectsFromContent(parsedData.content),
-        certifications: this.extractCertificationsFromContent(parsedData.content),
+        certifications: this.extractCertificationsFromContent(
+          parsedData.content
+        ),
         achievements: this.extractAchievementsFromContent(parsedData.content),
         interests: this.extractInterestsFromContent(parsedData.content),
         languages: this.extractLanguagesFromContent(parsedData.content),
-        rawText: parsedData.content
+        rawText: parsedData.content,
       };
 
-      const response = await authService.authenticatedRequest(`${API_BASE}/resumes`, {
-        method: 'POST',
-        body: JSON.stringify(resumeData),
-      });
+      const response = await authService.authenticatedRequest(
+        `${API_BASE}/resumes`,
+        {
+          method: "POST",
+          body: JSON.stringify(resumeData),
+        }
+      );
 
       const result = await response.json();
-      
+
       if (response.ok) {
         return { success: true, data: result.data };
       } else {
-        return { success: false, error: result.message || 'Failed to save uploaded resume' };
+        return {
+          success: false,
+          error: result.message || "Failed to save uploaded resume",
+        };
       }
     } catch (error) {
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: "Network error. Please try again." };
     }
   }
 
   // Helper methods for extracting structured data from content
   extractNameFromContent(content) {
-    const lines = content.split('\n');
-    return lines[0]?.trim() || '';
+    const lines = content.split("\n");
+    return lines[0]?.trim() || "";
   }
 
   extractPersonalInfoFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const personalInfo = {
-      name: lines[0]?.trim() || '',
-      email: '',
-      phone: '',
-      location: '',
-      linkedin: '',
-      github: '',
-      portfolio: ''
+      name: lines[0]?.trim() || "",
+      email: "",
+      phone: "",
+      location: "",
+      linkedin: "",
+      github: "",
+      portfolio: "",
     };
 
     // Extract contact information from first few lines
     for (let i = 1; i < Math.min(6, lines.length); i++) {
       const line = lines[i].trim();
-      if (line.includes('@') && !personalInfo.email) {
-        personalInfo.email = line.match(/\S+@\S+\.\S+/)?.[0] || '';
+      if (line.includes("@") && !personalInfo.email) {
+        personalInfo.email = line.match(/\S+@\S+\.\S+/)?.[0] || "";
       }
       if (line.match(/[\+\(]?[\d\s\-\(\)]{7,}/) && !personalInfo.phone) {
         personalInfo.phone = line;
       }
-      if (line.toLowerCase().includes('linkedin') && !personalInfo.linkedin) {
+      if (line.toLowerCase().includes("linkedin") && !personalInfo.linkedin) {
         personalInfo.linkedin = line;
       }
-      if (line.toLowerCase().includes('github') && !personalInfo.github) {
+      if (line.toLowerCase().includes("github") && !personalInfo.github) {
         personalInfo.github = line;
       }
-      if (line.toLowerCase().includes('portfolio') || line.toLowerCase().includes('website') && !personalInfo.portfolio) {
+      if (
+        line.toLowerCase().includes("portfolio") ||
+        (line.toLowerCase().includes("website") && !personalInfo.portfolio)
+      ) {
         personalInfo.portfolio = line;
       }
     }
@@ -516,27 +586,33 @@ class ResumeService {
   }
 
   extractSummaryFromContent(content) {
-    const lines = content.split('\n');
-    let summary = '';
+    const lines = content.split("\n");
+    let summary = "";
     let inSummarySection = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['SUMMARY', 'PROFILE', 'OBJECTIVE', 'ABOUT'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["SUMMARY", "PROFILE", "OBJECTIVE", "ABOUT"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inSummarySection = true;
         continue;
       }
 
       if (inSummarySection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
-          summary += (summary ? ' ' : '') + line;
+          summary += (summary ? " " : "") + line;
         }
       }
     }
@@ -545,7 +621,7 @@ class ResumeService {
   }
 
   extractSkillsFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const skills = [];
     let inSkillsSection = false;
 
@@ -553,19 +629,31 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES', 'TECHNOLOGIES'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        [
+          "SKILLS",
+          "TECHNICAL SKILLS",
+          "CORE COMPETENCIES",
+          "TECHNOLOGIES",
+        ].some((header) => upperLine.includes(header) && line.length < 50)
+      ) {
         inSkillsSection = true;
         continue;
       }
 
       if (inSkillsSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "PROJECTS", "CERTIFICATIONS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
-          const lineSkills = line.split(',').map(skill => skill.trim()).filter(skill => skill);
+          const lineSkills = line
+            .split(",")
+            .map((skill) => skill.trim())
+            .filter((skill) => skill);
           skills.push(...lineSkills);
         }
       }
@@ -575,7 +663,7 @@ class ResumeService {
   }
 
   extractExperienceFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const experience = [];
     let inExperienceSection = false;
     let currentJob = {};
@@ -584,35 +672,51 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT', 'WORK HISTORY'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["EXPERIENCE", "WORK EXPERIENCE", "EMPLOYMENT", "WORK HISTORY"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inExperienceSection = true;
         continue;
       }
 
       if (inExperienceSection) {
-        if (['EDUCATION', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EDUCATION", "SKILLS", "PROJECTS", "CERTIFICATIONS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           if (currentJob.title) {
             experience.push(currentJob);
           }
           break;
         }
 
-        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+        if (
+          line.length < 100 &&
+          !line.includes("•") &&
+          !line.includes("-") &&
+          !line.includes("*")
+        ) {
           if (currentJob.title && !currentJob.company) {
             currentJob.company = line;
           } else {
             if (currentJob.title) {
               experience.push(currentJob);
             }
-            currentJob = { title: line, company: '', duration: '', description: [] };
+            currentJob = {
+              title: line,
+              company: "",
+              duration: "",
+              description: [],
+            };
           }
         } else if (line.match(/\d{4}/) && line.length < 50) {
           currentJob.duration = line;
         } else if (line) {
           if (!currentJob.description) currentJob.description = [];
-          currentJob.description.push(line.replace(/^[•\-*]\s*/, ''));
+          currentJob.description.push(line.replace(/^[•\-*]\s*/, ""));
         }
       }
     }
@@ -625,7 +729,7 @@ class ResumeService {
   }
 
   extractEducationFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const education = [];
     let inEducationSection = false;
     let currentEdu = {};
@@ -634,29 +738,35 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['EDUCATION', 'ACADEMIC BACKGROUND', 'QUALIFICATIONS'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["EDUCATION", "ACADEMIC BACKGROUND", "QUALIFICATIONS"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inEducationSection = true;
         continue;
       }
 
       if (inEducationSection) {
-        if (['EXPERIENCE', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "SKILLS", "PROJECTS", "CERTIFICATIONS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           if (currentEdu.degree) {
             education.push(currentEdu);
           }
           break;
         }
 
-        if (line.length < 100 && !line.includes('•') && !line.includes('-')) {
+        if (line.length < 100 && !line.includes("•") && !line.includes("-")) {
           if (currentEdu.degree && !currentEdu.institution) {
             currentEdu.institution = line;
           } else {
             if (currentEdu.degree) {
               education.push(currentEdu);
             }
-            currentEdu = { degree: line, institution: '', year: '', gpa: '' };
+            currentEdu = { degree: line, institution: "", year: "", gpa: "" };
           }
         } else if (line.match(/\d{4}/)) {
           currentEdu.year = line;
@@ -672,7 +782,7 @@ class ResumeService {
   }
 
   extractProjectsFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const projects = [];
     let inProjectsSection = false;
     let currentProject = {};
@@ -681,29 +791,45 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['PROJECTS', 'PROJECT EXPERIENCE', 'PORTFOLIO'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["PROJECTS", "PROJECT EXPERIENCE", "PORTFOLIO"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inProjectsSection = true;
         continue;
       }
 
       if (inProjectsSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'CERTIFICATIONS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "CERTIFICATIONS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           if (currentProject.name) {
             projects.push(currentProject);
           }
           break;
         }
 
-        if (line.length < 100 && !line.includes('•') && !line.includes('-') && !line.includes('*')) {
+        if (
+          line.length < 100 &&
+          !line.includes("•") &&
+          !line.includes("-") &&
+          !line.includes("*")
+        ) {
           if (currentProject.name) {
             projects.push(currentProject);
           }
-          currentProject = { name: line, description: [], technologies: [], link: '' };
+          currentProject = {
+            name: line,
+            description: [],
+            technologies: [],
+            link: "",
+          };
         } else if (line) {
           if (!currentProject.description) currentProject.description = [];
-          currentProject.description.push(line.replace(/^[•\-*]\s*/, ''));
+          currentProject.description.push(line.replace(/^[•\-*]\s*/, ""));
         }
       }
     }
@@ -716,7 +842,7 @@ class ResumeService {
   }
 
   extractCertificationsFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const certifications = [];
     let inCertSection = false;
 
@@ -724,15 +850,21 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['CERTIFICATIONS', 'CERTIFICATES', 'LICENSES'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["CERTIFICATIONS", "CERTIFICATES", "LICENSES"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inCertSection = true;
         continue;
       }
 
       if (inCertSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
@@ -745,7 +877,7 @@ class ResumeService {
   }
 
   extractAchievementsFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const achievements = [];
     let inAchievementsSection = false;
 
@@ -753,15 +885,21 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['ACHIEVEMENTS', 'AWARDS', 'HONORS', 'ACCOMPLISHMENTS'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["ACHIEVEMENTS", "AWARDS", "HONORS", "ACCOMPLISHMENTS"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inAchievementsSection = true;
         continue;
       }
 
       if (inAchievementsSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
@@ -774,7 +912,7 @@ class ResumeService {
   }
 
   extractInterestsFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const interests = [];
     let inInterestsSection = false;
 
@@ -782,15 +920,21 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['INTERESTS', 'HOBBIES', 'ACTIVITIES'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["INTERESTS", "HOBBIES", "ACTIVITIES"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inInterestsSection = true;
         continue;
       }
 
       if (inInterestsSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
@@ -803,7 +947,7 @@ class ResumeService {
   }
 
   extractLanguagesFromContent(content) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const languages = [];
     let inLanguagesSection = false;
 
@@ -811,15 +955,21 @@ class ResumeService {
       const line = lines[i].trim();
       const upperLine = line.toUpperCase();
 
-      if (['LANGUAGES', 'LANGUAGE PROFICIENCY'].some(header => 
-        upperLine.includes(header) && line.length < 50)) {
+      if (
+        ["LANGUAGES", "LANGUAGE PROFICIENCY"].some(
+          (header) => upperLine.includes(header) && line.length < 50
+        )
+      ) {
         inLanguagesSection = true;
         continue;
       }
 
       if (inLanguagesSection) {
-        if (['EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS'].some(header => 
-          upperLine.includes(header) && line.length < 50)) {
+        if (
+          ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS"].some(
+            (header) => upperLine.includes(header) && line.length < 50
+          )
+        ) {
           break;
         }
         if (line) {
@@ -845,49 +995,66 @@ class ResumeService {
     const languagesRaw = this.extractLanguagesFromContent(content);
 
     const experience = (experienceRaw || []).map((e) => ({
-      title: e?.title || '',
-      companyName: e?.company || '',
-      date: e?.duration || '',
-      companyLocation: '',
-      accomplishment: Array.isArray(e?.description) ? e.description : (e?.description ? [e.description] : [])
+      title: e?.title || "",
+      companyName: e?.company || "",
+      date: e?.duration || "",
+      companyLocation: "",
+      accomplishment: Array.isArray(e?.description)
+        ? e.description
+        : e?.description
+        ? [e.description]
+        : [],
     }));
 
     const education = (educationRaw || []).map((ed) => ({
-      degree: ed?.degree || '',
-      institution: ed?.institution || '',
-      duration: ed?.year || '',
-      location: ''
+      degree: ed?.degree || "",
+      institution: ed?.institution || "",
+      duration: ed?.year || "",
+      location: "",
     }));
 
     const projects = (projectsRaw || []).map((p) => ({
-      name: p?.name || '',
-      description: Array.isArray(p?.description) ? p.description.join('\n') : (p?.description || ''),
-      technologies: Array.isArray(p?.technologies) ? p.technologies : ((p?.technologies || '').split(',').map(s=>s.trim()).filter(Boolean)),
-      link: p?.link || '',
-      github: p?.github || ''
+      name: p?.name || "",
+      description: Array.isArray(p?.description)
+        ? p.description.join("\n")
+        : p?.description || "",
+      technologies: Array.isArray(p?.technologies)
+        ? p.technologies
+        : (p?.technologies || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+      link: p?.link || "",
+      github: p?.github || "",
     }));
 
-    const certifications = (certificationsRaw || []).map((c) => (
-      typeof c === 'string'
-        ? { title: c, issuer: '', date: '' }
-        : { title: c?.title || c?.name || '', issuer: c?.issuer || c?.organization || '', date: c?.date || c?.year || '' }
-    ));
+    const certifications = (certificationsRaw || []).map((c) =>
+      typeof c === "string"
+        ? { title: c, issuer: "", date: "" }
+        : {
+            title: c?.title || c?.name || "",
+            issuer: c?.issuer || c?.organization || "",
+            date: c?.date || c?.year || "",
+          }
+    );
 
     const languages = Array.isArray(languagesRaw)
-      ? languagesRaw.map((l) => (typeof l === 'string' ? l : (l?.language || ''))).filter(Boolean)
+      ? languagesRaw
+          .map((l) => (typeof l === "string" ? l : l?.language || ""))
+          .filter(Boolean)
       : [];
 
     return {
-      name: personalInfo.name || '',
-      role: '',
-      email: personalInfo.email || '',
-      phone: personalInfo.phone || '',
-      location: personalInfo.location || '',
-      linkedin: personalInfo.linkedin || '',
-      github: personalInfo.github || '',
-      portfolio: personalInfo.portfolio || '',
-      profileImage: '',
-      summary: summary || '',
+      name: personalInfo.name || "",
+      role: "",
+      email: personalInfo.email || "",
+      phone: personalInfo.phone || "",
+      location: personalInfo.location || "",
+      linkedin: personalInfo.linkedin || "",
+      github: personalInfo.github || "",
+      portfolio: personalInfo.portfolio || "",
+      profileImage: "",
+      summary: summary || "",
       skills: skills || [],
       languages,
       interests: interests || [],
@@ -895,7 +1062,7 @@ class ResumeService {
       education,
       projects,
       certifications,
-      achievements: achievements || []
+      achievements: achievements || [],
     };
   }
 }
