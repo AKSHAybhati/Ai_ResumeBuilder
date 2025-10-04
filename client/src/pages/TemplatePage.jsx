@@ -28,6 +28,12 @@ const WithoutAi = () => {
     }
   }, [location.state]);
 
+  // Reset modal and resume name when navigating to this template
+  useEffect(() => {
+    setShowNamePrompt(false);
+    setResumeName("");
+  }, [location.key]);
+
   // This function should be called by your template component (WithoutAiTemp) when data changes
   const handleResumeDataChange = (data) => {
     setResumeData(data);
