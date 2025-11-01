@@ -29,7 +29,6 @@ app.use(
       "http://localhost:5173", // for local dev
       "https://resume-builder-ai30.vercel.app", // your live frontend
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
