@@ -23,6 +23,9 @@ const Home = lazy(() => import("../pages/Home.jsx"));
 const TemplatePage = lazy(() => import("../pages/TemplatePage.jsx"));
 const MyResumesPage = lazy(() => import("../pages/MyResumesPage.jsx"));
 
+// Testing Components
+const EndpointTester = lazy(() => import("../components/EndpointTester.jsx"));
+
 // Build Options and Details Pages
 const BuildOption = lazy(() => import("../pages/BuildOption.jsx"));
 const PersonalDetails = lazy(() =>
@@ -78,6 +81,7 @@ const AppRoutes = () => {
         <Route path="/ai-edit" element={<ResumeUploadPage />} />
         <Route path="/edit-resume" element={<ResumeEditPage />} />
         <Route path="/my-resumes" element={<MyResumesPage />} />
+        <Route path="/test-endpoints" element={<EndpointTester />} />
 
 
         {/* Build Options */}
