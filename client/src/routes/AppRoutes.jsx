@@ -2,11 +2,11 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
-// Loading component
+// Loading component (no animation for better UX)
 const Loading = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="text-center">
-      <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4"></div>
       <p className="text-white text-lg">Loading...</p>
     </div>
   </div>
@@ -16,10 +16,8 @@ const ResumeEditPage = lazy(() => import("../pages/ResumeEditPage.jsx"));
 
 
 // Lazy load components
-// Home and Auth
+// Home
 const Home = lazy(() => import("../pages/Home.jsx"));
-const SignIn = lazy(() => import("../pages/auth/Login.jsx"));
-const SignUp = lazy(() => import("../pages/auth/SignUp.jsx"));
 
 // Main TemplatePage
 const TemplatePage = lazy(() => import("../pages/TemplatePage.jsx"));
@@ -125,9 +123,7 @@ const AppRoutes = () => {
         <Route path="/template28" element={<Template28 />} />
         <Route path="/template29" element={<Template29 />} />
 
-        {/* Login and Signup */}
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        {/* Auth routes removed to allow full guest access */}
 
         {/*  404 Not Found Route  */}
         <Route path="*" element={<NotFound />} />

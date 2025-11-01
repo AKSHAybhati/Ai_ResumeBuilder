@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPrompt = ({ onClose }) => {
@@ -15,12 +14,7 @@ const LoginPrompt = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
-      >
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
         <div className="text-center">
           <div className="mb-6">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -38,24 +32,10 @@ const LoginPrompt = ({ onClose }) => {
 
           <div className="space-y-3">
             <button
-              onClick={handleLogin}
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              Log In
-            </button>
-            
-            <button
-              onClick={handleSignup}
-              className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              Create Account
-            </button>
-
-            <button
               onClick={onClose}
-              className="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-300"
+              className="w-full px-6 py-3 bg-gray-800 text-white font-semibold rounded-xl"
             >
-              Continue as Guest (Limited Features)
+              Continue
             </button>
           </div>
 
@@ -69,7 +49,7 @@ const LoginPrompt = ({ onClose }) => {
             </ul>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

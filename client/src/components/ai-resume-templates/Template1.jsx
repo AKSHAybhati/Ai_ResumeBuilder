@@ -3,13 +3,10 @@ import { toast } from 'react-toastify';
 import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 import { useResume } from "../../context/ResumeContext";
-import { useAuth } from "../../context/AuthContext";
 import resumeService from "../../services/resumeService";
-import LoginPrompt from "../auth/LoginPrompt";
 
 const Template26 = () => {
   const resumeContext = useResume();
-  const { isAuthenticated } = useAuth();
   
   // Handle case where context might not be properly initialized
   const resumeData = resumeContext?.resumeData || {};
@@ -19,15 +16,7 @@ const Template26 = () => {
   const [editMode, setEditMode] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
   const [isSavingToDatabase, setIsSavingToDatabase] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const resumeRef = useRef();
-
-  // Check authentication on component mount
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setShowLoginPrompt(true);
-    }
-  }, [isAuthenticated]);
 
   useEffect(() => {
     if (resumeData) {
@@ -90,8 +79,8 @@ const Template26 = () => {
       // Call the context update function
       await updateResumeData(localData);
       
-      // Save to database if user is authenticated
-      if (isAuthenticated) {
+      // Always try to save to database (will work locally)
+      try {
         // Transform flat data structure to backend expected format
         const structuredData = {
           templateId: 1, // Template1
@@ -116,15 +105,9 @@ const Template26 = () => {
           languages: localData.languages || []
         };
         
-        const saveResult = await resumeService.saveResumeData(structuredData);
-        if (saveResult.success) {
-          toast.success('Resume saved to database');
-        } else {
-          console.error('Database save error:', saveResult.error);
-          toast.error('Failed to save');
-        }
-      } else {
-        // Saved locally only - no notification needed
+        await resumeService.saveResumeData(structuredData);
+      } catch (error) {
+        console.error('Save error:', error);
       }
       
       // Exit edit mode
@@ -1728,11 +1711,6 @@ const Template26 = () => {
           </div>
         </div>
       </div>
-      
-      {/* Login Prompt Modal */}
-      {showLoginPrompt && (
-        <LoginPrompt onClose={() => setShowLoginPrompt(false)} />
-      )}
     </div>
   );
 };

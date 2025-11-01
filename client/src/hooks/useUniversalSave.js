@@ -21,13 +21,8 @@ export const useUniversalSave = (templateId = null) => {
 
   // Function to save resume data to database
   const saveToDatabase = useCallback(async (resumeData) => {
-    if (!isAuthenticated) {
-      // Not authenticated - no toast notification
-      return { success: false, error: 'Not authenticated' };
-    }
-
     try {
-      // Transform resume data to backend expected format
+      // Save silently without notifications
       const structuredData = {
         templateId: detectTemplateId(),
         personalInfo: {
@@ -51,20 +46,12 @@ export const useUniversalSave = (templateId = null) => {
         languages: resumeData.languages || []
       };
       
-      const saveResult = await resumeService.saveResumeData(structuredData);
-      
-      if (saveResult.success) {
-        toast.success('Resume saved to database');
-        return { success: true, data: saveResult.data };
-      } else {
-        toast.error('Failed to save');
-        return { success: false, error: saveResult.error };
-      }
+      await resumeService.saveResumeData(structuredData);
+      return { success: true, data: structuredData };
     } catch (error) {
-      toast.error('Failed to save');
       return { success: false, error: error.message };
     }
-  }, [isAuthenticated, detectTemplateId]);
+  }, [detectTemplateId]);
 
   // Function to handle localStorage save interception
   const setupLocalStorageInterception = useCallback(() => {
@@ -76,8 +63,8 @@ export const useUniversalSave = (templateId = null) => {
       // Call original function first
       originalSetItem.call(this, key, value);
       
-      // If resume data is being saved, also save to database
-      if (key === 'resumeData' && isAuthenticated) {
+      // If resume data is being saved, always try to save (no authentication check)
+      if (key === 'resumeData') {
         try {
           const resumeData = JSON.parse(value);
           // Small delay to ensure localStorage operation completes
@@ -92,7 +79,7 @@ export const useUniversalSave = (templateId = null) => {
     return () => {
       localStorage.setItem = originalSetItem;
     };
-  }, [isAuthenticated, saveToDatabase]);
+  }, [saveToDatabase]);
 
   // Initialize interception on mount
   useEffect(() => {

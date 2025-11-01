@@ -245,22 +245,22 @@ const WithoutAiTemp = () => {
       <motion.h3
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-4xl md:text-5xl font-extrabold mb-6 text-center tracking-wide bg-gradient-to-r from-teal-400 via-teal-300 to-orange-400 bg-clip-text text-transparent"
+        transition={{ duration: 0.6 }}
+        className="text-3xl font-bold mb-4 text-center text-gray-900"
       >
-        Choose Your Perfect Template
+        Choose Your Template
       </motion.h3>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="text-lg md:text-xl text-center text-gray-300 mb-16 max-w-3xl mx-auto leading-relaxed"
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="text-lg text-center text-gray-600 mb-12 max-w-2xl mx-auto"
       >
-        Select from our curated collection of professional templates designed to help you stand out and showcase your unique talents
+        Select from our collection of professional templates
       </motion.p>
 
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
@@ -268,24 +268,64 @@ const WithoutAiTemp = () => {
         {templates.map((template, index) => (
           <motion.div
             key={template.id}
-            className="relative group cursor-pointer overflow-hidden rounded-2xl border border-gray-700/50 shadow-xl hover:shadow-2xl h-96 bg-gray-800/50 backdrop-blur-sm"
+            className="relative group cursor-pointer overflow-hidden rounded-lg border border-gray-200 shadow-sm hover:shadow-md h-80 bg-white"
             onClick={(event) => handleSelectTemplate(template, event)}
             whileHover={{
               scale: 1.02,
-              y: -8,
-              transition: { duration: 0.3, ease: "easeOut" }
+              transition: { duration: 0.2, ease: "easeOut" }
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.1 }}
+            transition={{ duration: 0.6, delay: index * 0.05 }}
           >
-            {/* Template Image */}
+            {/* Template Preview */}
             <div className="relative overflow-hidden rounded-t-2xl h-3/4">
-              <img
-                src={template.preview}
-                alt={template.name}
-                className="w-full h-full object-cover"
-              />
+              {template.preview && template.id <= 9 ? (
+                <img
+                  src={template.preview}
+                  alt={template.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-white border-2 border-gray-100 flex items-center justify-center">
+                  <div className="text-center p-6 w-full">
+                    {/* Resume Preview Mockup */}
+                    <div className="bg-white border border-gray-200 rounded-sm p-4 text-left max-w-48 mx-auto shadow-sm">
+                      {/* Header */}
+                      <div className="border-b border-gray-200 pb-2 mb-3">
+                        <div className="h-3 bg-gray-800 rounded mb-1"></div>
+                        <div className="h-2 bg-gray-400 rounded w-2/3"></div>
+                      </div>
+                      
+                      {/* Contact Info */}
+                      <div className="space-y-1 mb-3">
+                        <div className="h-1.5 bg-gray-300 rounded w-3/4"></div>
+                        <div className="h-1.5 bg-gray-300 rounded w-1/2"></div>
+                      </div>
+                      
+                      {/* Sections */}
+                      <div className="space-y-2">
+                        <div className="h-2 bg-gray-600 rounded w-1/3"></div>
+                        <div className="space-y-1">
+                          <div className="h-1.5 bg-gray-300 rounded"></div>
+                          <div className="h-1.5 bg-gray-300 rounded w-5/6"></div>
+                        </div>
+                        
+                        <div className="h-2 bg-gray-600 rounded w-1/2 mt-3"></div>
+                        <div className="space-y-1">
+                          <div className="h-1.5 bg-gray-300 rounded w-4/5"></div>
+                          <div className="h-1.5 bg-gray-300 rounded w-3/5"></div>
+                        </div>
+                      </div>
+                      
+                      {/* Template Number */}
+                      <div className="absolute top-2 right-2 bg-gray-900 text-white text-xs px-2 py-1 rounded">
+                        {template.id}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Selection Indicator */}
@@ -293,20 +333,23 @@ const WithoutAiTemp = () => {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10"
+                className="absolute top-3 right-3 bg-gray-900 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-10"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </motion.div>
             )}
 
-            {/* Always Visible Name and Test Button */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 to-transparent p-4 pb-6">
-              <h4 className="text-lg font-semibold text-white truncate mb-2">{template.name}</h4>
+            {/* Template Info */}
+            <div className="p-4 h-1/4 flex flex-col justify-between">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 truncate mb-1">{template.name}</h4>
+                <p className="text-xs text-gray-600 line-clamp-2">{template.description}</p>
+              </div>
               <button
                 onClick={(event) => handleSelectTemplate(template, event)}
-                className="px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-teal-500 to-orange-500 hover:from-teal-600 hover:to-orange-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="mt-2 w-full px-3 py-2 rounded-md text-xs font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors"
               >
                 Use Template
               </button>

@@ -295,28 +295,12 @@ class ResumeService {
   // Get all user's resumes
   async getUserResumes() {
     try {
-      const url = `${API_BASE}/resumes/my-resumes?cb=${Date.now()}`;
-      const response = await authService.authenticatedRequest(url, {
-        method: "GET",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
-      const result = await response.json();
-
-      // Handle both array and object response shapes
-      if (Array.isArray(result)) {
-        return { success: true, data: result };
-      }
-      if (result.success) {
-        return { success: true, data: result.data };
-      }
-      return {
-        success: false,
-        error: result.error || "Failed to fetch resumes",
-      };
+      // Use dataService for consistent storage handling
+      const dataService = (await import('./dataService.js')).default;
+      const resumes = await dataService.getResumes();
+      return { success: true, data: Array.isArray(resumes) ? resumes : [] };
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      return { success: true, data: [] }; // Return empty array instead of error
     }
   }
 
@@ -478,15 +462,23 @@ class ResumeService {
 
   // Save structured resume data (for form-based creation)
   async saveResumeData(data, title = null) {
-    const url = `${API_BASE}/resumes`;
-    const response = await authService.authenticatedRequest(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...data, title }),
-    });
-    return response.json();
+    try {
+      const resumeData = { 
+        ...data, 
+        title: title || 'Resume',
+      };
+
+      // Use dataService for consistent storage handling
+      const dataService = (await import('./dataService.js')).default;
+      const result = await dataService.saveResume(resumeData);
+      
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        error: 'Failed to save resume data' 
+      };
+    }
   }
 
   // Auto-save uploaded resume data (for file uploads)
@@ -501,7 +493,7 @@ class ResumeService {
       const resumeData = {
         title:
           title ||
-          `Resume - ${extractedName || "Uploaded Resume"} (Template 1)`,
+          `Resume - ${extractedName || "Uploaded Resume"}`,
         templateId: 1, // Default template for uploaded resumes
         personalInfo: piForTitle,
         summary: this.extractSummaryFromContent(parsedData.content),
@@ -518,26 +510,13 @@ class ResumeService {
         rawText: parsedData.content,
       };
 
-      const response = await authService.authenticatedRequest(
-        `${API_BASE}/resumes`,
-        {
-          method: "POST",
-          body: JSON.stringify(resumeData),
-        }
-      );
-
-      const result = await response.json();
-
-      if (response.ok) {
-        return { success: true, data: result.data };
-      } else {
-        return {
-          success: false,
-          error: result.message || "Failed to save uploaded resume",
-        };
-      }
+      // Use dataService for consistent storage handling
+      const dataService = (await import('./dataService.js')).default;
+      const result = await dataService.saveResume(resumeData);
+      
+      return result;
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      return { success: false, error: "Failed to save uploaded resume" };
     }
   }
 

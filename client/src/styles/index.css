@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+html, body {
+  background-color: #FAFAFA;
+  color: #111827;
+}
+
 /* *{
     background-color:white;
   } */
@@ -10,7 +15,7 @@
   }
   
   [contentEditable]:focus {
-    background: #eef;
+    background: #F3F4F6;
   }
   /* Loader Overlay */
   .loader-overlay {

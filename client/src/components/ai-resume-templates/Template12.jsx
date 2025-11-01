@@ -42,19 +42,46 @@ const Template12 = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F0FDF4" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#FAFAFA" }}>
       <Navbar />
       <div style={{ display: "flex" }}>
         <Sidebar />
-        <div style={{ flexGrow: 1, padding: "2.5rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div ref={resumeRef} style={{ backgroundColor: "#FFFFFF", color: "#2D2D2D", maxWidth: "900px", width: "100%", boxShadow: "0 4px 6px rgba(0,0,0,0.1)", padding: "2.5rem", border: "2px dashed #10b981", borderRadius: "2rem" }}>
+        <div style={{ flexGrow: 1, padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div
+            ref={resumeRef}
+            style={{
+              backgroundColor: "#FFFFFF",
+              color: "#111827",
+              maxWidth: "900px",
+              width: "100%",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+              padding: "2rem",
+              border: "1px solid #E5E7EB",
+              borderRadius: "12px"
+            }}
+          >
             {/* Header, Body, Editable Sections, etc. */}
             {/* Use localData and editMode for editing */}
             {/* Add your custom layout here, using resumeData fields */}
-            {!editMode && !isDownloading && <button onClick={handleDownloadPDF}>Download PDF</button>}
+            {!editMode && !isDownloading && (
+              <button
+                onClick={handleDownloadPDF}
+                style={{
+                  appearance: "none",
+                  backgroundColor: "transparent",
+                  border: "1px solid #D1D5DB",
+                  borderRadius: "8px",
+                  color: "#111827",
+                  padding: "0.5rem 0.875rem",
+                  cursor: "pointer"
+                }}
+              >
+                Download PDF
+              </button>
+            )}
             {/* Example: Achievements Section */}
             <div style={{ marginTop: '2rem' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', borderBottom: '1px solid #10b981' }}>Achievements</h3>
+              <h3 style={{ fontWeight: '600', fontSize: '1.125rem', color: '#111827', paddingBottom: '0.375rem', borderBottom: '1px solid #E5E7EB' }}>Achievements</h3>
               <ul style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
                 {(resumeData.achievements || []).map((ach, idx) => (
                   <li key={idx}>{ach.keyAchievements || ach}</li>
@@ -63,7 +90,7 @@ const Template12 = () => {
             </div>
             {/* Example: Projects Section */}
             <div style={{ marginTop: '2rem' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', borderBottom: '1px solid #10b981' }}>Projects</h3>
+              <h3 style={{ fontWeight: '600', fontSize: '1.125rem', color: '#111827', paddingBottom: '0.375rem', borderBottom: '1px solid #E5E7EB' }}>Projects</h3>
               <ul style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
                 {(resumeData.projects || []).map((proj, idx) => (
                   <li key={idx}>{proj.title || proj.name}: {proj.description}</li>
@@ -72,7 +99,7 @@ const Template12 = () => {
             </div>
             {/* Add new sections inspired by Template1 */}
             <div style={{ marginTop: '2rem' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', borderBottom: '1px solid #10b981' }}>Certifications</h3>
+              <h3 style={{ fontWeight: '600', fontSize: '1.125rem', color: '#111827', paddingBottom: '0.375rem', borderBottom: '1px solid #E5E7EB' }}>Certifications</h3>
               <ul style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
                 {(resumeData.certifications || []).map((cert, idx) => (
                   <li key={idx}>{cert.title || cert}</li>
@@ -80,7 +107,7 @@ const Template12 = () => {
               </ul>
             </div>
             <div style={{ marginTop: '2rem' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', borderBottom: '1px solid #10b981' }}>Languages</h3>
+              <h3 style={{ fontWeight: '600', fontSize: '1.125rem', color: '#111827', paddingBottom: '0.375rem', borderBottom: '1px solid #E5E7EB' }}>Languages</h3>
               <ul style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
                 {(resumeData.languages || []).map((lang, idx) => (
                   <li key={idx}>{lang.language || lang}</li>

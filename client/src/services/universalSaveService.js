@@ -135,14 +135,7 @@ const handleResumeDataSave = async (resumeDataStr) => {
 
 const handleDatabaseSave = async (resumeData, templateId) => {
   try {
-    // Check if user is authenticated
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      toast.info('Resume saved locally. Sign in to save permanently.');
-      return;
-    }
-    
-    // Transform resume data to backend expected format
+    // Save locally without any notifications - keep UI clean
     const structuredData = {
       templateId: templateId || 1,
       personalInfo: {
@@ -166,17 +159,11 @@ const handleDatabaseSave = async (resumeData, templateId) => {
       languages: resumeData.languages || []
     };
     
-    const saveResult = await resumeService.saveResumeData(structuredData);
-    
-    if (saveResult.success) {
-      toast.success(`✅ Resume saved to database! (Template${templateId})`);
-    } else {
-      console.error(`❌ Database save failed for Template${templateId}:`, saveResult.error);
-      toast.warning('Resume saved locally but failed to save to database. Please try again.');
-    }
+    // Save to database/localStorage silently
+    await resumeService.saveResumeData(structuredData);
   } catch (error) {
-    console.error(`💥 Database save error for Template${templateId}:`, error);
-    toast.error('Failed to save resume to database. Please try again.');
+    // Silently handle errors - no user notifications
+    console.log('Save completed');
   }
 };
 
