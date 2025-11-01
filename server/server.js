@@ -25,8 +25,8 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    
+    origin: ["http://localhost:5173",
+    "https://resume-builder-ai30.vercel.app"],
     credentials: true, // Allow cookies/auth headers
   })
 );
