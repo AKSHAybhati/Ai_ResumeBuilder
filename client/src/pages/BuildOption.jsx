@@ -170,7 +170,7 @@ const BuildOption = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 py-12 md:p-12 relative">
+    <div className="min-h-screen bg-white p-4 py-8 sm:py-12 md:p-12 relative">
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -181,9 +181,9 @@ const BuildOption = () => {
         {/* Back Button */}
         <motion.button
           onClick={handleBackClick}
-          className="mb-8 flex items-center text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none px-4 py-2 rounded-lg border border-gray-200 bg-white"
+          className="mb-6 sm:mb-8 flex items-center text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none px-3 sm:px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm sm:text-base"
         >
-          <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 sm:w-6 h-5 sm:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           <span className="font-medium">Back to Templates</span>
@@ -194,37 +194,37 @@ const BuildOption = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-center mb-10"
+          className="text-center mb-8 sm:mb-10 px-4"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-gray-900 leading-tight">
             How would you like to build your resume?
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-base sm:text-lg">
             Choose your preferred method to create your professional resume
           </p>
         </motion.div>
 
         {/* Options */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* Upload Resume Option */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className={`relative p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'upload'
+            className={`relative p-4 sm:p-6 lg:p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'upload'
               ? 'border-gray-900 bg-white'
               : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             onClick={() => handleOptionSelect('upload')}
           >
             <div className="text-center">
-              <div className="w-14 h-14 mx-auto mb-5 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 mx-auto mb-4 sm:mb-5 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">AI enhance</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2 sm:mb-3">AI enhance</h3>
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                 Upload your existing resume and we&apos;ll help you enhance it with AI-powered improvements
               </p>
             </div>
@@ -244,20 +244,20 @@ const BuildOption = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className={`relative p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'scratch'
+            className={`relative p-4 sm:p-6 lg:p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'scratch'
               ? 'border-gray-900 bg-white'
               : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             onClick={() => handleOptionSelect('scratch')}
           >
             <div className="text-center">
-              <div className="w-14 h-14 mx-auto mb-5 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 mx-auto mb-4 sm:mb-5 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">Build from scratch</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2 sm:mb-3">Build from scratch</h3>
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                 Start fresh and build your resume step by step with our guided process and AI assistance
               </p>
             </div>
@@ -277,26 +277,26 @@ const BuildOption = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className={`relative p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'previous'
+            className={`relative p-4 sm:p-6 lg:p-8 rounded-2xl border transition-colors cursor-pointer ${selectedOption === 'previous'
               ? 'border-gray-900 bg-white'
               : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+              } ${!isAuthenticated ? 'sm:col-span-2 md:col-span-1' : ''}`}
             onClick={() => handleOptionSelect('previous')}
           >
             <div className="text-center">
-              <div className="w-14 h-14 mx-auto mb-5 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 mx-auto mb-4 sm:mb-5 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">Use previous data</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2 sm:mb-3">Use previous data</h3>
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                 {isAuthenticated 
                   ? 'Select from your previously saved resumes and continue editing'
                   : 'Access your saved resumes (requires account)'}
               </p>
               {!isAuthenticated && (
-                <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                <div className="mt-2 sm:mt-3 text-xs text-gray-500 bg-gray-50 p-2 rounded">
                   Sign up to save and reuse your resume data across devices
                 </div>
               )}
@@ -391,12 +391,12 @@ const BuildOption = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="text-center"
+          className="text-center px-4"
         >
           <button
             onClick={handleProceed}
             disabled={!selectedOption || (selectedOption === 'previous' && !selectedResume)}
-            className={`px-8 py-3 rounded-lg font-medium text-base ${selectedOption && (selectedOption !== 'previous' || selectedResume)
+            className={`w-full sm:w-auto px-6 sm:px-8 py-3 rounded-lg font-medium text-sm sm:text-base ${selectedOption && (selectedOption !== 'previous' || selectedResume)
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}

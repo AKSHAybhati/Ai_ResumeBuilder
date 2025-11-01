@@ -134,20 +134,20 @@ const MyResumesPageContent = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <FileText className="mr-3 text-gray-600" size={32} />
-              My Resumes
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center flex-wrap">
+              <FileText className="mr-2 sm:mr-3 text-gray-600" size={28} />
+              <span>My Resumes</span>
               {!isAuthenticated && (
-                <span className="ml-3 bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                <span className="ml-2 sm:ml-3 bg-gray-100 text-gray-600 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full">
                   Guest Mode
                 </span>
               )}
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-sm sm:text-base text-gray-600 mt-2">
               {isAuthenticated 
                 ? 'Manage and edit your saved resumes' 
                 : 'Your locally saved resumes (visible only on this device)'}
@@ -155,10 +155,10 @@ const MyResumesPageContent = () => {
           </div>
           <button
             onClick={() => navigate('/templatepage')}
-            className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition flex items-center gap-2"
+            className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm sm:text-base"
           >
-            <Plus size={20} />
-            Create New Resume
+            <Plus size={18} />
+            <span className="sm:inline">Create New Resume</span>
           </button>
         </div>
 
@@ -174,24 +174,24 @@ const MyResumesPageContent = () => {
 
         {/* Resumes Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            <span className="ml-3 text-gray-600">Loading resumes...</span>
+          <div className="flex justify-center items-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-6 sm:h-8 w-6 sm:w-8 border-b-2 border-gray-900"></div>
+            <span className="ml-3 text-sm sm:text-base text-gray-600">Loading resumes...</span>
           </div>
         ) : resumes.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="mx-auto text-gray-400" size={64} />
-            <h3 className="text-xl font-semibold text-gray-900 mt-4">No resumes yet</h3>
-            <p className="text-gray-600 mt-2">Create your first resume to get started</p>
+          <div className="text-center py-8 sm:py-12 px-4">
+            <FileText className="mx-auto text-gray-400" size={48} />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mt-4">No resumes yet</h3>
+            <p className="text-sm sm:text-base text-gray-600 mt-2">Create your first resume to get started</p>
             <button
               onClick={() => navigate('/templatepage')}
-              className="mt-6 px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+              className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition text-sm sm:text-base"
             >
               Create Your First Resume
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {resumes.map((resume, index) => (
               <motion.div
                 key={resume.id}

@@ -25,26 +25,26 @@ const Navbar = () => {
   return (
     <nav className="top-0 left-0 right-0 z-[9999] bg-white text-gray-900 shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* App Name - Left Side */}
           <div className="flex-shrink-0">
-            <div className="flex items-center space-x-2 text-lg font-semibold">
+            <div className="flex items-center space-x-2 text-base sm:text-lg font-semibold">
               <span className="text-gray-900">AI Resume Builder</span>
             </div>
           </div>
 
           {/* Desktop Menu - Right Side */}
           <div className="hidden md:block">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 lg:space-x-3">
               <Link
                 to="/my-resumes"
-                className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="px-3 lg:px-4 py-2 rounded-md text-xs lg:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 My Resumes
               </Link>
               <Link
                 to="/templatepage"
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+                className="px-3 lg:px-4 py-2 rounded-md text-xs lg:text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors"
               >
                 Build Resume
               </Link>

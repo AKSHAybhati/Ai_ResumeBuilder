@@ -100,29 +100,29 @@ const ResumeUploadPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-6 sm:mb-8 px-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             Upload Your Resume
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Upload your existing resume and we'll help you enhance it with AI
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Upload Section */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                <Upload className="mr-3 text-gray-600" size={24} />
-                Upload File
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                <Upload className="mr-2 sm:mr-3 text-gray-600" size={20} />
+                <span className="text-base sm:text-xl">Upload File</span>
               </h2>
 
               {/* Upload Area */}
               <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer bg-gray-50"
+                className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 lg:p-8 text-center hover:border-gray-400 transition-colors cursor-pointer bg-gray-50"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={handleBrowseClick}
@@ -135,23 +135,23 @@ const ResumeUploadPage = () => {
                   className="hidden"
                 />
 
-                <div className="space-y-4">
-                  <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto">
-                    <FileText className="text-white" size={32} />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto">
+                    <FileText className="text-white" size={24} />
                   </div>
 
                   <div>
-                    <p className="text-lg font-semibold text-gray-700 mb-2">
+                    <p className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
                       Drop files anywhere to upload
                     </p>
-                    <p className="text-gray-500 mb-4">or</p>
+                    <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4">or</p>
 
-                    <button className="bg-gray-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                    <button className="bg-gray-900 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm sm:text-base">
                       Select Files
                     </button>
                   </div>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     Upload limit: 50 MB • Supports PDF, DOC, DOCX
                   </p>
                 </div>

@@ -119,53 +119,53 @@ const ResumeEditPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-4 sm:mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          <span className="font-medium">Back</span>
+          <ArrowLeft className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
+          <span className="font-medium text-sm sm:text-base">Back</span>
         </button>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-6 sm:mb-8 px-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             Edit Your Resume
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Enhance your resume with AI or edit it manually
           </p>
         </div>
 
         {/* Single Column Layout */}
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
           {/* Editor Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Edit3 className="mr-3 text-gray-600" size={24} />
-              Resume Content
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+              <Edit3 className="mr-2 sm:mr-3 text-gray-600" size={20} />
+              <span className="text-base sm:text-xl">Resume Content</span>
             </h2>
 
             <textarea
               value={editedContent}
               onChange={handleManualEdit}
               placeholder="Your resume content will appear here..."
-              className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none font-mono text-sm"
+              className="w-full h-48 sm:h-64 p-3 sm:p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none font-mono text-xs sm:text-sm"
             />
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 mt-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4">
               <button
                 onClick={enhanceWithAI}
                 disabled={isProcessing || !editedContent.trim()}
-                className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
               >
                 {isProcessing ? (
-                  <Loader className="animate-spin mr-2" size={16} />
+                  <Loader className="animate-spin mr-2" size={14} />
                 ) : (
-                  <Sparkles className="mr-2" size={16} />
+                  <Sparkles className="mr-2" size={14} />
                 )}
                 {isProcessing ? 'Enhancing...' : 'Enhance with AI'}
               </button>
@@ -173,38 +173,38 @@ const ResumeEditPage = () => {
               <button
                 onClick={resetToOriginal}
                 disabled={!hasBeenEnhanced}
-                className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
               >
-                <RefreshCw className="mr-2" size={16} />
+                <RefreshCw className="mr-2" size={14} />
                 Reset to Original
               </button>
             </div>
           </div>
 
           {/* Save Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
               Save to My Resumes
             </h3>
             
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <input
                 type="text"
                 value={resumeTitle}
                 onChange={(e) => setResumeTitle(e.target.value)}
                 placeholder="Enter resume title..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm sm:text-base"
               />
 
               <button
                 onClick={handleSaveToAccount}
                 disabled={isSaving || !editedContent.trim()}
-                className="flex items-center px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center px-4 sm:px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base whitespace-nowrap"
               >
                 {isSaving ? (
-                  <Loader className="animate-spin mr-2" size={16} />
+                  <Loader className="animate-spin mr-2" size={14} />
                 ) : (
-                  <Save className="mr-2" size={16} />
+                  <Save className="mr-2" size={14} />
                 )}
                 {isSaving ? 'Saving...' : 'Save to Account'}
               </button>
