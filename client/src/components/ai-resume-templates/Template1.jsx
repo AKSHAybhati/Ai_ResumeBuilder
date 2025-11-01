@@ -19,7 +19,20 @@ const Template26 = () => {
   const resumeRef = useRef();
 
   useEffect(() => {
-    if (resumeData) {
+    // Load data from localStorage first (for My Resumes navigation)
+    try {
+      const savedData = localStorage.getItem('resumeData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setLocalData(parsedData);
+        return; // Use localStorage data if available
+      }
+    } catch (error) {
+      console.error('Template1: Error loading from localStorage:', error);
+    }
+    
+    // Fallback to context data
+    if (resumeData && Object.keys(resumeData).length > 0) {
       setLocalData(JSON.parse(JSON.stringify(resumeData))); // Deep copy
     }
   }, [resumeData]);

@@ -57,11 +57,36 @@ const MyResumesPageContent = () => {
     
     if (idNum && availableTemplateIds.has(idNum)) {
       const route = `/template${idNum}`;
+      
+      // Transform nested personalInfo structure to flat structure expected by templates
+      const personalInfo = resume.personalInfo || resume.personal_info || {};
       const resumeData = {
-        ...resume,
-        personalInfo: resume.personalInfo || resume.personal_info,
-        rawText: resume.rawText || resume.raw_text,
-        templateId: idNum
+        // Flatten personalInfo to root level for template compatibility
+        name: personalInfo.name || '',
+        role: personalInfo.role || '',
+        email: personalInfo.email || '',
+        phone: personalInfo.phone || '',
+        location: personalInfo.location || '',
+        linkedin: personalInfo.linkedin || '',
+        github: personalInfo.github || '',
+        portfolio: personalInfo.portfolio || '',
+        profileImage: personalInfo.profileImage || '',
+        
+        // Keep other fields as-is
+        summary: resume.summary || '',
+        skills: resume.skills || [],
+        languages: resume.languages || [],
+        interests: resume.interests || [],
+        experience: resume.experience || [],
+        education: resume.education || [],
+        projects: resume.projects || [],
+        certifications: resume.certifications || [],
+        achievements: resume.achievements || [],
+        
+        // Keep metadata
+        rawText: resume.rawText || resume.raw_text || '',
+        templateId: idNum,
+        title: resume.title
       };
       
       try {

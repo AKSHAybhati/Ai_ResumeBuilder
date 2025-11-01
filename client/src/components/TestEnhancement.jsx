@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import apiService from '../services/apiService';
 
 const TestEnhancement = () => {
   const [input, setInput] = useState('John Doe\nSoftware Developer\nExperience: 3 years in JavaScript');
@@ -11,26 +12,12 @@ const TestEnhancement = () => {
     setResult('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/enhance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          section: 'full_resume',
-          data: input
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setResult(data.enhanced);
+      const response = await apiService.ai.enhance('full_resume', input);
+      setResult(response.data.enhanced);
       toast.success('Resume enhanced successfully!');
     } catch (err) {
-      toast.error(`Enhancement failed: ${err.message}`);
+      const errorMessage = err.response?.data?.message || err.message;
+      toast.error(`Enhancement failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

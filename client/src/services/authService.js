@@ -1,5 +1,5 @@
 // Authentication service for connecting to PostgreSQL backend
-const API_BASE = 'http://localhost:5000/api';
+import apiService from './apiService';
 
 class AuthService {
   constructor() {
@@ -108,22 +108,14 @@ class AuthService {
         throw new Error('No refresh token available');
       }
 
-      const response = await fetch(`${API_BASE}/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
+      const response = await apiService.auth.refresh(refreshToken);
 
-      const data = await response.json();
-
-      if (response.ok && data.data && data.data.token) {
-        this.setToken(data.data.token, data.data.refreshToken);
-        return { success: true, token: data.data.token };
+      if (response.data && response.data.data && response.data.data.token) {
+        this.setToken(response.data.data.token, response.data.data.refreshToken);
+        return { success: true, token: response.data.data.token };
       } else {
         this.removeToken();
-        return { success: false, error: data.message || 'Token refresh failed' };
+        return { success: false, error: response.data.message || 'Token refresh failed' };
       }
     } catch (error) {
       console.error('Token refresh error:', error);
@@ -140,24 +132,19 @@ class AuthService {
         return { success: false, error: 'Email, password, and name are required' };
       }
 
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      const response = await apiService.auth.register(userData);
 
-      const data = await response.json();
-
-      if (response.ok && data.data && data.data.token) {
-        this.setToken(data.data.token, data.data.refreshToken);
-        return { success: true, data: data.data };
+      if (response.data && response.data.data && response.data.data.token) {
+        this.setToken(response.data.data.token, response.data.data.refreshToken);
+        return { success: true, data: response.data.data };
       } else {
-        return { success: false, error: data.message || 'Registration failed' };
+        return { success: false, error: response.data.message || 'Registration failed' };
       }
     } catch (error) {
       console.error('Registration error:', error);
+      if (error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
+      }
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
@@ -170,24 +157,19 @@ class AuthService {
         return { success: false, error: 'Email and password are required' };
       }
 
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
+      const response = await apiService.auth.login(credentials);
 
-      const data = await response.json();
-
-      if (response.ok && data.data && data.data.token) {
-        this.setToken(data.data.token, data.data.refreshToken);
-        return { success: true, data: data.data };
+      if (response.data && response.data.data && response.data.data.token) {
+        this.setToken(response.data.data.token, response.data.data.refreshToken);
+        return { success: true, data: response.data.data };
       } else {
-        return { success: false, error: data.message || 'Login failed' };
+        return { success: false, error: response.data.message || 'Login failed' };
       }
     } catch (error) {
       console.error('Login error:', error);
+      if (error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
+      }
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
@@ -206,74 +188,68 @@ class AuthService {
         return { success: false, error: 'No authentication token' };
       }
 
-      const response = await fetch(`${API_BASE}/auth/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await apiService.auth.profile();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        return { success: true, data: data.data };
+      if (response.data) {
+        return { success: true, data: response.data.data };
       } else {
-        return { success: false, error: data.message || 'Failed to get profile' };
+        return { success: false, error: response.data.message || 'Failed to get profile' };
       }
     } catch (error) {
+      if (error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
+      }
       return { success: false, error: 'Network error. Please try again.' };
     }
   }
 
   // Make authenticated API requests with automatic token refresh
   async authenticatedRequest(url, options = {}) {
-    let token = this.getToken();
-    
-    if (!token) {
-      throw new Error('No authentication token');
-    }
-
-    // Check if token is expired and try to refresh
-    if (this.isTokenExpired(token)) {
-      const refreshResult = await this.refreshAccessToken();
-      if (refreshResult.success) {
-        token = refreshResult.token;
-      } else {
-        throw new Error('Session expired. Please login again.');
+    try {
+      // Remove the base URL if it's already included
+      const cleanUrl = url.replace(apiService.getBaseURL(), '');
+      
+      // Use the appropriate HTTP method
+      const method = options.method?.toLowerCase() || 'get';
+      const data = options.body ? JSON.parse(options.body) : undefined;
+      
+      let response;
+      switch (method) {
+        case 'post':
+          response = await apiService.post(cleanUrl, data);
+          break;
+        case 'put':
+          response = await apiService.put(cleanUrl, data);
+          break;
+        case 'patch':
+          response = await apiService.patch(cleanUrl, data);
+          break;
+        case 'delete':
+          response = await apiService.delete(cleanUrl);
+          break;
+        default:
+          response = await apiService.get(cleanUrl);
       }
-    }
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...options.headers,
-    };
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    if (response.status === 401) {
-      // Try to refresh token once more
-      const refreshResult = await this.refreshAccessToken();
-      if (refreshResult.success) {
-        // Retry the request with new token
-        const retryHeaders = {
-          ...headers,
-          'Authorization': `Bearer ${refreshResult.token}`,
+      
+      // Return a fetch-like response object for compatibility
+      return {
+        ok: response.status >= 200 && response.status < 300,
+        status: response.status,
+        json: () => Promise.resolve(response.data),
+        text: () => Promise.resolve(JSON.stringify(response.data)),
+      };
+    } catch (error) {
+      if (error.response) {
+        // Return error response in fetch-like format
+        return {
+          ok: false,
+          status: error.response.status,
+          json: () => Promise.resolve(error.response.data),
+          text: () => Promise.resolve(JSON.stringify(error.response.data)),
         };
-        
-        return await fetch(url, {
-          ...options,
-          headers: retryHeaders,
-        });
-      } else {
-        this.logout();
-        throw new Error('Session expired. Please login again.');
       }
+      throw error;
     }
-
-    return response;
   }
 
   // Validate email format

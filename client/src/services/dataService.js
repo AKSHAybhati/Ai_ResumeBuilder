@@ -1,6 +1,5 @@
 import authService from './authService';
-
-const API_BASE = 'http://localhost:5000/api';
+import apiService from './apiService';
 
 class DataService {
   constructor() {

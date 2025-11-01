@@ -25,7 +25,8 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow your frontend origin
+    origin: "http://localhost:5173",
+    
     credentials: true, // Allow cookies/auth headers
   })
 );

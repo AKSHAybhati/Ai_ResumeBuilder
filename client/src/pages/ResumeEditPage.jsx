@@ -4,6 +4,7 @@ import { FileText, Edit3, Loader, AlertCircle, Save, Sparkles, ArrowLeft, Refres
 import Navbar from "../components/Navbar/Navbar.jsx";
 import resumeService from "../services/resumeService.js";
 import dataService from "../services/dataService.js";
+import apiService from "../services/apiService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const ResumeEditPage = () => {
@@ -43,30 +44,13 @@ const ResumeEditPage = () => {
     setSuccessMessage('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/enhance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          section: "full_resume",
-          data: editedContent,
-        }),
-      });
+      const res = await apiService.ai.enhance("full_resume", editedContent);
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('❌ Server error response:', errorText);
-        throw new Error(`Server error: ${res.status} - ${errorText}`);
-      }
-
-      const result = await res.json();
-
-      if (!result.enhanced) {
+      if (!res.data?.enhanced) {
         throw new Error('No enhanced content received from AI');
       }
 
-      const enhancedText = result.enhanced
+      const enhancedText = res.data.enhanced
         .replace(/\*/g, '')
         .trim();
 
