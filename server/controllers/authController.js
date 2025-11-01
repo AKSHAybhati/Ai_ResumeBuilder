@@ -31,12 +31,13 @@ const registerUser = async (req, res) => {
     // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create user
-    const newUser = await pool.query(
-  'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
-  [name.trim(), email.toLowerCase(), hashedPassword]
+    
+    // Insert new user
+const newUser = await pool.query(
+  'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
+  [name.trim(), email.toLowerCase(), hashedPassword] // Insert hashed password into password_hash
 );
+
 
 
     const user = newUser.rows[0];
