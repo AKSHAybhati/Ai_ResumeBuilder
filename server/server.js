@@ -25,12 +25,14 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: ["http://localhost:5173",
-    "https://resume-builder-ai30.vercel.app"],
-    credentials: true, // Allow cookies/auth headers
+    origin: [
+      "http://localhost:5173", // for local dev
+      "https://resume-builder-ai30.vercel.app", // your live frontend
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
   })
 );
-
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "public")));
 
